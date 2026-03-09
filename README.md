@@ -22,6 +22,7 @@
 ---
 
 
+
 This repository serves as a base template for programming projects. It comes pre-configured with:
 *   Java 21
 *   Maven for dependency and build management
