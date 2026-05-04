@@ -5,14 +5,14 @@ import java.time.LocalTime;
 
 public class Variazione {
     LocalDate dataOriginale;
-    LocalTime nuovaData;
+    LocalDate nuovaData;
     LocalTime nuovaOraInizio;
     LocalTime nuovaOraFine;
 
-    Variazione(LocalDate dataOriginale, LocalTime nuovaData, LocalTime nuovaOraInizio, LocalTime nuovaOraFine)  {
+    Variazione(LocalDate dataOriginale, LocalDate nuovaData, LocalTime nuovaOraInizio, LocalTime nuovaOraFine)  {
         this.dataOriginale = dataOriginale;
         this.nuovaData = nuovaData;
-        this.nuovaOraFine = nuovaOraInizio;
+        this.nuovaOraInizio = nuovaOraInizio;
         this.nuovaOraFine = nuovaOraFine;
     }
 }
