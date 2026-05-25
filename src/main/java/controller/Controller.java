@@ -26,9 +26,14 @@ public class Controller {
 
 	} //fine Signin
 
-	public void GetLezioni(String nomeInsegnamento) {
+	public void GetLezioni(String emailDocente) {
+ 		//restituisce una hashmap di lezioni
 
 	} //fine GetLezioni
+
+	public void GetLezioni(int anno){
+
+	}
 
 
 	public void InviaRichiesta(String nomeInsegnamento, String oraOriginale, LocalDate giornoOriginale, LocalDate giornoRichiesto, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta) {
@@ -36,7 +41,8 @@ public class Controller {
 	} // fine InviaRichiesta
 
 	public void CreaUtente(String nome, String cognome, String email, String password, String tipo) {
-
+		//controlli minimi (se manca un campo ecc), chiama il costruttore di docente o studente
+		//chiama Login con gli stessi parametri
 
 	} // fine CreaUtente
 
@@ -52,5 +58,9 @@ public class Controller {
 								      //idLezione è temporaneo, non so come identificare una singola lezione altrimenti
 	} //fine CreaVariazione
 
+
+	public void CreaVincolo(GiornoSettimana giornoSettimana, LocalTime oraInizio, LocalTime oraFine){
+		//controlli minimi, restituisce boh boolean
+	} //fine CreaVincolo
 
 }
