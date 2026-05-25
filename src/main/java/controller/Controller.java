@@ -26,7 +26,7 @@ public class Controller {
 
 	} //fine Signin
 
-	public void GetLezioni(Insegnamento insegnamento) {
+	public void GetLezioni(String nomeInsegnamento) {
 
 	} //fine GetLezioni
 
@@ -40,11 +40,11 @@ public class Controller {
 
 	} // fine CreaUtente
 
-	public void CreaLezione(String nomeInsegnamento, GiornoSettimana giornoSettimana, LocalTime oraInizio, LocalTime oraFine, Aula aula) {
+	public void CreaLezione(String nomeInsegnamento, GiornoSettimana giornoSettimana, LocalTime oraInizio, LocalTime oraFine, String nomeAula) {
 
 	} // fine CreaLezione
 
-	public void CreaInsegnamento(String nome, Integer numeroCFU, Integer anno, Docente docente ) {
+	public void CreaInsegnamento(String nome, int numeroCFU, int anno, Docente docente ) {
 
 	} //fine CreaInsegnamento
 
