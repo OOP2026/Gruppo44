@@ -2,16 +2,11 @@ package model;
 
 public class AnnoDiCorso {
 
-     enum Anno {
-        PRIMO,
-        SECONDO,
-        TERZO
-    }
 
-    Anno AnnoAccademico;
+    Integer annoAccademico;
 
-     AnnoDiCorso(Anno AnnoAccademico){
-         this.AnnoAccademico = AnnoAccademico;
+     AnnoDiCorso(Integer annoAccademico){
+         this.annoAccademico = annoAccademico;
      }
 
 
