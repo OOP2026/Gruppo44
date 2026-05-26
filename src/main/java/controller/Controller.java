@@ -81,10 +81,11 @@ public class Controller {
 		POO.lezioni.add(new Lezione(GiornoSettimana.MARTEDI, LocalTime.of(12,0), LocalTime.of(14,0), "A5", "POO"));
 
 
-
+	
 
 		//crea un array di liste da restituire alla GUI e le stampa
-		ArrayList<String>[] l = getLezioni("ptramont@unina.it");
+
+		ArrayList<String>[] l = getLezioni("ric.formisano@studenti.unina.it");
 
 		//stampa l'array temporaneo
 		System.out.println("lezioni mostrate: ");
