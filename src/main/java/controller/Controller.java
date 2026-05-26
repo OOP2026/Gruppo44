@@ -97,8 +97,12 @@ public class Controller {
 	public static void main(String[] args){Controller controller = getInstance();}
 
 	public boolean Login(String email, String password) {
+		try{
 		boolean result = studentiTest.get(email).login(email, password);;
-		return result;
+		return result;}
+		catch(Exception e){
+			return false;
+		}
 	} // fine Login
 
 	public void Logout() {
