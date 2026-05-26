@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Utente {
     protected String nome;
     protected String cognome;
-    protected String email;
+    public String email;
     //protected String login;
     protected String password;
 
@@ -19,7 +19,8 @@ public class Utente {
     }
 
     //testing
-    public String ToString(){
+    @Override
+    public String toString(){
         return "nome:" + nome + ", cognome:" + cognome + ", email:" + email + ", password:" + password;
     }
 

@@ -3,13 +3,13 @@ package model;
 import java.time.LocalTime;
 
 public class Lezione {
-    GiornoSettimana giornoSettimana;
+    public GiornoSettimana giornoSettimana;
     LocalTime oraInizio;
     LocalTime oraFine;
     String aula;
-    Insegnamento insegnamento;
+    String insegnamento;
 
-    public Lezione(GiornoSettimana g, LocalTime oraInizio, LocalTime oraFine, String aula, Insegnamento insegnamento) {
+    public Lezione(GiornoSettimana g, LocalTime oraInizio, LocalTime oraFine, String aula, String insegnamento) {
         this.giornoSettimana = g;
         this.oraInizio = oraInizio;
         this.oraFine = oraFine;
@@ -18,8 +18,14 @@ public class Lezione {
     }
 
     //testing
-    public String ToString(){
-        return "Giorno: " + giornoSettimana + ", oraInizio: " + oraInizio + ", oraFine: " + oraFine + ", aula: " + aula + ", insegnamento: " + insegnamento.nome;
+    @Override
+    public String toString(){
+        return "Giorno: " + giornoSettimana + ", oraInizio: " + oraInizio + ", oraFine: " + oraFine + ", aula: " + aula + ", insegnamento: " + insegnamento;
+    }
+
+    public String toElementString(){
+        return oraInizio+"\n" + oraFine + "\n" + insegnamento + "\n" + aula;
+
     }
 
 }
