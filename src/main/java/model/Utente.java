@@ -6,19 +6,24 @@ public class Utente {
     protected String nome;
     protected String cognome;
     protected String email;
-    protected String login;
+    //protected String login;
     protected String password;
 
-    public Utente(String nome, String cognome, String email, String login, String password) {
+    public Utente(String nome, String cognome, String email, String password) {
         //Costruttore che assegna le varie stringhe all'attributo corrispondente
-        this.login = login;
+        //this.login = login;
         this.password = password;
         this.nome = nome;
         this.cognome = cognome;
         this.email = email;
     }
 
-    public boolean login(String login, String password) {
-        return ( login.equals(this.login) && password.equals(this.password));
+    //testing
+    public String ToString(){
+        return "nome:" + nome + ", cognome:" + cognome + ", email:" + email + ", password:" + password;
+    }
+
+    public boolean login(String email, String password) {
+        return ( email.equals(this.email) && password.equals(this.password));
     }
 }
