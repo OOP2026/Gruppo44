@@ -167,7 +167,7 @@ public class Controller {
 
 
 	public boolean aggiungiRichiestaSpostamento(String nomeInsegnamento, String oraOriginale, String giornoOriginale, String giornoRichiesto, String oraInizioRichiesta, String oraFineRichiesta) {
-
+return true;
 	} // fine InviaRichiesta
 
 	public void creaDocente(String nome, String cognome, String email, String password) {
@@ -205,7 +205,7 @@ public class Controller {
 		//controlli minimi, restituisce boh boolean
 	} //fine CreaVincolo
 
-	public ArrayList<String> getInsegnamentiDocente(String emailDocente){}
+	public ArrayList<String> getInsegnamentiDocente(String emailDocente){return null;}
 
 	public ArrayList<String>getRegistroRichiesteSpostamento(){
 		ArrayList<String> s = new ArrayList<String>();
@@ -227,7 +227,7 @@ public class Controller {
 	public HashMap<String, ArrayList<String>> getRegistroVincoliDocenti(){
 		HashMap<String, ArrayList<String>> h = new HashMap<String, ArrayList<String>>();
 
-		h.forEach((k,v)->{h.get(k).add(v.toString());});
+		h.forEach((k,v)-> h.get(k).add(v.toString()));
 
 		return h;
 
