@@ -5,13 +5,19 @@ import java.time.LocalTime;
 
 public class Richiesta {
 
-    LocalDate giornoRichiesto;
-    LocalTime oraInizioRichiesta;
-    LocalTime oraFineRichiesta;
-    String statoRichiesta;
+    public Insegnamento insegnamento;
+    public LocalDate giornoOriginale;
+    public LocalDate giornoRichiesto;
+    public LocalTime oraInizioRichiesta;
+    public LocalTime oraInizioOriginale;
+    public LocalTime oraFineRichiesta;
+    public String statoRichiesta;
 
-    Richiesta(LocalDate giornoRichiesto, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta){
+    Richiesta(Insegnamento insegnamneto, LocalDate giornoOriginale, LocalDate giornoRichiesto, LocalTime oraInizioOriginale, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta){
+        this.insegnamento = insegnamneto;
+        this.giornoOriginale = giornoOriginale;
         this.giornoRichiesto = giornoRichiesto;
+        this.oraInizioOriginale = oraInizioOriginale;
         this.oraInizioRichiesta = oraInizioRichiesta;
         this.oraFineRichiesta = oraFineRichiesta;
         this.statoRichiesta = "In attesa";

@@ -1,4 +1,4 @@
-package view; // Appartiene al pacchetto view dedicato alle interfacce
+package gui; // Appartiene al pacchetto view dedicato alle interfacce
 
 import javax.swing.*; // Importa le librerie Swing per i pannelli
 import java.awt.*; // Importa le librerie AWT per la gestione layout

@@ -1,4 +1,4 @@
-package view; // Posizionato nel pacchetto view su IntelliJ
+package gui; // Posizionato nel pacchetto view su IntelliJ
 
 import javax.swing.*;
 import java.awt.*;

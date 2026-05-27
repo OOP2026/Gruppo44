@@ -1,4 +1,4 @@
-package view;
+package gui;
 
 import controller.Controller;
 import javax.swing.*;
@@ -66,8 +66,8 @@ public class DashboardResponsabile extends DashboardDocente {
 
             // Pannello inferiore con i pulsanti Approva e Rifiuta
             JPanel pnlBottoniAzioni = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-            JButton btnApprova = new JButton("✅ Approva");
-            JButton btnRifiuta = new JButton("❌ Rifiuta");
+            JButton btnApprova = new JButton("Approva");
+            JButton btnRifiuta = new JButton("Rifiuta");
 
             btnApprova.setBackground(new Color(46, 204, 113));
             btnApprova.setForeground(Color.WHITE);
@@ -84,9 +84,10 @@ public class DashboardResponsabile extends DashboardDocente {
                 ArrayList<String> richiesteAttuali = Controller.getInstance().getRegistroRichiesteSpostamento();
 
                 if (indiceSelezionato != -1 && !richiesteAttuali.isEmpty()) {
-                    Controller.getInstance().approvaRichiesta(indiceSelezionato);
+                    boolean approvata = Controller.getInstance().approvaRichiesta(indiceSelezionato);
                     rinfrescaLista.run(); // Rinfresca lo schermo
-                    JOptionPane.showMessageDialog(dialogRichieste, "Richiesta approvata con successo!");
+                    if(approvata) JOptionPane.showMessageDialog(dialogRichieste, "Richiesta approvata con successo!");
+                    else JOptionPane.showMessageDialog(dialogRichieste, "Errore: richiesta non compatibile con l'orario attuale.");
                 } else {
                     JOptionPane.showMessageDialog(dialogRichieste, "Seleziona una richiesta valida da approvare.");
                 }
@@ -146,7 +147,7 @@ public class DashboardResponsabile extends DashboardDocente {
         // 3 e 4. CORREZIONE: INSERIMENTO LEZIONE NON CASUALE MA TRAMITE FORM GUI
         // =====================================================================
         gbc.gridy = 3;
-        JButton btnGeneraOrario = new JButton("➕ AGGIUNGI NUOVA LEZIONE");
+        JButton btnGeneraOrario = new JButton("AGGIUNGI NUOVA LEZIONE");
         btnGeneraOrario.setBackground(new Color(46, 204, 113));
         btnGeneraOrario.setForeground(Color.WHITE);
         btnGeneraOrario.setFont(new Font("Segoe UI", Font.BOLD, 11));

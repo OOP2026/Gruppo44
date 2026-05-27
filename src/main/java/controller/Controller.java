@@ -22,6 +22,11 @@ public class Controller {
 	private ArrayList<Lezione> lezioniAnalisi;
 	private ArrayList<Lezione> lezioniADE;
 
+
+	private ArrayList<Richiesta> richiesteSpostamento;
+
+	private HashMap<String, ArrayList<VincoloDocente>> registroVincoliDocenti;
+
 	public Controller() {
 		Testing();
 
@@ -161,11 +166,11 @@ public class Controller {
 	}
 
 
-	public void inviaRichiesta(String nomeInsegnamento, String oraOriginale, LocalDate giornoOriginale, LocalDate giornoRichiesto, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta) {
+	public boolean aggiungiRichiestaSpostamento(String nomeInsegnamento, String oraOriginale, String giornoOriginale, String giornoRichiesto, String oraInizioRichiesta, String oraFineRichiesta) {
 
 	} // fine InviaRichiesta
 
-	public void CreaDocente(String nome, String cognome, String email, String password) {
+	public void creaDocente(String nome, String cognome, String email, String password) {
 		//controlli minimi (se manca un campo ecc), chiama il costruttore di docente o studente
 		//chiama Login con gli stessi parametri
 
@@ -196,8 +201,44 @@ public class Controller {
 	} //fine CreaVariazione
 
 
-	public void creaVincolo(GiornoSettimana giornoSettimana, LocalTime oraInizio, LocalTime oraFine){
+	public void aggiungiVincoloDocente(String emailDocente, String giornoSettimana, String oraInizio, String oraFine){
 		//controlli minimi, restituisce boh boolean
 	} //fine CreaVincolo
+
+	public ArrayList<String> getInsegnamentiDocente(String emailDocente){}
+
+	public ArrayList<String>getRegistroRichiesteSpostamento(){
+		ArrayList<String> s = new ArrayList<String>();
+
+		for(Richiesta r : richiesteSpostamento){
+			String string = "Richiesta spostamento per " + r.insegnamento.nome + ": lezione delle ore "+r.oraInizioOriginale.toString() +" di "+r.giornoOriginale.toString()+" a "+r.giornoRichiesto.toString()+ " ore "+r.oraInizioRichiesta.toString()+"-"+ r.oraFineRichiesta.toString();
+		s.add(string);
+		}
+
+		//"Richiesta spostamento per [Algebra]: lezione delle ore [10:00] di [lun 10 mag] a [mar 11 mag] ore [11:00]-[12:00]"
+		return s;
+	}
+
+
+	public boolean approvaRichiesta(int i){return true;}
+	public void rifiutaRichiesta(int i){}
+
+
+	public HashMap<String, ArrayList<String>> getRegistroVincoliDocenti(){
+		HashMap<String, ArrayList<String>> h = new HashMap<String, ArrayList<String>>();
+
+		h.forEach((k,v)->{h.get(k).add(v.toString());});
+
+		return h;
+
+	}
+
+	public int getAnnoStudente(String email){
+		return studentiTest.get(email).annoAccademico;
+	}
+
+	public ArrayList<String> getVariazioni(int anno){
+		return null;
+	}
 
 }

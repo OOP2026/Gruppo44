@@ -3,7 +3,7 @@ package model;
 import java.util.ArrayList;
 
 public class Insegnamento {
-    String nome;
+    public String nome;
     int numeroCFU;
     public ArrayList<Lezione> lezioni;
     public int annoAccademico;

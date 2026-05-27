@@ -1,4 +1,4 @@
-package view; // Posizionato nel pacchetto view su IntelliJ
+package gui; // Posizionato nel pacchetto view su IntelliJ
 
 import controller.Controller; // Importa il controller
 import javax.swing.*;
@@ -283,7 +283,7 @@ public class DashboardStudente extends JPanel {
 
         // CARICAMENTO ORARIO DINAMICO DAL CONTROLLER
         try {
-            ArrayList<String>[] lezioniAnno = Controller.getInstance().getLezioniPerAnno(annoStudenteLoggato);
+            ArrayList<String>[] lezioniAnno = Controller.getInstance().getLezioni(emailStudenteLoggato);
             if (lezioniAnno != null) {
                 for (int g = 0; g < 5; g++) {
                     if (!lezioniAnno[g].isEmpty()) {
@@ -330,7 +330,7 @@ public class DashboardStudente extends JPanel {
 
         // Testo di esempio (In seguito potrai popolarlo dinamicamente chiamando il Controller)
         try {
-            ArrayList<String> variazioniBacheca = Controller.getInstance().getVariazioniOrarioAvvisi();
+            ArrayList<String> variazioniBacheca = Controller.getInstance().getVariazioni(annoStudenteLoggato);
             if (variazioniBacheca != null && !variazioniBacheca.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
                 for (String avviso : variazioniBacheca) {

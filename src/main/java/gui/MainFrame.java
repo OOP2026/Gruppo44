@@ -1,4 +1,4 @@
-package view; // Definisce l'appartenenza al pacchetto della vista grafico-testuale
+package gui; // Definisce l'appartenenza al pacchetto della vista grafico-testuale
 
 import javax.swing.*; // Importa i componenti grafici Swing nativi
 import java.awt.*; // Importa le classi per i layout grafici standard

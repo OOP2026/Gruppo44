@@ -1,4 +1,4 @@
-package view;
+package gui;
 
 import controller.Controller;
 import javax.swing.*;
@@ -159,8 +159,7 @@ public class DashboardDocente extends JPanel {
                                                //CONTROLLER
             // Invio dei vincoli orari impostati dal docente nel pop-up
             for (String[] v : vincoliTemporanei) {
-                String stringaVincoloFormattata = "Non Disponibile " + v[0] + " [" + v[1] + " - " + v[2] + "]";
-                Controller.getInstance().aggiungiVincoloDocente(email, stringaVincoloFormattata);
+                Controller.getInstance().aggiungiVincoloDocente(email, v[0], v[1], v[2]);
             }
 
             JOptionPane.showMessageDialog(this, "Registrazione completata!\nGli insegnamenti di tua competenza sono stati associati automaticamente tramite l'indirizzo email.", "Registrazione OK", JOptionPane.INFORMATION_MESSAGE);
@@ -372,10 +371,13 @@ public class DashboardDocente extends JPanel {
                     "Inserisci Nome Insegnamento e i dettagli della variazione richiesti:",
                     "Richiesta Spostamento Lezione", JOptionPane.QUESTION_MESSAGE);
 
-            if (dettagliRichiesta != null && !dettagliRichiesta.trim().isEmpty()) {
-                String stringaRichiestaCompleta = "Prof. (" + emailDocenteLoggato + "): " + dettagliRichiesta.trim();
-                Controller.getInstance().aggiungiRichiestaSpostamento(stringaRichiestaCompleta);
-                JOptionPane.showMessageDialog(this, "Richiesta inoltrata correttamente al Responsabile Porfirio Tramontana!", "Inviato", JOptionPane.INFORMATION_MESSAGE);
+            String stringaRichiestaCompleta = "Prof. (" + emailDocenteLoggato + "): " + dettagliRichiesta.trim();
+            boolean inviata = Controller.getInstance().aggiungiRichiestaSpostamento(); //aggiungi argomenti (String nomeInsegnamento, String oraOriginale, String giornoOriginale, String giornoRichiesto, String oraInizioRichiesta, String oraFineRichiesta)
+            if(inviata) {
+                    JOptionPane.showMessageDialog(this, "Richiesta inoltrata correttamente al Responsabile!", "Inviato", JOptionPane.INFORMATION_MESSAGE);
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "Richiesta non inviata: campi non validi!", "Non Inviato", JOptionPane.INFORMATION_MESSAGE);
             }
         });
         pnlSidebar.add(btnSpostamento, gbc);
