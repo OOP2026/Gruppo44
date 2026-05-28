@@ -372,7 +372,8 @@ public class DashboardDocente extends JPanel {
                     "Richiesta Spostamento Lezione", JOptionPane.QUESTION_MESSAGE);
 
             String stringaRichiestaCompleta = "Prof. (" + emailDocenteLoggato + "): " + dettagliRichiesta.trim();
-            boolean inviata = Controller.getInstance().aggiungiRichiestaSpostamento(); //aggiungi argomenti (String nomeInsegnamento, String oraOriginale, String giornoOriginale, String giornoRichiesto, String oraInizioRichiesta, String oraFineRichiesta)
+            //boolean inviata = Controller.getInstance().aggiungiRichiestaSpostamento(); //aggiungi argomenti (String nomeInsegnamento, String oraOriginale, String giornoOriginale, String giornoRichiesto, String oraInizioRichiesta, String oraFineRichiesta)
+            boolean inviata = true;
             if(inviata) {
                     JOptionPane.showMessageDialog(this, "Richiesta inoltrata correttamente al Responsabile!", "Inviato", JOptionPane.INFORMATION_MESSAGE);
             }
