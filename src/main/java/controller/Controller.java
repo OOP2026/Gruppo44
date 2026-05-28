@@ -62,8 +62,8 @@ public class Controller {
 
 
 		//docenti
-		docenteTest.put("ptramont@unina.it", new Docente("Porfirio", "Tramontana(goat)", "ptramont@unina.it", "vabbuò"));
-		docenteTest.put("raffaele.scandone@unina.it", new Docente("Raffaele", "Scandone", "rafafele.scandone@unina.it", "rigorosamente"));
+		docenteTest.put("ptramont@unina.it", new Docente("Porfirio", "Tramontana", "ptramont@unina.it", "docenteTramontana"));
+		docenteTest.put("raffaele.scandone@unina.it", new Docente("Raffaele", "Scandone", "rafafele.scandone@unina.it", "docenteScandone"));
 
 		//Crea insegnamenti e rispettive lezioni
 		Insegnamento Analisi = new Insegnamento("Analisi I", 6, 1, docenteTest.get("raffaele.scandone@unina.it"));
