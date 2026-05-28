@@ -13,8 +13,8 @@ public class Richiesta {
     public LocalTime oraFineRichiesta;
     public String statoRichiesta;
 
-    Richiesta(Insegnamento insegnamneto, LocalDate giornoOriginale, LocalDate giornoRichiesto, LocalTime oraInizioOriginale, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta){
-        this.insegnamento = insegnamneto;
+    public Richiesta(Insegnamento insegnamento, LocalDate giornoOriginale, LocalDate giornoRichiesto, LocalTime oraInizioOriginale, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta){
+        this.insegnamento = insegnamento;
         this.giornoOriginale = giornoOriginale;
         this.giornoRichiesto = giornoRichiesto;
         this.oraInizioOriginale = oraInizioOriginale;

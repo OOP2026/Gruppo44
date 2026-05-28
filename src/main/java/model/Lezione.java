@@ -4,10 +4,10 @@ import java.time.LocalTime;
 
 public class Lezione {
     public GiornoSettimana giornoSettimana;
-    LocalTime oraInizio;
-    LocalTime oraFine;
-    String aula;
-    String insegnamento;
+    public LocalTime oraInizio;
+    public LocalTime oraFine;
+    public String aula;
+    public String insegnamento;
 
     public Lezione(GiornoSettimana g, LocalTime oraInizio, LocalTime oraFine, String aula, String insegnamento) {
         this.giornoSettimana = g;

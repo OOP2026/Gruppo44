@@ -28,6 +28,10 @@ public class Controller {
 	private HashMap<String, ArrayList<VincoloDocente>> registroVincoliDocenti;
 
 	public Controller() {
+		// Inizializzazione corretta per evitare NullPointerException
+		this.richiesteSpostamento = new ArrayList<>();
+		this.registroVincoliDocenti = new HashMap<>();
+
 		Testing();
 
 	}
@@ -39,7 +43,7 @@ public class Controller {
 		//aggiunge 2 studenti alla hashmap studentiTest
 		//studentiTest.put("ric.formisano@studenti.unina.it", new Studente("Riccardo", "Formisano", "ric.formisano@studenti.unina.it", "PasswordR", "DE1000092"));
 		studentiTest.put("sar.formicola@studenti.unina.it", new Studente("Sara", "Formicola", "sar.formicola@studenti.unina.it", "PasswordS", "DE1000292", 1));
-		studentiTest.put("ele.godano@studenti.unina.it", new Studente("Elena", "Godano", "ele.godano@utenti.studenti.it", "PasswordE", "DE1000092", 2));
+		studentiTest.put("ele.godano@studenti.unina.it", new Studente("Elena", "Godano", "ele.godano@studenti.unina.it", "PasswordE", "DE1000092", 2));
 
 		//stampa l'insieme di studenti considerati
 		System.out.println("studentiTest: " + studentiTest);
@@ -50,20 +54,23 @@ public class Controller {
 		System.out.println("Studente: " + r.toString());
 
 		//considera un'email e password di ipotetico input e le stampa
-		String currentEmail = "sar.formicola@studenti.unina.it";
-		String currentPassword = "PasswordS";
+		String currentEmail = "raffaele.scandone@unina.it";
+		String currentPassword = "rigorosamente";
 
 		System.out.println("current email: " + currentEmail);
 		System.out.println("current password: " + currentPassword);
+
+
+		//docenti
+		docenteTest.put("ptramont@unina.it", new Docente("Porfirio", "Tramontana(goat)", "ptramont@unina.it", "vabbuò"));
+		docenteTest.put("raffaele.scandone@unina.it", new Docente("Raffaele", "Scandone", "raffaele.scandone@unina.it", "rigorosamente"));
+
 
 		//effettua il login tramite i valori di input e stampa il risultato (vero o falso)
 		boolean isLogined = login(currentEmail, currentPassword);
 		System.out.println("login: " + isLogined);
 
 
-		//docenti
-		docenteTest.put("ptramont@unina.it", new Docente("Porfirio", "Tramontana(goat)", "ptramont@unina.it", "vabbuò"));
-		docenteTest.put("raffaele.scandone@unina.it", new Docente("Raffaele", "Scandone", "rafafele.scandone@unina.it", "rigorosamente"));
 
 		//Crea insegnamenti e rispettive lezioni
 		Insegnamento Analisi = new Insegnamento("Analisi I", 6, 1, docenteTest.get("raffaele.scandone@unina.it"));
@@ -77,6 +84,9 @@ public class Controller {
 		insegnamentoTest.put("Algebra I", Algebra);
 		insegnamentoTest.put("Programmazione Object-Oriented", POO);
 
+		// Esempio di richiesta inserito per testare l'interfaccia
+		richiesteSpostamento.add(new Richiesta(Analisi, LocalDate.now(), LocalDate.now().plusDays(1), LocalTime.of(10,0), LocalTime.of(11,0), LocalTime.of(12,0)));
+
 		Analisi.lezioni.add(new Lezione(GiornoSettimana.LUNEDI, LocalTime.of(10,0), LocalTime.of(12,0), "A6", "Analisi"));
 		Analisi.lezioni.add(new Lezione(GiornoSettimana.MERCOLEDI, LocalTime.of(10,0), LocalTime.of(12,0), "A6" ,"Analisi"));
 		Analisi.lezioni.add(new Lezione(GiornoSettimana.VENERDI, LocalTime.of(14,0), LocalTime.of(16,0), "A5", "Analisi"));
@@ -86,7 +96,7 @@ public class Controller {
 		POO.lezioni.add(new Lezione(GiornoSettimana.MARTEDI, LocalTime.of(12,0), LocalTime.of(14,0), "A5", "POO"));
 
 
-	
+
 
 		//crea un array di liste da restituire alla GUI e le stampa
 
@@ -96,7 +106,7 @@ public class Controller {
 		System.out.println("lezioni mostrate: ");
 		for(ArrayList<String> arr : l){System.out.println(arr.toString());}
 
-    } //fine Testing
+	} //fine Testing
 
 	public static Controller getInstance() {
 		if (instance == null) {
@@ -108,13 +118,12 @@ public class Controller {
 	public static void main(String[] args){Controller controller = getInstance();}
 
 	public boolean login(String email, String password) {
-		try{
-		boolean result = studentiTest.get(email).login(email, password);;
-		return result;}
-		catch(Exception e){
-			return false;
-		}
+		if(studentiTest.get(email) !=null) return (studentiTest.get(email).login(email, password));
+		else if(docenteTest.get(email) !=null) return (docenteTest.get(email).login(email, password));
+		else return false;
+
 	} // fine Login
+
 
 	public void logout() {
 
@@ -125,7 +134,7 @@ public class Controller {
 	} //fine Signin
 
 	public void getLezioni() {
- 		//restituisce una hashmap di lezioni
+		//restituisce una hashmap di lezioni
 
 	}
 
@@ -149,7 +158,7 @@ public class Controller {
 				break;
 			case 1:
 				for (Insegnamento ins : insegnamentoTest.values())
-                    if (ins.annoAccademico == studente.annoAccademico)
+					if (ins.annoAccademico == studente.annoAccademico)
 						for(Lezione lezione : ins.lezioni)
 							stringArr[lezione.giornoSettimana.ordinal()].add(lezione.toElementString());
 
@@ -167,7 +176,7 @@ public class Controller {
 
 
 	public boolean aggiungiRichiestaSpostamento(String nomeInsegnamento, String oraOriginale, String giornoOriginale, String giornoRichiesto, String oraInizioRichiesta, String oraFineRichiesta) {
-return true;
+		return true;
 	} // fine InviaRichiesta
 
 	public void creaDocente(String nome, String cognome, String email, String password) {
@@ -197,7 +206,7 @@ return true;
 	} //fine CreaInsegnamento
 
 	public void creaVariazione(String idLezione, LocalDate giornoOriginale, LocalDate nuovaData, LocalTime oraInizio, LocalTime oraFine){
-								      //idLezione è temporaneo, non so come identificare una singola lezione altrimenti
+		//idLezione è temporaneo, non so come identificare una singola lezione altrimenti
 	} //fine CreaVariazione
 
 
@@ -212,7 +221,7 @@ return true;
 
 		for(Richiesta r : richiesteSpostamento){
 			String string = "Richiesta spostamento per " + r.insegnamento.nome + ": lezione delle ore "+r.oraInizioOriginale.toString() +" di "+r.giornoOriginale.toString()+" a "+r.giornoRichiesto.toString()+ " ore "+r.oraInizioRichiesta.toString()+"-"+ r.oraFineRichiesta.toString();
-		s.add(string);
+			s.add(string);
 		}
 
 		//"Richiesta spostamento per [Algebra]: lezione delle ore [10:00] di [lun 10 mag] a [mar 11 mag] ore [11:00]-[12:00]"
@@ -241,4 +250,60 @@ return true;
 		return null;
 	}
 
+
+
+
+
+	public String validaRichiesta(int i) {
+		// Controllo di sicurezza per evitare indici fuori limite
+		if (i < 0 || i >= richiesteSpostamento.size()) return "Errore: Indice non valido";
+
+		Richiesta r = richiesteSpostamento.get(i);
+
+		if (verificaConflittoOrario(r))   return "Errore: Conflitto orario per il docente";
+		if (verificaViolazioneVincoli(r)) return "Errore: Violazione vincoli";
+
+		return "IDONEA";
+	}
+
+	private boolean verificaConflittoOrario(Richiesta r) {
+		if (r.insegnamento == null || r.insegnamento.docente == null) return false;
+		String emailDocente = r.insegnamento.docente.email;
+
+		for (Insegnamento ins : insegnamentoTest.values()) {
+			if (ins.docente != null && ins.docente.email.equals(emailDocente)) {
+				for (Lezione lec : ins.lezioni) {
+					// Convertiamo il LocalDate della richiesta nel nome del giorno
+					String giornoRichiestoStr = r.giornoRichiesto.getDayOfWeek().name();
+
+					if (lec.giornoSettimana.name().equalsIgnoreCase(giornoRichiestoStr) &&
+							r.oraInizioRichiesta.isBefore(lec.oraFine) &&
+							r.oraFineRichiesta.isAfter(r.oraInizioRichiesta)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean verificaViolazioneVincoli(Richiesta r) {
+		if (r.insegnamento == null || r.insegnamento.docente == null) return false;
+		String emailDocente = r.insegnamento.docente.email;
+		ArrayList<VincoloDocente> vincoli = registroVincoliDocenti.get(emailDocente);
+
+		if (vincoli != null) {
+			for (VincoloDocente v : vincoli) {
+				String giornoRichiestoStr = r.giornoRichiesto.getDayOfWeek().name();
+
+				// v.giorno è un Enum, usiamo .name() per confrontarlo con la stringa
+				if (v.giorno.name().equalsIgnoreCase(giornoRichiestoStr) &&
+						r.oraInizioRichiesta.isBefore(v.oraFine) &&
+						r.oraFineRichiesta.isAfter(v.oraInizio)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }
