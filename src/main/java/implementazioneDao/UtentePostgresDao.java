@@ -1,4 +1,6 @@
 package implementazioneDao;
 
-public class UtentePostgresDao {
+import dao.UtenteDAO;
+
+public class UtentePostgresDao implements UtenteDAO {
 }
