@@ -28,8 +28,6 @@ public class Controller {
 	private ArrayList<Lezione> lezioniAnalisi;
 	private ArrayList<Lezione> lezioniADE;
 
-<<<<<<< Updated upstream
-=======
 
 	private ArrayList<Richiesta> richiesteSpostamento;
 
@@ -37,7 +35,6 @@ public class Controller {
 
 	private Connection connessione;
 
->>>>>>> Stashed changes
 	public Controller() {
 
 		Testing();
@@ -94,8 +91,8 @@ public class Controller {
 
 
 		//docenti
-		docenteTest.put("ptramont@unina.it", new Docente("Porfirio", "Tramontana(goat)", "ptramont@unina.it", "vabbuò"));
-		docenteTest.put("raffaele.scandone@unina.it", new Docente("Raffaele", "Scandone", "rafafele.scandone@unina.it", "rigorosamente"));
+		docenteTest.put("ptramont@unina.it", new Docente("Porfirio", "Tramontana", "ptramont@unina.it", "docenteTramontana"));
+		docenteTest.put("raffaele.scandone@unina.it", new Docente("Raffaele", "Scandone", "raffaele.scandone@unina.it", "docenteScandone"));
 
 		//Crea insegnamenti e rispettive lezioni
 		Insegnamento Analisi = new Insegnamento("Analisi I", 6, 1, docenteTest.get("raffaele.scandone@unina.it"));
@@ -204,23 +201,12 @@ public class Controller {
 	public void aggiungiRichiestaSpostamento(String nomeInsegnamento, String oraOriginale, String giornoOriginale, String giornoRichiesto, String oraInizioRichiesta, String oraFineRichiesta)
 	{
 
-<<<<<<< Updated upstream
-	public void inviaRichiesta(String nomeInsegnamento, String oraOriginale, LocalDate giornoOriginale, LocalDate giornoRichiesto, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta) {
-
-	} // fine InviaRichiesta
-
-	public void CreaDocente(String nome, String cognome, String email, String password) {
-		//controlli minimi (se manca un campo ecc), chiama il costruttore di docente o studente
-		//chiama Login con gli stessi parametri
-
-=======
 	} // fine InviaRichiesta
 
 	public String[] creaDocente(String nome, String cognome, String email, String password) throws Exception{
 		DocenteDAO d = new DocentePostgresDAO();
 		d.creaDocente(nome, cognome, email, password);
 		return loginDocente(email, password);
->>>>>>> Stashed changes
 	} // fine CreaUtente
 
 	public String[] creaStudente(String nome, String cognome, String email, String password, String matricola, int anno) throws Exception {
@@ -246,12 +232,6 @@ public class Controller {
 	} //fine CreaVariazione
 
 
-<<<<<<< Updated upstream
-	public void creaVincolo(GiornoSettimana giornoSettimana, LocalTime oraInizio, LocalTime oraFine){
-		//controlli minimi, restituisce boh boolean
-	} //fine CreaVincolo
-
-=======
 	public void aggiungiVincoloDocente(String emailDocente, String giornoSettimana, String oraInizio, String oraFine) throws Exception {
 		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
 		v.creaVincolo(emailDocente, giornoSettimana, LocalTime.parse(oraInizio), LocalTime.parse(oraFine));
@@ -260,7 +240,7 @@ public class Controller {
 	public ArrayList<String> getInsegnamentiDocente(String emailDocente){return null;}
 
 	public ArrayList<String>getRegistroRichiesteSpostamento(){
-		ArrayList<String> s = new ArrayList<String>();
+		/*ArrayList<String> s = new ArrayList<String>();
 
 		for(Richiesta r : richiesteSpostamento){
 			String string = "Richiesta spostamento per " + r.insegnamento.nome + ": lezione delle ore "+r.oraInizioOriginale.toString() +" di "+r.giornoOriginale.toString()+" a "+r.giornoRichiesto.toString()+ " ore "+r.oraInizioRichiesta.toString()+"-"+ r.oraFineRichiesta.toString();
@@ -268,7 +248,7 @@ public class Controller {
 		}
 
 		//"Richiesta spostamento per [Algebra]: lezione delle ore [10:00] di [lun 10 mag] a [mar 11 mag] ore [11:00]-[12:00]"
-		return s;
+		return s;*/ return null;
 	}
 
 
@@ -316,5 +296,4 @@ public class Controller {
 		return stringArr;
 	}
 
->>>>>>> Stashed changes
 }
