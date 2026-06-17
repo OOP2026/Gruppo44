@@ -5,8 +5,7 @@ import java.awt.*; // Importa le librerie AWT per la gestione layout
 
 
               //
-             //SEZIONE 2: IL MAIN PANEL
-            //fondamentale per lo switch tra i panel
+             //SEZIONE 2: IL MAIN PANEL fondamentale per lo switch tra i panel
            //3 metodi mostra (home, dashStud e dashDoc) ed uno cambiaSchermata
           //
 

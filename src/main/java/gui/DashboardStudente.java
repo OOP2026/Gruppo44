@@ -205,7 +205,7 @@ public class DashboardStudente extends JPanel {
                 // Chiamata diretta al controller
                 Controller.getInstance().creaStudente(nome, cognome, email, password, matricola, annoSelezionato);
 
-                JOptionPane.showMessageDialog(DashboardStudente.this, "Registrazione completata! Inserisci le credenziali nel modulo di sinistra per accedere.", "Registrazione OK", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(DashboardStudente.this, "Inserisci le credenziali nella sezione login per accedere.", "Registrazione Completata!", JOptionPane.INFORMATION_MESSAGE);
 
                 // Pulizia campi registrazione dopo il successo
                 txtRegNome.setText(""); txtRegCognome.setText(""); txtRegEmail.setText(""); txtRegPassword.setText(""); txtRegMatricola.setText("");
@@ -238,17 +238,17 @@ public class DashboardStudente extends JPanel {
                         annoStudenteLoggato = 1; // Fallback di sicurezza per i test grafici
                     }
 
-                    JOptionPane.showMessageDialog(DashboardStudente.this, "Accesso eseguito con successo! Chiudi questo messaggio per visualizzare la tua dashboard", "Login Corretto", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(DashboardStudente.this, "Accesso eseguito con successo! Chiudi questo messaggio per visualizzare la tua dashboard", "Accesso Consentito!", JOptionPane.INFORMATION_MESSAGE);
                     passaAlTabelloneOrario(); // Nasconde i moduli e mostra il tabellone orario nello stesso pannello!
                 } else {
-                    JOptionPane.showMessageDialog(DashboardStudente.this, "Errore: Credenziali non valide o profilo non registrato!", "Errore Accesso", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(DashboardStudente.this, "Errore: Credenziali non valide o profilo non registrato!", "Accesso Negato!", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
     }
 
 
-    // --- 2. CAMBIO DI STATO INTERNO: RIMOZIONE MODULI E COSTRUZIONE ORARIO STUDENTE ---
+    // --- 2. CAMBIO DI STATO INTERNO: RIMOZIONE MODULI ACCESSO E COSTRUZIONE ORARIO STUDENTE ---
     //
     //
 
@@ -293,7 +293,7 @@ public class DashboardStudente extends JPanel {
             }
         } catch (Exception ex) {
             // Test di riserva se il controller restituisce provvisoriamente null
-            modelloTabella.setValueAt("<html><b>Ingegneria del Sw</b><br>Aula T2</html>", 1, 1);
+            modelloTabella.setValueAt("<html><b>Geometria</b><br>Aula A5</html>", 1, 1);
         }
 
         tabellaOrari.setRowHeight(35);
@@ -303,9 +303,9 @@ public class DashboardStudente extends JPanel {
         pnlOrario.add(scrollTabella, BorderLayout.CENTER);
 
 
-        // ================= AGGIUNTA: SEZIONE INFERIORE CON AVVISI + LOGOUT =================
+        // ================= SEZIONE INFERIORE CON AVVISI + LOGOUT =================
 
-        // Creiamo un pannello contenitore per la zona sud (Avvisi + Bottone)
+        // Creiamo un pannello contenitore per la zona sud (Avvisi + Pulsante)
         JPanel pnlInferiore = new JPanel(new BorderLayout(0, 12));
         pnlInferiore.setBackground(new Color(235, 243, 249));
 
@@ -315,7 +315,7 @@ public class DashboardStudente extends JPanel {
         // Bordo arancione/rosso per attirare l'attenzione sugli spostamenti
         pnlAvvisi.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(230, 126, 34), 2),
-                "AVVISI E VARIAZIONI ORARIO (ACCETTATE DAL RESPONSABILE)",
+                "AVVISI E VARIAZIONI ORARIO",
                 0, 0,
                 new Font("Segoe UI", Font.BOLD, 12),
                 new Color(192, 57, 43)
@@ -328,7 +328,7 @@ public class DashboardStudente extends JPanel {
         txtAvvisi.setLineWrap(true);
         txtAvvisi.setWrapStyleWord(true);
 
-        // Testo di esempio (In seguito potrai popolarlo dinamicamente chiamando il Controller)
+        // Testo di esempio (In seguito lo si popola dinamicamente chiamando il Controller)
         try {
             ArrayList<String> variazioniBacheca = Controller.getInstance().getVariazioni(annoStudenteLoggato);
             if (variazioniBacheca != null && !variazioniBacheca.isEmpty()) {
@@ -348,15 +348,15 @@ public class DashboardStudente extends JPanel {
         JScrollPane scrollAvvisi = new JScrollPane(txtAvvisi);
         pnlAvvisi.add(scrollAvvisi, BorderLayout.CENTER);
 
-        // Pulsante di Log-out esistente
-        JButton btnLogout = new JButton("DISCONNETTI E TORNA ALLA HOME");
+        // Pulsante di LOGOUT
+        JButton btnLogout = new JButton("LOGOUT");
         btnLogout.setBackground(new Color(192, 57, 43)); // Rosso scuro
         btnLogout.setForeground(Color.WHITE);
         btnLogout.setFocusPainted(false);
 
         // Assembliamo i componenti nel pannello inferiore
         pnlInferiore.add(pnlAvvisi, BorderLayout.CENTER);  // Gli avvisi prendono lo spazio centrale del sotto-pannello
-        pnlInferiore.add(btnLogout, BorderLayout.SOUTH);   // Il bottone rimane agganciato sul fondo
+        pnlInferiore.add(btnLogout, BorderLayout.SOUTH);   // Il pulsante rimane agganciato sul fondo
 
         // Posizioniamo l'intero blocco inferiore nella zona SOUTH di pnlOrario
         pnlOrario.add(pnlInferiore, BorderLayout.SOUTH);

@@ -12,7 +12,7 @@ public class DashboardDocente extends JPanel {
     protected MainPanel mainPanel;
     protected String emailDocenteLoggato; // Memorizza il docente corrente
 
-    // Pannelli di stato
+    // Pannello principale di stato per autenticazione
     private JPanel panelAutenticazione;
 
     // Campi Login
@@ -46,10 +46,11 @@ public class DashboardDocente extends JPanel {
         lblTitoloPortale.setForeground(new Color(24, 43, 73));
         panelAutenticazione.add(lblTitoloPortale, BorderLayout.NORTH);
 
+        //stuttura analoga a studente con pnlSdoppiato (1 riga e 2 colonne per login e registrazione)
         JPanel pnlSdoppiato = new JPanel(new GridLayout(1, 2, 30, 0));
         pnlSdoppiato.setBackground(new Color(235, 243, 249));
 
-        // ================= STRUTTURA COLONNA SINISTRA: LOGIN =================
+        // ================= COLONNA SINISTRA: LOGIN =================
         //
         JPanel pnlLogin = new JPanel(new GridBagLayout());
         pnlLogin.setBackground(Color.WHITE);
@@ -63,9 +64,9 @@ public class DashboardDocente extends JPanel {
 
         gbcL.gridx = 0; gbcL.gridy = 0; pnlLogin.add(new JLabel("Email Docente:"), gbcL);
         txtLoginEmail = new JTextField(12);
-        gbcL.gridx = 1; pnlLogin.add(txtLoginEmail, gbcL);
+        gbcL.gridx = 1; pnlLogin.add(txtLoginEmail, gbcL); //x=1 colonna 1
 
-        gbcL.gridx = 0; gbcL.gridy = 1; pnlLogin.add(new JLabel("Password:"), gbcL);
+        gbcL.gridx = 0; gbcL.gridy = 1; pnlLogin.add(new JLabel("Password:"), gbcL); //mi sposto a riga 1
         txtLoginPassword = new JPasswordField(12);
         gbcL.gridx = 1; pnlLogin.add(txtLoginPassword, gbcL);
 
@@ -73,7 +74,7 @@ public class DashboardDocente extends JPanel {
         btnAccedi.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnAccedi.setBackground(new Color(141, 185, 224));
         btnAccedi.setFocusPainted(false);
-        gbcL.gridx = 0; gbcL.gridy = 2; gbcL.gridwidth = 2;
+        gbcL.gridx = 0; gbcL.gridy = 2; gbcL.gridwidth = 2; //riga 2 + occupa larghezza 2
         gbcL.insets = new Insets(20, 12, 8, 12);
         pnlLogin.add(btnAccedi, gbcL);
 
@@ -84,6 +85,7 @@ public class DashboardDocente extends JPanel {
         JPanel pnlRegistrazione = new JPanel(new GridBagLayout());
         pnlRegistrazione.setBackground(Color.WHITE);
         pnlRegistrationBorde(pnlRegistrazione);
+
 
         GridBagConstraints gbcR = new GridBagConstraints();
         gbcR.insets = new Insets(8, 12, 8, 12);
@@ -103,7 +105,7 @@ public class DashboardDocente extends JPanel {
 
 
         // PULSANTE POP-UP VINCOLI
-        JButton btnApriVincoli = new JButton("Imposta Vincoli Orari (Max 3)");
+        JButton btnApriVincoli = new JButton("Imposta Vincoli Orari");
         btnApriVincoli.setBackground(new Color(243, 156, 18));
         btnApriVincoli.setForeground(Color.WHITE);
         gbcR.gridx = 0; gbcR.gridy = 4; gbcR.gridwidth = 2;
@@ -124,7 +126,7 @@ public class DashboardDocente extends JPanel {
         panelAutenticazione.add(pnlSdoppiato, BorderLayout.CENTER);
 
         //PULSANTE TORNA ALLA HOME
-        JButton btnIndietroHome = new JButton("TORNA ALLA HOME PRINCIPALE");
+        JButton btnIndietroHome = new JButton("LOGOUT");
         btnIndietroHome.setBackground(new Color(230, 126, 34));
         btnIndietroHome.setForeground(Color.WHITE);
         panelAutenticazione.add(btnIndietroHome, BorderLayout.SOUTH);
@@ -133,7 +135,7 @@ public class DashboardDocente extends JPanel {
         add(panelAutenticazione, BorderLayout.CENTER);
 
         // =====================================================================
-        // 2. LISTENERS DI COMPORTAMENTO ED ALLINEAMENTO
+        // 2. LISTENERS BTN HOME E VINCOLI
         // =====================================================================
         btnIndietroHome.addActionListener(e -> mainPanel.mostraHome());
         btnApriVincoli.addActionListener(e -> apriPopUpVincoli());
@@ -162,7 +164,7 @@ public class DashboardDocente extends JPanel {
                 Controller.getInstance().aggiungiVincoloDocente(email, v[0], v[1], v[2]);
             }
 
-            JOptionPane.showMessageDialog(this, "Registrazione completata!\nGli insegnamenti di tua competenza sono stati associati automaticamente tramite l'indirizzo email.", "Registrazione OK", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Registrazione completata!\n Adesso puoi visualizzare gli insegnamenti di tua competenza.", "Benvenuto nel sistema universitario!", JOptionPane.INFORMATION_MESSAGE);
 
             // Svuotamento campi grafici
             txtRegNome.setText(""); txtRegCognome.setText(""); txtRegEmail.setText(""); txtRegPassword.setText("");
@@ -185,16 +187,18 @@ public class DashboardDocente extends JPanel {
             }
 
             if (email.equalsIgnoreCase("resp@unina.it") && password.equals("resp")) {
-                JOptionPane.showMessageDialog(this, "Benvenuto Responsabile Porfirio Tramontana!", "Accesso Autorizzato", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Benvenuto nella Dashboard Responsabile!", "Accesso Autorizzato", JOptionPane.INFORMATION_MESSAGE);
                 mainPanel.cambiaSchermata(new DashboardResponsabile(mainPanel, email));
                 return;
             }
 
                           //CONTROLLER
+            //
+
             boolean loginSuccesso = Controller.getInstance().login(email, password);
-            if (loginSuccesso || email.endsWith("@unina.it")) {
+            if (loginSuccesso) {
                 this.emailDocenteLoggato = email;
-                JOptionPane.showMessageDialog(this, "Accesso Docente eseguito con successo!", "Login Corretto", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Accesso Docente eseguito con successo!", "Login Autorizzato", JOptionPane.INFORMATION_MESSAGE);
                 passaAlTabelloneDocente();
             } else {
                 JOptionPane.showMessageDialog(this, "Errore: Credenziali non valide!", "Errore Accesso", JOptionPane.ERROR_MESSAGE);
@@ -209,7 +213,7 @@ public class DashboardDocente extends JPanel {
     }
 
     private void apriPopUpVincoli() {
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Imposta Vincoli Docente", true);
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Imposta Vincoli Docente (Max 3)", true);
         dialog.setSize(500, 250);
         dialog.setLayout(new BorderLayout(10, 10));
         dialog.setLocationRelativeTo(this);
@@ -254,7 +258,7 @@ public class DashboardDocente extends JPanel {
                     String g = (String) combosGiorno[i].getSelectedItem();
                     String in = (String) combosInizio[i].getSelectedItem();
                     String fi = (String) combosFine[i].getSelectedItem();
-                    vincoliTemporanei.add(new String[]{g, in, fi});
+                    vincoliTemporanei.add(new String[]{g, in, fi}); //giorno, inizio, fine
                 }
             }
             dialog.dispose();
@@ -281,11 +285,12 @@ public class DashboardDocente extends JPanel {
         pnlSidebar.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(24, 43, 73)), "AZIONI DISPONIBILI"));
         pnlSidebar.setPreferredSize(new Dimension(250, 0));
 
-        // Inserimento pulsanti standard nella barra laterale
+        // chiamo metodo per inserimento pulsanti standard nella barra laterale
         aggiornaSidebarOpzioni(pnlSidebar);
 
-        // ================= CONNESSIONE VIEW-CONTROLLER (I TUOI INSEGNAMENTI) =================
-        // Estraiamo i corsi assegnati automaticamente a questa mail ed esponiamoli sotto i bottoni
+        // ================= CONNESSIONE VIEW-CONTROLLER- INSEGNAMENTI DOCENTE =================
+        // Estraiamo i corsi assegnati automaticamente a questa mail ed esponiamoli sotto i pulsanti
+        //
         GridBagConstraints gbcCorsi = new GridBagConstraints();
         gbcCorsi.insets = new Insets(25, 10, 5, 10);
         gbcCorsi.fill = GridBagConstraints.HORIZONTAL;
@@ -366,21 +371,66 @@ public class DashboardDocente extends JPanel {
 
         JButton btnSpostamento = new JButton("Richiedi Spostamento");
         btnSpostamento.setBackground(new Color(141, 185, 224));
-        btnSpostamento.addActionListener(e -> {
-            String dettagliRichiesta = JOptionPane.showInputDialog(this,
-                    "Inserisci Nome Insegnamento e i dettagli della variazione richiesti:",
-                    "Richiesta Spostamento Lezione", JOptionPane.QUESTION_MESSAGE);
+        btnSpostamento.addActionListener(e -> apriFinestraRichiestaSpostamento());
 
-            String stringaRichiestaCompleta = "Prof. (" + emailDocenteLoggato + "): " + dettagliRichiesta.trim();
-            //boolean inviata = Controller.getInstance().aggiungiRichiestaSpostamento(); //aggiungi argomenti (String nomeInsegnamento, String oraOriginale, String giornoOriginale, String giornoRichiesto, String oraInizioRichiesta, String oraFineRichiesta)
-            boolean inviata = true;
-            if(inviata) {
-                    JOptionPane.showMessageDialog(this, "Richiesta inoltrata correttamente al Responsabile!", "Inviato", JOptionPane.INFORMATION_MESSAGE);
-            }
-            else{
-                JOptionPane.showMessageDialog(this, "Richiesta non inviata: campi non validi!", "Non Inviato", JOptionPane.INFORMATION_MESSAGE);
+        pnlSidebar.add(btnSpostamento, gbc);
+    }
+
+
+    private void apriFinestraRichiestaSpostamento() {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Invia richiesta spostamento", true);
+        dialog.setSize(400, 450);
+        dialog.setLayout(new BorderLayout());
+
+        // --- DATI ---
+        String[] giorni = {"LUNEDI", "MARTEDI", "MERCOLEDI", "GIOVEDI", "VENERDI"};
+        String[] orari = {"08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30"};
+
+        // --- COMPONENTI ---
+        JTextField txtNome = new JTextField(12);
+        JComboBox<String> cbOraOrig = new JComboBox<>(orari);
+        JComboBox<String> cbGiornoOrig = new JComboBox<>(giorni);
+        JComboBox<String> cbGiornoRich = new JComboBox<>(giorni);
+        JComboBox<String> cbOraInizioRich = new JComboBox<>(orari);
+        JComboBox<String> cbOraFineRich = new JComboBox<>(orari);
+
+        // --- LAYOUT ---
+        JPanel pnlForm = new JPanel(new GridLayout(6, 2, 10, 10));
+        pnlForm.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        pnlForm.add(new JLabel("Insegnamento:")); pnlForm.add(txtNome);
+        pnlForm.add(new JLabel("Ora Originale:")); pnlForm.add(cbOraOrig);
+        pnlForm.add(new JLabel("Giorno Originale:")); pnlForm.add(cbGiornoOrig);
+        pnlForm.add(new JLabel("Giorno Richiesto:")); pnlForm.add(cbGiornoRich);
+        pnlForm.add(new JLabel("Ora Inizio Richiesta:")); pnlForm.add(cbOraInizioRich);
+        pnlForm.add(new JLabel("Ora Fine Richiesta:")); pnlForm.add(cbOraFineRich);
+
+        JButton btnInvia = new JButton("Invia Richiesta");
+        btnInvia.setBackground(new Color(243, 156, 18));
+        btnInvia.setForeground(Color.WHITE);
+
+        btnInvia.addActionListener(e -> {
+            // Chiamata al controller con le 6 stringhe richieste
+            boolean inviata = Controller.getInstance().aggiungiRichiestaSpostamento(
+                    txtNome.getText().trim(),
+                    cbOraOrig.getSelectedItem().toString(), //cb é combobox
+                    cbGiornoOrig.getSelectedItem().toString(),
+                    cbGiornoRich.getSelectedItem().toString(),
+                    cbOraInizioRich.getSelectedItem().toString(),
+                    cbOraFineRich.getSelectedItem().toString()
+            );
+
+            if (inviata) {
+                JOptionPane.showMessageDialog(dialog, "Richiesta inoltrata correttamente!");
+                dialog.dispose();
+            } else {
+                JOptionPane.showMessageDialog(dialog, "Errore nell'invio della richiesta.");
             }
         });
-        pnlSidebar.add(btnSpostamento, gbc);
+
+        dialog.add(pnlForm, BorderLayout.CENTER);
+        dialog.add(btnInvia, BorderLayout.SOUTH);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 }
