@@ -3,7 +3,8 @@ package model;
 import java.time.LocalTime;
 
 public class VincoloDocente {
-    GiornoSettimana giorno;
-    LocalTime oraInizio;
-    LocalTime oraFine;
+    public Docente docente;
+    public GiornoSettimana giorno;
+    public LocalTime oraInizio;
+    public LocalTime oraFine;
 }
