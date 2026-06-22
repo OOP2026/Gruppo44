@@ -22,7 +22,7 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
 
     public void creaVincolo(String email, String giorno, LocalTime oraInizio, LocalTime oraFine) throws Exception
     {
-        String sql = "INSERT INTO vincoli_docente(email_docente, giorno, ora_inizio, ora_fine) VALUES(?,?,?,?);";
+        String sql = "INSERT INTO vincolo_docente(email_docente, giorno, ora_inizio, ora_fine) VALUES(?,?,?,?);";
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, email);
@@ -35,7 +35,7 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
 
     public ResultSet getVincoli(String email) throws Exception
     {
-        String sql = "SELECT * FROM vincoli_docente WHERE email_docente LIKE ?;";
+        String sql = "SELECT * FROM vincolo_docente WHERE email_docente LIKE ?;";
         ResultSet rs;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
@@ -47,7 +47,7 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
 
     public ResultSet getVincoliR() throws Exception
     {
-        String sql = "SELECT * FROM vincoli_docente;";
+        String sql = "SELECT * FROM vincolo_docente;";
         ResultSet rs;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {

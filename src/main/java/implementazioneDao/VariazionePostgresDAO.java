@@ -19,7 +19,7 @@ public class VariazionePostgresDAO implements VariazioneDAO {
         }
     }
     public void creaVariazione(String insegnamento, LocalDate dataOriginale, LocalDate nuovaData, LocalTime oraInizioOriginale, LocalTime nuovaOraInizio, LocalTime nuovaOraFine) throws Exception{
-        String sql = "INSERT INTO variazioni(insegnamento, data_originale, nuova_data, ora_inizio_originale, nuova_ora_inizio, nuova_ora_fine) VALUES (?,?,?,?,?,?);";
+        String sql = "INSERT INTO variazione(insegnamento, data_originale, nuova_data, ora_inizio_originale, nuova_ora_inizio, nuova_ora_fine) VALUES (?,?,?,?,?,?);";
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, insegnamento);
@@ -33,7 +33,7 @@ public class VariazionePostgresDAO implements VariazioneDAO {
     }
 
     public ResultSet getVariazioni(int anno) throws Exception{
-        String sql = "SELECT insegnamento, data_originale, nuova_data, ora_inizio_originale, nuova_ora_inizio, nuova_ora_fine FROM variazioni JOIN insegnamenti ON variazioni.insegnamento LIKE insegnamenti.nome WHERE insegnamenti.anno_accademico = ?;";
+        String sql = "SELECT insegnamento, data_originale, nuova_data, ora_inizio_originale, nuova_ora_inizio, nuova_ora_fine FROM variazione JOIN insegnamento ON variazione.insegnamento LIKE insegnamento.nome WHERE insegnamento.anno_accademico = ?;";
         ResultSet rs;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {

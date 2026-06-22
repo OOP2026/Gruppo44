@@ -19,7 +19,7 @@ public class DocentePostgresDAO implements DocenteDAO {
 
     public ResultSet login(String email, String password) throws Exception
     {
-        String sql = "SELECT * FROM docenti WHERE email LIKE ? AND password LIKE ?;";
+        String sql = "SELECT * FROM docente WHERE email LIKE ? AND password LIKE ?;";
         ResultSet rs;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
@@ -36,7 +36,7 @@ public class DocentePostgresDAO implements DocenteDAO {
 
     public void creaDocente(String nome, String cognome, String email, String password) throws Exception
     {
-        String sql = "INSERT INTO docenti(nome, cognome, email, password) VALUES(?,?,?,?);";
+        String sql = "INSERT INTO docente(nome, cognome, email, password) VALUES(?,?,?,?);";
         try (PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, nome);

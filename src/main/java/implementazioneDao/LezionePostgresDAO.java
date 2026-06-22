@@ -20,7 +20,7 @@ public class LezionePostgresDAO implements LezioneDAO {
 
     @Override
     public void creaLezioneDB(String giornoSettimana, LocalTime oraInizio, LocalTime oraFine, String aula, String insegnamento) throws Exception{
-        String sql = "INSERT INTO lezioni(giorno_settimana, ora_inizio, ora_fine, aula, insegnamento) VALUES (?,?,?,?,?);";
+        String sql = "INSERT INTO lezione(giorno_settimana, ora_inizio, ora_fine, aula, insegnamento) VALUES (?,?,?,?,?);";
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, giornoSettimana);
@@ -34,7 +34,7 @@ public class LezionePostgresDAO implements LezioneDAO {
 
     @Override
     public ResultSet getLezioniDB(String email) throws Exception {
-        String sql = "SELECT giorno_settimana, ora_inizio, ora_fine, aula, insegnamento FROM Lezioni JOIN Insegnamenti ON Lezioni.insegnamento LIKE Insegnamenti.nome where Insegnamenti.email_docente LIKE ? ORDER BY ora_inizio;";
+        String sql = "SELECT giorno_settimana, ora_inizio, ora_fine, aula, insegnamento FROM lezione JOIN insegnamento ON lezione.insegnamento LIKE insegnamento.nome where insegnamento.email_docente LIKE ? ORDER BY ora_inizio;";
         ResultSet rs;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
@@ -46,7 +46,7 @@ public class LezionePostgresDAO implements LezioneDAO {
     }
     @Override
     public ResultSet getLezioniDB(int anno) throws Exception {
-        String sql = "SELECT giorno_settimana, ora_inizio, ora_fine, aula, insegnamento FROM Lezioni JOIN Insegnamenti ON Lezioni.insegnamento LIKE Insegnamenti.nome where Insegnamenti.anno_accademico = ? ORDER BY ora_inizio;";
+        String sql = "SELECT giorno_settimana, ora_inizio, ora_fine, aula, insegnamento FROM lezione JOIN insegnamento ON lezione.insegnamento LIKE insegnamento.nome where insegnamento.anno_accademico = ? ORDER BY ora_inizio;";
         ResultSet rs;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
