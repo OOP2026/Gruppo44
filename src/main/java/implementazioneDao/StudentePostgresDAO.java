@@ -51,5 +51,16 @@ public class StudentePostgresDAO implements StudenteDAO {
 
     }
 
-
+    public ResultSet getAnnoStudente(String email) throws  Exception
+    {
+        String sql = "SELECT anno_accademico FROM studente WHERE email LIKE ?";
+        ResultSet rs;
+        try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
+        {
+            query.setString(1, email);
+            rs = query.executeQuery();
+        }
+        catch (SQLException e){throw new Exception("Si è verificato un errore!");}
+        return rs;
+    }
 }
