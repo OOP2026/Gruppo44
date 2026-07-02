@@ -11,4 +11,5 @@ public interface VariazioneDAO {
 
     void creaVariazione(String insegnamento, LocalDate dataOriginale, LocalDate nuovaData, LocalTime oraInizioOriginale, LocalTime nuovaOraInizio, LocalTime nuovaOraFine) throws Exception;
     ResultSet getVariazioni(int anno) throws Exception;
+    ResultSet getVariazioni(String email) throws Exception;
 }
