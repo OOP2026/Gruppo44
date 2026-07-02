@@ -19,7 +19,14 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
         }
     }
 
-
+    /**
+     * Aggiunge un vincolo di indisponibilità al database.
+     * @param email L'email del docente.
+     * @param giorno Il giorno dell'indisponibilità.
+     * @param oraInizio L'orario di inizio dell'indisponibilità
+     * @param oraFine L'orario di fine dell'indisponibilità
+     * @throws Exception In caso di errori nel database.
+     */
     public void creaVincolo(String email, String giorno, LocalTime oraInizio, LocalTime oraFine) throws Exception
     {
         String sql = "INSERT INTO vincolo_docente(email_docente, giorno, ora_inizio, ora_fine) VALUES(?,?,?,?);";
@@ -33,6 +40,12 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
         } catch (SQLException e) {throw new Exception("Si è verificato un errore nel database.");}
     }
 
+    /**
+     * Restituisce i vincoli inseriti da un docente.
+     * @param email L'email del docente.
+     * @return ResultSet contenente i dati dei vincoli selezionati.
+     * @throws Exception In caso di errori nel database.
+     */
     public ResultSet getVincoli(String email) throws Exception
     {
         String sql = "SELECT * FROM vincolo_docente WHERE email_docente LIKE ?;";
@@ -45,6 +58,11 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
         return rs;
     }
 
+    /**
+     * Restituisce tutti i vincoli inseriti nel database
+     * @return ResultSet contenente i dati di tutti i vincoli.
+     * @throws Exception In caso di errori nel database.
+     */
     public ResultSet getVincoliR() throws Exception
     {
         String sql = "SELECT * FROM vincolo_docente;";
