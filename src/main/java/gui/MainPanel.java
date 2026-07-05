@@ -41,6 +41,7 @@ public class MainPanel extends JPanel {
     // METODO PER NAVIGARE VERSO IL PORTALE DOCENTE / RESPONSABILE (Login + Registrazione integrati)
     public void mostraDashboardDocente() {
         cambiaSchermata(new DashboardDocente(this));
+        //cambiaSchermata pulisce il mainPanel e mostra il portale docente/responsabile
     }
 
 

@@ -120,7 +120,76 @@ public class Controller {
 		return instance;
 	}
 
-	public static void main(String[] args){Controller controller = getInstance();}
+	public static void main(String[] args)
+	{Controller controller = getInstance();
+	}
+
+
+	/**
+	 * Aggiunge un utente di tipo {@link Studente} al database. La funzione esegue automaticamente il login chiamando {@link #loginStudente(String, String)}.
+	 * @param nome Il nome dell'utente.
+	 * @param cognome Il cognome dell'utente.
+	 * @param email L'email usata dall'utente per registrarsi univocamente.
+	 * @param password La password dell'utente per l'accesso.
+	 * @param matricola La matricola dello studente.
+	 * @param anno L'anno accademico dello studente.
+	 * @return Un array di {@link String} contenente, in ordine: nome, cognome, email, matricola, anno accademico dell'utente
+	 * @throws Exception In caso di errori nel database.
+	 */
+	public String[] creaStudente(String nome, String cognome, String email, String password, String matricola, int anno) throws Exception {
+		StudenteDAO s = new StudentePostgresDAO();
+		s.creaStudente(nome, cognome, email, password, matricola, anno);
+		return loginStudente(email, password);
+	} // fine CreaUtente
+
+
+	/**
+	 * Accetta come parametri un'email e una password come {@link String}, e restituisce nome, cognome e email dello studente corrispondente, se esiste e la password è corretta.
+	 * <p>
+	 * @param email la email inserita dall'utente per eseguire l'accesso.
+	 * @param password la password inserita dall'utente per eseguire l'accesso.
+	 * @return Un array di {@link String} contenente, in ordine: nome, cognome, email, matricola, anno accademico dell'utente
+	 * @throws Exception Se l'email non è valida, ls password è sbagliata o in caso di errori nel database.
+	 */
+	public String[] loginStudente(String email, String password) throws Exception{
+
+		StudenteDAO s = new StudentePostgresDAO();
+		ResultSet rs = s.login(email, password);
+		return new String[] {rs.getString("nome"), rs.getString("cognome"), rs.getString("email"), rs.getString("matricola"), rs.getString("anno_accademico")};
+
+	}
+	// fine Login
+
+
+	/**
+	 * Restituisce l'anno accademico di uno studente.
+	 * @param email L'email dello studente.
+	 * @return {@link int} che rappresenta lánno accademico dello studente.
+	 * @throws Exception In caso di errori nel database.
+	 */
+	public int getAnnoStudente(String email) throws Exception{
+		StudenteDAO s = new StudentePostgresDAO();
+		ResultSet rs = s.getAnnoStudente(email);
+		if (rs.next()) {
+			return rs.getInt("anno_accademico");
+		} else throw new Exception("Lo studente non esiste!");
+	}
+
+
+	/**
+	 * Aggiunge un utente di tipo {@link Docente} al database. La funzione esegue automaticamente il login chiamando {@link #loginDocente(String, String)}.
+	 * @param nome Il nome dell'utente.
+	 * @param cognome Il cognome dell'utente.
+	 * @param email L'email usata dall'utente per registrarsi univocamente.
+	 * @param password La password dell'utente per l'accesso.
+	 * @return Un array di stringhe contenente, in ordine: nome, cognome, email dell'utente
+	 * @throws Exception In caso di errori nel database.
+	 */
+	public String[] creaDocente(String nome, String cognome, String email, String password) throws Exception{
+		DocenteDAO d = new DocentePostgresDAO();
+		d.creaDocente(nome, cognome, email, password);
+		return loginDocente(email, password);
+	} // fine CreaUtente
 
 
 	/**
@@ -140,22 +209,6 @@ public class Controller {
 
 	} // fine Login
 
-	/**
-	 * Accetta come parametri un'email e una password come {@link String}, e restituisce nome, cognome e email dello studente corrispondente, se esiste e la password è corretta.
-	 * <p>
-	 * @param email la email inserita dall'utente per eseguire l'accesso.
-	 * @param password la password inserita dall'utente per eseguire l'accesso.
-	 * @return Un array di {@link String} contenente, in ordine: nome, cognome, email, matricola, anno accademico dell'utente
-	 * @throws Exception Se l'email non è valida, ls password è sbagliata o in caso di errori nel database.
-	 */
-	public String[] loginStudente(String email, String password) throws Exception{
-
-		StudenteDAO s = new StudentePostgresDAO();
-		ResultSet rs = s.login(email, password);
-		return new String[] {rs.getString("nome"), rs.getString("cognome"), rs.getString("email"), rs.getString("matricola"), rs.getString("anno_accademico")};
-
-	}
-		 // fine Login
 
 	/**
 	 * Restituisce tutte le lezioni erogate da un docente.
@@ -173,6 +226,7 @@ public class Controller {
 		return formatLezioni(rs);
 	}
 
+
 	/**
 	 * Restituisce tutte le lezioni erogate per un anno accademico.
 	 * @param anno L'anno dello studente di cui si vogliono recuperare le lezioni.
@@ -188,6 +242,7 @@ public class Controller {
 
 		return formatLezioni(rs);
 	}
+
 
 	/**
 	 * Accetta un ResultSet di lezioni e lo formatta in stringhe da restituire ad un'interfaccia.
@@ -213,54 +268,6 @@ public class Controller {
 		return stringArr;
 	}
 
-	/**
-	 * Aggiunge al database una richiesta di spostamento da parte di un docente. I parametri di orario e data sono in formato {@link LocalTime} e {@link LocalDate}.
-	 * @param nomeInsegnamento Il nome dell'insegnamento relativo alla richiesta.
-	 * @param oraOriginale L'orario originale della lezione relativa.
-	 * @param giornoOriginale La data originale della lezione relativa.
-	 * @param giornoRichiesto Il giorno richiesto dal docente.
-	 * @param oraInizioRichiesta L'ora di inizio richiesta dal docente.
-	 * @param oraFineRichiesta L'ora di fine richiesta dal docente.
-	 * @throws Exception In caso di errori nel database.
-	 */
-	public void aggiungiRichiestaSpostamento(String nomeInsegnamento, String oraOriginale, String giornoOriginale, String giornoRichiesto, String oraInizioRichiesta, String oraFineRichiesta) throws Exception
-	{
-		RichiestaDAO r = new RichiestaPostgresDAO();
-		r.aggiungiRichiestaSpostamento(nomeInsegnamento, oraOriginale,giornoOriginale, giornoRichiesto, oraInizioRichiesta, oraFineRichiesta);
-
-	} // fine InviaRichiesta
-
-	/**
-	 * Aggiunge un utente di tipo {@link Docente} al database. La funzione esegue automaticamente il login chiamando {@link #loginDocente(String, String)}.
-	 * @param nome Il nome dell'utente.
-	 * @param cognome Il cognome dell'utente.
-	 * @param email L'email usata dall'utente per registrarsi univocamente.
-	 * @param password La password dell'utente per l'accesso.
-	 * @return Un array di stringhe contenente, in ordine: nome, cognome, email dell'utente
-	 * @throws Exception In caso di errori nel database.
-	 */
-	public String[] creaDocente(String nome, String cognome, String email, String password) throws Exception{
-		DocenteDAO d = new DocentePostgresDAO();
-		d.creaDocente(nome, cognome, email, password);
-		return loginDocente(email, password);
-	} // fine CreaUtente
-
-	/**
-	 * Aggiunge un utente di tipo {@link Studente} al database. La funzione esegue automaticamente il login chiamando {@link #loginStudente(String, String)}.
-	 * @param nome Il nome dell'utente.
-	 * @param cognome Il cognome dell'utente.
-	 * @param email L'email usata dall'utente per registrarsi univocamente.
-	 * @param password La password dell'utente per l'accesso.
-	 * @param matricola La matricola dello studente.
-	 * @param anno L'anno accademico dello studente.
-	 * @return Un array di {@link String} contenente, in ordine: nome, cognome, email, matricola, anno accademico dell'utente
-	 * @throws Exception In caso di errori nel database.
-	 */
-	public String[] creaStudente(String nome, String cognome, String email, String password, String matricola, int anno) throws Exception {
-		StudenteDAO s = new StudentePostgresDAO();
-		s.creaStudente(nome, cognome, email, password, matricola, anno);
-		return loginStudente(email, password);
-	} // fine CreaUtente
 
 	/**
 	 * Aggiunge una {@link Lezione} settimanale al database.
@@ -273,8 +280,9 @@ public class Controller {
 	 */
 	public void creaLezione(String nomeInsegnamento, String giornoSettimana, LocalTime oraInizio, LocalTime oraFine, String nomeAula) throws Exception {
 		LezioneDAO l = new LezionePostgresDAO();
-    	l.creaLezioneDB(giornoSettimana, oraInizio, oraFine, nomeAula, nomeInsegnamento);
+		l.creaLezioneDB(giornoSettimana, oraInizio, oraFine, nomeAula, nomeInsegnamento);
 	} // fine CreaLezione
+
 
 	/**
 	 * Aggiunge un {@link Insegnamento} al database.
@@ -289,33 +297,6 @@ public class Controller {
 		i.creaInsegnamento(nome, numeroCFU, anno, email);
 	} //fine CreaInsegnamento
 
-	/**
-	 * Aggiunge una {@link Variazione} al dataabse.
-	 * @param insegnamento Il nome dell'insegnamento relativo.
-	 * @param dataOriginale La data(non settimanale) originale della lezione relativa.
-	 * @param nuovaData La nuova data della lezione modificata.
-	 * @param oraInizioOriginale L'orario di inizio originale della lezione.
-	 * @param nuovaOraInizio Il nuovo orario di inizio della lezione modificata.
-	 * @param nuovaOraFine Il nuovo orario di fine della lezione modificata.
-	 * @throws Exception In caso di errori nel database.
-	 */
-	public void creaVariazione(String insegnamento, LocalDate dataOriginale, LocalDate nuovaData, LocalTime oraInizioOriginale, LocalTime nuovaOraInizio, LocalTime nuovaOraFine) throws  Exception {
-		VariazioneDAO v = new VariazionePostgresDAO();
-		v.creaVariazione(insegnamento, dataOriginale, nuovaData, oraInizioOriginale, nuovaOraInizio, nuovaOraFine );
-	} //fine CreaVariazione
-
-	/**
-	 * Aggiunge un vincolo di indisponibilità ({@link VincoloDocente}) di un docente al database.
-	 * @param emailDocente L'email del docente che sta inviando il vincolo.
-	 * @param giornoSettimana Il giorno dell'indisponibilità.
-	 * @param oraInizio L'ora di inizio dell'indisponibilità.
-	 * @param oraFine L'ora di fine dell'indisponibilità.
-	 * @throws Exception In caso di errori nel database.
-	 */
-	public void aggiungiVincoloDocente(String emailDocente, String giornoSettimana, String oraInizio, String oraFine) throws Exception {
-		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
-		v.creaVincolo(emailDocente, giornoSettimana, LocalTime.parse(oraInizio), LocalTime.parse(oraFine));
-	} //fine CreaVincolo
 
 	/**
 	 * Accetta un l'email di un docente e restituisce i suoi insegnamenti.
@@ -334,6 +315,25 @@ public class Controller {
 		return insegnamenti;
 	}
 
+
+	/**
+	 * Aggiunge al database una richiesta di spostamento da parte di un docente. I parametri di orario e data sono in formato {@link LocalTime} e {@link LocalDate}.
+	 * @param nomeInsegnamento Il nome dell'insegnamento relativo alla richiesta.
+	 * @param oraOriginale L'orario originale della lezione relativa.
+	 * @param giornoOriginale La data originale della lezione relativa.
+	 * @param giornoRichiesto Il giorno richiesto dal docente.
+	 * @param oraInizioRichiesta L'ora di inizio richiesta dal docente.
+	 * @param oraFineRichiesta L'ora di fine richiesta dal docente.
+	 * @throws Exception In caso di errori nel database.
+	 */
+	public void aggiungiRichiestaSpostamento(String nomeInsegnamento, String oraOriginale, String giornoOriginale, String giornoRichiesto, String oraInizioRichiesta, String oraFineRichiesta) throws Exception
+	{
+		RichiestaDAO r = new RichiestaPostgresDAO();
+		r.aggiungiRichiestaSpostamento(nomeInsegnamento, oraOriginale,giornoOriginale, giornoRichiesto, oraInizioRichiesta, oraFineRichiesta);
+
+	} // fine InviaRichiesta
+
+
 	/**
 	 * Restituisce tutte le richieste di spostamento attualmente in attesa di risposta.
 	 * @return ArrayList di stringhe della forma: "Lezione di [insegnamento] giorno [gg/mm/yyyy] ore [hh:mm] ->  giorno [gg/mm/yyyy] ore [hh:mm]"
@@ -349,6 +349,7 @@ public class Controller {
 		}
 		return registroRichiesteSpostamento;
 	}
+
 
 	/**
 	 * Approva una richiesta di spostamento di una lezione. La richiesta viene eliminata dal database, e inserisce una variazione corrispondente chiamando {@link #creaVariazione(String, LocalDate, LocalDate, LocalTime, LocalTime, LocalTime)}.
@@ -366,6 +367,7 @@ public class Controller {
 		}
 	}
 
+
 	/**
 	 * Rifiuta una richiesta di spostamento di una lezione. La richiesta viene eliminata dal database.
 	 * @param id_richiesta L'identificativo della richiesta da rifiutare.
@@ -380,56 +382,25 @@ public class Controller {
 		}
 	}
 
+
 	/**
-	 * Restituisce tutti i vincoli di indisponibilità inseriti da ogni docente.
-	 * @return Hashmap che usa come chiave l'email di un docente e come valore un ArrayList di stringhe contenente i suoi vincoli inseriti. Le stringhe sono della forma "Giorno: [gg/mm/yyyy], ore: [hh:mm] - [hh:mm]".
+	 * Aggiunge una {@link Variazione} al dataabse.
+	 * @param insegnamento Il nome dell'insegnamento relativo.
+	 * @param dataOriginale La data(non settimanale) originale della lezione relativa.
+	 * @param nuovaData La nuova data della lezione modificata.
+	 * @param oraInizioOriginale L'orario di inizio originale della lezione.
+	 * @param nuovaOraInizio Il nuovo orario di inizio della lezione modificata.
+	 * @param nuovaOraFine Il nuovo orario di fine della lezione modificata.
 	 * @throws Exception In caso di errori nel database.
 	 */
-	public HashMap<String, ArrayList<String>> getRegistroVincoliDocenti() throws Exception{
-		HashMap<String, ArrayList<String>> h = new HashMap<String, ArrayList<String>>();
+	public void creaVariazione(String insegnamento, LocalDate dataOriginale, LocalDate nuovaData, LocalTime oraInizioOriginale, LocalTime nuovaOraInizio, LocalTime nuovaOraFine) throws  Exception {
+		VariazioneDAO v = new VariazionePostgresDAO();
+		v.creaVariazione(insegnamento, dataOriginale, nuovaData, oraInizioOriginale, nuovaOraInizio, nuovaOraFine );
+	} //fine CreaVariazione
 
-		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
-		ResultSet rs = v.getVincoliR();
-		while(rs.next()) {
-			String s = "Giorno: "+ rs.getString("giorno") + ", ore: " + rs.getString("ora_inizio") + " - " + rs.getString("ora_fine");
-
-			h.get(rs.getString("email_docente")).add(s);
-		}
-		return h;
-	}
 
 	/**
-	 * Restituisce le variazioni relative alle lezioni di un docente.
-	 * @param emailDocente L'email del docente considerato.
-	 * @return Un ArrayList di stringhe contenente i vincoli di indisponibilità inseriti da un docente. Le stringhe sono della forma "Giorno: [gg/mm/yyyy], ore: [hh:mm] - [hh:mm]".
-	 * @throws Exception In caso di errori nel database.
-	 */
-	public ArrayList<String> getVincoliDocente(String emailDocente) throws Exception{
-		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
-		ResultSet rs = v.getVincoli(emailDocente);
-		ArrayList<String> arr = new ArrayList<String>();
-		while(rs.next()) {
-			arr.add("Giorno: "+ rs.getString("giorno") + ", ore: " + rs.getString("ora_inizio") + "-" + rs.getString("ora_fine"));
-		}
-		return arr;
-	}
-
-	/**
-	 * Restituisce l'anno accademico di uno studente.
-	 * @param email L'email dello studente.
-	 * @return {@link int} che rappresenta lánno accademico dello studente.
-	 * @throws Exception In caso di errori nel database.
-	 */
-	public int getAnnoStudente(String email) throws Exception{
-		StudenteDAO s = new StudentePostgresDAO();
-		ResultSet rs = s.getAnnoStudente(email);
-		if (rs.next()) {
-			return rs.getInt("anno_accademico");
-		} else throw new Exception("Lo studente non esiste!");
-	}
-
-	/**
-	 * Restituisce le variaizoni relative alle lezioni di un anno accademico.
+	 * Restituisce le variazioni relative alle lezioni di un anno accademico.
 	 * @param anno L'anno accademico delle cui lezioni si vogliono recuperare le variazioni.
 	 * @return Un ArrayList di stringhe contenente tutte le variaizoni. Le stringhe sono della forma "[insegnamento]: [gg/mm/yyyy] ore [hh:mm] spostata a [gg/mm/yyyy] ore [hh:mm]-[hh:mm] "
 	 * @throws Exception In caso di errori nel database.
@@ -463,6 +434,56 @@ public class Controller {
 			stringArr.add(rs.getString("insegnamento") + ": "+rs.getString("data_originale")+" ore "+rs.getString("ora_originale")+" spostata a "+rs.getString("nuova_data")+" ore "+rs.getString("nuova_ora_inizio")+"-"+rs.getString("nuova_ora_fine")+".");
 		}
 		return stringArr;
+	}
+
+
+	/**
+	 * Aggiunge un vincolo di indisponibilità ({@link VincoloDocente}) di un docente al database.
+	 * @param emailDocente L'email del docente che sta inviando il vincolo.
+	 * @param giornoSettimana Il giorno dell'indisponibilità.
+	 * @param oraInizio L'ora di inizio dell'indisponibilità.
+	 * @param oraFine L'ora di fine dell'indisponibilità.
+	 * @throws Exception In caso di errori nel database.
+	 */
+	public void aggiungiVincoloDocente(String emailDocente, String giornoSettimana, String oraInizio, String oraFine) throws Exception {
+		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
+		v.creaVincolo(emailDocente, giornoSettimana, LocalTime.parse(oraInizio), LocalTime.parse(oraFine));
+	} //fine CreaVincolo
+
+
+	/**
+	 * Restituisce tutti i vincoli di indisponibilità inseriti da ogni docente.
+	 * @return Hashmap che usa come chiave l'email di un docente e come valore un ArrayList di stringhe contenente i suoi vincoli inseriti. Le stringhe sono della forma "Giorno: [gg/mm/yyyy], ore: [hh:mm] - [hh:mm]".
+	 * @throws Exception In caso di errori nel database.
+	 */
+	public HashMap<String, ArrayList<String>> getRegistroVincoliDocenti() throws Exception{
+		HashMap<String, ArrayList<String>> h = new HashMap<String, ArrayList<String>>();
+
+		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
+		ResultSet rs = v.getVincoliR();
+		while(rs.next()) {
+			String s = "Giorno: "+ rs.getString("giorno") + ", ore: " + rs.getString("ora_inizio") + " - " + rs.getString("ora_fine");
+
+			h.get(rs.getString("email_docente")).add(s);
+		}
+		return h;
+	}
+
+
+	/**
+	 * Restituisce le variazioni relative alle lezioni di un docente.
+	 * @param emailDocente L'email del docente considerato.
+	 * @return Un ArrayList di stringhe contenente i vincoli di indisponibilità inseriti da un docente. Le stringhe sono della forma "Giorno: [gg/mm/yyyy], ore: [hh:mm] - [hh:mm]".
+	 * @throws Exception In caso di errori nel database.
+	 */
+	public ArrayList<String> getVincoliDocente(String emailDocente) throws Exception{
+		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
+		ResultSet rs = v.getVincoli(emailDocente);
+		ArrayList<String> arr = new ArrayList<String>();
+		while(rs.next()) {
+			arr.add("Giorno: "+ rs.getString("giorno") + ", ore: " + rs.getString("ora_inizio") + "-" + rs.getString("ora_fine"));
+		}
+		return arr;
 	}
 
 }

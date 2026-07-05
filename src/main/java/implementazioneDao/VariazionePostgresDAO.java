@@ -71,7 +71,7 @@ public class VariazionePostgresDAO implements VariazioneDAO {
         ResultSet rs;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
-            query.setInt(1, email);
+            query.setString(1, email);
             rs = query.executeQuery(sql);
         } catch(SQLException e){throw new Exception("Errore nel database.");}
         return rs;
