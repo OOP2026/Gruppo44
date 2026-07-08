@@ -268,6 +268,58 @@ public class Controller {
 		return stringArr;
 	}
 
+<<<<<<< Updated upstream
+=======
+	/**
+	 * Aggiunge al database una richiesta di spostamento da parte di un docente. I parametri di orario e data sono in formato {@link LocalTime} e {@link LocalDate}.
+	 * @param nomeInsegnamento Il nome dell'insegnamento relativo alla richiesta.
+	 * @param oraOriginale L'orario originale della lezione relativa.
+	 * @param giornoOriginale La data originale della lezione relativa.
+	 * @param giornoRichiesto Il giorno richiesto dal docente.
+	 * @param oraInizioRichiesta L'ora di inizio richiesta dal docente.
+	 * @param oraFineRichiesta L'ora di fine richiesta dal docente.
+	 * @param aula La nuova aula della lezione modificata.
+	 * @throws Exception In caso di errori nel database.
+	 */
+	public void aggiungiRichiestaSpostamento(String nomeInsegnamento, String oraOriginale, String giornoOriginale, String giornoRichiesto, String oraInizioRichiesta, String oraFineRichiesta, String aula) throws Exception
+	{
+		RichiestaDAO r = new RichiestaPostgresDAO();
+		r.aggiungiRichiestaSpostamento(nomeInsegnamento, oraOriginale,giornoOriginale, giornoRichiesto, oraInizioRichiesta, oraFineRichiesta, aula);
+
+	} // fine InviaRichiesta
+
+	/**
+	 * Aggiunge un utente di tipo {@link Docente} al database. La funzione esegue automaticamente il login chiamando {@link #loginDocente(String, String)}.
+	 * @param nome Il nome dell'utente.
+	 * @param cognome Il cognome dell'utente.
+	 * @param email L'email usata dall'utente per registrarsi univocamente.
+	 * @param password La password dell'utente per l'accesso.
+	 * @return Un array di stringhe contenente, in ordine: nome, cognome, email dell'utente
+	 * @throws Exception In caso di errori nel database.
+	 */
+	public String[] creaDocente(String nome, String cognome, String email, String password) throws Exception{
+		DocenteDAO d = new DocentePostgresDAO();
+		d.creaDocente(nome, cognome, email, password);
+		return loginDocente(email, password);
+	} // fine CreaUtente
+
+	/**
+	 * Aggiunge un utente di tipo {@link Studente} al database. La funzione esegue automaticamente il login chiamando {@link #loginStudente(String, String)}.
+	 * @param nome Il nome dell'utente.
+	 * @param cognome Il cognome dell'utente.
+	 * @param email L'email usata dall'utente per registrarsi univocamente.
+	 * @param password La password dell'utente per l'accesso.
+	 * @param matricola La matricola dello studente.
+	 * @param anno L'anno accademico dello studente.
+	 * @return Un array di {@link String} contenente, in ordine: nome, cognome, email, matricola, anno accademico dell'utente
+	 * @throws Exception In caso di errori nel database.
+	 */
+	public String[] creaStudente(String nome, String cognome, String email, String password, String matricola, int anno) throws Exception {
+		StudenteDAO s = new StudentePostgresDAO();
+		s.creaStudente(nome, cognome, email, password, matricola, anno);
+		return loginStudente(email, password);
+	} // fine CreaUtente
+>>>>>>> Stashed changes
 
 	/**
 	 * Aggiunge una {@link Lezione} settimanale al database.
@@ -297,6 +349,37 @@ public class Controller {
 		i.creaInsegnamento(nome, numeroCFU, anno, email);
 	} //fine CreaInsegnamento
 
+<<<<<<< Updated upstream
+=======
+	/**
+	 * Aggiunge una {@link Variazione} al dataabse.
+	 * @param insegnamento Il nome dell'insegnamento relativo.
+	 * @param dataOriginale La data(non settimanale) originale della lezione relativa.
+	 * @param nuovaData La nuova data della lezione modificata.
+	 * @param oraInizioOriginale L'orario di inizio originale della lezione.
+	 * @param nuovaOraInizio Il nuovo orario di inizio della lezione modificata.
+	 * @param nuovaOraFine Il nuovo orario di fine della lezione modificata.
+	 * @param aula La nuova aula della lezione modificata.
+	 * @throws Exception In caso di errori nel database.
+	 */
+	public void creaVariazione(String insegnamento, String dataOriginale, String nuovaData, String oraInizioOriginale, String nuovaOraInizio, String nuovaOraFine, String aula) throws  Exception {
+		VariazioneDAO v = new VariazionePostgresDAO();
+		v.creaVariazione(insegnamento, dataOriginale, nuovaData, oraInizioOriginale, nuovaOraInizio, nuovaOraFine, aula);
+	} //fine CreaVariazione
+
+	/**
+	 * Aggiunge un vincolo di indisponibilità ({@link VincoloDocente}) di un docente al database.
+	 * @param emailDocente L'email del docente che sta inviando il vincolo.
+	 * @param giornoSettimana Il giorno dell'indisponibilità.
+	 * @param oraInizio L'ora di inizio dell'indisponibilità.
+	 * @param oraFine L'ora di fine dell'indisponibilità.
+	 * @throws Exception In caso di errori nel database.
+	 */
+	public void aggiungiVincoloDocente(String emailDocente, String giornoSettimana, String oraInizio, String oraFine) throws Exception {
+		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
+		v.creaVincolo(emailDocente, giornoSettimana, LocalTime.parse(oraInizio), LocalTime.parse(oraFine));
+	} //fine CreaVincolo
+>>>>>>> Stashed changes
 
 	/**
 	 * Accetta un l'email di un docente e restituisce i suoi insegnamenti.
@@ -345,14 +428,14 @@ public class Controller {
 
 		ArrayList<String> registroRichiesteSpostamento = new ArrayList<>();
 		while(rs.next()) {
-			registroRichiesteSpostamento.add("Lezione di " + rs.getString("insegnamento") + " giorno " + rs.getString("giorno_originale") + " ore " + rs.getString("ora_inizio_originale") + " -> giorno " + rs.getString("giorno_richiesto") + " ore " + rs.getString("ora_inizio_richiesta") + " - " + rs.getString("ora_fine_richiesta"));
+			registroRichiesteSpostamento.add("Lezione di " + rs.getString("insegnamento") + " giorno " + rs.getString("giorno_originale") + " ore " + rs.getString("ora_inizio_originale") + " -> giorno " + rs.getString("giorno_richiesto") + " ore " + rs.getString("ora_inizio_richiesta") + " - " + rs.getString("ora_fine_richiesta") + "aula" + rs.getString("aula"));
 		}
 		return registroRichiesteSpostamento;
 	}
 
 
 	/**
-	 * Approva una richiesta di spostamento di una lezione. La richiesta viene eliminata dal database, e inserisce una variazione corrispondente chiamando {@link #creaVariazione(String, LocalDate, LocalDate, LocalTime, LocalTime, LocalTime)}.
+	 * Approva una richiesta di spostamento di una lezione. La richiesta viene eliminata dal database, e inserisce una variazione corrispondente chiamando {@link #creaVariazione(String, String, String, String, String, String, String)}.
 	 * @param id_richiesta L'identificativo della richiesta da approvare.
 	 * @throws Exception In caso di errori nel database.
 	 */
@@ -361,7 +444,7 @@ public class Controller {
 		ResultSet rs = r.cancellaRichiesta(id_richiesta);
 
 		if(rs.next()) {
-			creaVariazione(rs.getString ("insegnamento" ), rs.getDate("giorno_originale").toLocalDate(), rs.getDate("giorno_richiesto").toLocalDate(), rs.getTime ("ora_inizio_originale").toLocalTime(), rs.getTime("ora_fine_richiesta").toLocalTime(), rs.getTime("ora_inizio_richiesta").toLocalTime());
+			creaVariazione(rs.getString ("insegnamento" ), rs.getString("data_originale"), rs.getString("data_richiesta"), rs.getString("ora_inizio_originale"), rs.getString("ora_inizio"), rs.getString("ora_fine"), rs.getString("aula"));
 		}
 		else{throw new Exception("La richiesta non esiste!");
 		}
@@ -412,7 +495,7 @@ public class Controller {
 		ArrayList<String> stringArr = new ArrayList<String>();
 		while(rs.next()){
 			//stringArr.add("La lezione di " + rs.getString("insegnamento") + " del "+rs.getString("data_originale")+" alle "+rs.getString("ora_originale")+" è spostata al giorno "+rs.getString("nuova_data")+" ore "+rs.getString("nuova_ora_inizio")+"-"+rs.getString("nuova_ora_fine")+".");
-			stringArr.add(rs.getString("insegnamento") + ": "+rs.getString("data_originale")+" ore "+rs.getString("ora_originale")+" spostata a "+rs.getString("nuova_data")+" ore "+rs.getString("nuova_ora_inizio")+"-"+rs.getString("nuova_ora_fine")+".");
+			stringArr.add(rs.getString("insegnamento") + ": "+rs.getString("data_originale")+" ore "+rs.getString("ora_originale")+" spostata a "+rs.getString("nuova_data")+" ore "+rs.getString("nuova_ora_inizio")+"-"+rs.getString("nuova_ora_fine")+" nell'aula " + rs.getString("aula"));
 		}
 		return stringArr;
 	}
@@ -431,7 +514,7 @@ public class Controller {
 		ArrayList<String> stringArr = new ArrayList<String>();
 		while(rs.next()){
 			//stringArr.add("La lezione di " + rs.getString("insegnamento") + " del "+rs.getString("data_originale")+" alle "+rs.getString("ora_originale")+" è spostata al giorno "+rs.getString("nuova_data")+" ore "+rs.getString("nuova_ora_inizio")+"-"+rs.getString("nuova_ora_fine")+".");
-			stringArr.add(rs.getString("insegnamento") + ": "+rs.getString("data_originale")+" ore "+rs.getString("ora_originale")+" spostata a "+rs.getString("nuova_data")+" ore "+rs.getString("nuova_ora_inizio")+"-"+rs.getString("nuova_ora_fine")+".");
+			stringArr.add(rs.getString("insegnamento") + ": "+rs.getString("data_originale")+" ore "+rs.getString("ora_originale")+" spostata a "+rs.getString("nuova_data")+" ore "+rs.getString("nuova_ora_inizio")+"-"+rs.getString("nuova_ora_fine")+" nell'aula " + rs.getString("aula"));
 		}
 		return stringArr;
 	}

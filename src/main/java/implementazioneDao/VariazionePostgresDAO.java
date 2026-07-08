@@ -5,8 +5,6 @@ import database_connection.ConnessioneDatabase;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
 
 public class VariazionePostgresDAO implements VariazioneDAO {
     private Connection connessioneDatabase;
@@ -29,8 +27,9 @@ public class VariazionePostgresDAO implements VariazioneDAO {
      * @param nuovaOraFine Il nuovo orario di fine della lezione modificata.
      * @throws Exception In caso di errori nel database.
      */
-    public void creaVariazione(String insegnamento, LocalDate dataOriginale, LocalDate nuovaData, LocalTime oraInizioOriginale, LocalTime nuovaOraInizio, LocalTime nuovaOraFine) throws Exception{
-        String sql = "INSERT INTO variazione(insegnamento, data_originale, nuova_data, ora_inizio_originale, nuova_ora_inizio, nuova_ora_fine) VALUES (?,?,?,?,?,?);";
+    public void creaVariazione(String insegnamento, String dataOriginale, String nuovaData, String oraInizioOriginale, String nuovaOraInizio, String nuovaOraFine, String aula) throws Exception{
+        String sql = "INSERT INTO variazione(insegnamento, data_originale, nuova_data, ora_inizio_originale, ora_inizio, ora_fine, giorno_settimana, aula) VALUES (?,?,?,?,?,?,?,?);";
+        int giornoSettimana = LocalDate.parse(dataOriginale).getDayOfWeek().getValue() - 1;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, insegnamento);
@@ -39,6 +38,8 @@ public class VariazionePostgresDAO implements VariazioneDAO {
             query.setTime(4, Time.valueOf(oraInizioOriginale));
             query.setTime(5, Time.valueOf(nuovaOraInizio));
             query.setTime(6, Time.valueOf(nuovaOraFine));
+            query.setInt(7, giornoSettimana);
+            query.setString(8, aula);
             query.executeUpdate();
         } catch (SQLException e) {throw new Exception("Errore nel database.");}
     }
@@ -50,7 +51,7 @@ public class VariazionePostgresDAO implements VariazioneDAO {
      * @throws Exception In caso di errori nel database.
      */
     public ResultSet getVariazioni(int anno) throws Exception{
-        String sql = "SELECT insegnamento, data_originale, nuova_data, ora_inizio_originale, nuova_ora_inizio, nuova_ora_fine FROM variazione JOIN insegnamento ON variazione.insegnamento LIKE insegnamento.nome WHERE insegnamento.anno_accademico = ?;";
+        String sql = "SELECT * FROM variazione JOIN insegnamento ON variazione.insegnamento LIKE insegnamento.nome WHERE insegnamento.anno_accademico = ?;";
         ResultSet rs;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
@@ -67,7 +68,7 @@ public class VariazionePostgresDAO implements VariazioneDAO {
      * @throws Exception In caso di errori nel database.
      */
     public ResultSet getVariazioni(String email) throws Exception{
-        String sql = "SELECT insegnamento, data_originale, nuova_data, ora_inizio_originale, nuova_ora_inizio, nuova_ora_fine FROM variazione JOIN insegnamento ON variazione.insegnamento LIKE insegnamento.nome WHERE insegnamento.email_docente = ?;";
+        String sql = "SELECT * FROM variazione JOIN insegnamento ON variazione.insegnamento LIKE insegnamento.nome WHERE insegnamento.email_docente LIKE ?;";
         ResultSet rs;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {

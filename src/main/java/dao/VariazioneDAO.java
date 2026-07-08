@@ -2,14 +2,10 @@ package dao;
 
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
 
 public interface VariazioneDAO {
 
-    void creaVariazione(String insegnamento, LocalDate dataOriginale, LocalDate nuovaData, LocalTime oraInizioOriginale, LocalTime nuovaOraInizio, LocalTime nuovaOraFine) throws Exception;
+    void creaVariazione(String insegnamento, String dataOriginale, String nuovaData, String oraInizioOriginale, String nuovaOraInizio, String nuovaOraFine, String aula) throws Exception;
     ResultSet getVariazioni(int anno) throws Exception;
     ResultSet getVariazioni(String email) throws Exception;
 }
