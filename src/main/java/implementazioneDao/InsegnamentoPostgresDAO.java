@@ -3,6 +3,7 @@ import dao.InsegnamentoDAO;
 import database_connection.ConnessioneDatabase;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class InsegnamentoPostgresDAO implements InsegnamentoDAO {
     private Connection connessioneDatabase;
@@ -56,4 +57,18 @@ public class InsegnamentoPostgresDAO implements InsegnamentoDAO {
         return rs;
     }
 
+    /**
+     *
+     */
+
+    public ResultSet getInsegnamenti() throws Exception {
+        String sql = "SELECT * FROM insegnamento;";
+        ResultSet rs;
+        try (PreparedStatement query = connessioneDatabase.prepareStatement(sql)) {
+            rs = query.executeQuery(sql);
+        } catch (SQLException e) {
+            throw new Exception("Si è verificato un errore nel database.");
+        }
+        return rs;
+    }
 }

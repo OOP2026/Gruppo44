@@ -291,7 +291,7 @@ public class Controller {
 	} //fine CreaInsegnamento
 
 	/**
-	 * Aggiunge una {@link Variazione} al dataabse.
+	 * Aggiunge una {@link Variazione} al database.
 	 * @param insegnamento Il nome dell'insegnamento relativo.
 	 * @param dataOriginale La data(non settimanale) originale della lezione relativa.
 	 * @param nuovaData La nuova data della lezione modificata.
@@ -335,6 +335,21 @@ public class Controller {
 		}
 		return insegnamenti;
 	}
+
+	/**
+	 *
+	 */
+	public ArrayList<String> getInsegnamenti() throws Exception {
+		InsegnamentoDAO d = new InsegnamentoPostgresDAO();
+		ResultSet rs = d.getInsegnamenti();
+
+		ArrayList<String> listaInsegnamenti = new ArrayList<>();
+		while(rs.next()) {
+			listaInsegnamenti.add(rs.getString("nome"));
+		}
+		return listaInsegnamenti;
+	}
+
 
 	/**
 	 * Restituisce tutte le richieste di spostamento attualmente in attesa di risposta.
@@ -450,7 +465,7 @@ public class Controller {
 
 
 	/**
-	 * Restituisce le variaizoni relative alle lezioni di un docente.
+	 * Restituisce le variazioni relative alle lezioni di un docente.
 	 * @param email L'email del docente relativo.
 	 * @return Un ArrayList di stringhe contenente tutte le variaizoni. Le stringhe sono della forma "[insegnamento]: [gg/mm/yyyy] ore [hh:mm] spostata a [gg/mm/yyyy] ore [hh:mm]-[hh:mm] "
 	 * @throws Exception In caso di errori nel database.
@@ -468,5 +483,7 @@ public class Controller {
 	}
 
 }
+
+
 
 
