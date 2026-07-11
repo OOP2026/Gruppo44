@@ -28,4 +28,43 @@ public class Lezione {
 
     }
 
+    public GiornoSettimana getGiornoSettimana() {
+        return giornoSettimana;
+    }
+
+    public void setGiornoSettimana(GiornoSettimana giornoSettimana) {
+        this.giornoSettimana = giornoSettimana;
+    }
+
+    public LocalTime getOraInizio() {
+        return oraInizio;
+    }
+
+    public void setOraInizio(LocalTime oraInizio) {
+        this.oraInizio = oraInizio;
+    }
+
+    public LocalTime getOraFine() {
+        return oraFine;
+    }
+
+    public void setOraFine(LocalTime oraFine) {
+        this.oraFine = oraFine;
+    }
+
+    public String getAula() {
+        return aula;
+    }
+
+    public void setAula(String aula) {
+        this.aula = aula;
+    }
+
+    public String getInsegnamento() {
+        return insegnamento;
+    }
+
+    public void setInsegnamento(String insegnamento) {
+        this.insegnamento = insegnamento;
+    }
 }

@@ -17,4 +17,44 @@ public class Variazione {
         this.nuovaOraFine = nuovaOraFine;
         this.oraInizioOriginale = oraInizioOriginale;
     }
+
+    public LocalDate getDataOriginale() {
+        return dataOriginale;
+    }
+
+    public void setDataOriginale(LocalDate dataOriginale) {
+        this.dataOriginale = dataOriginale;
+    }
+
+    public LocalDate getNuovaData() {
+        return nuovaData;
+    }
+
+    public void setNuovaData(LocalDate nuovaData) {
+        this.nuovaData = nuovaData;
+    }
+
+    public LocalTime getOraInizioOriginale() {
+        return oraInizioOriginale;
+    }
+
+    public void setOraInizioOriginale(LocalTime oraInizioOriginale) {
+        this.oraInizioOriginale = oraInizioOriginale;
+    }
+
+    public LocalTime getNuovaOraInizio() {
+        return nuovaOraInizio;
+    }
+
+    public void setNuovaOraInizio(LocalTime nuovaOraInizio) {
+        this.nuovaOraInizio = nuovaOraInizio;
+    }
+
+    public LocalTime getNuovaOraFine() {
+        return nuovaOraFine;
+    }
+
+    public void setNuovaOraFine(LocalTime nuovaOraFine) {
+        this.nuovaOraFine = nuovaOraFine;
+    }
 }

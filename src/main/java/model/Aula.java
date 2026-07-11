@@ -9,4 +9,20 @@ public class Aula {
         this.numeroAula = numeroAula;
     }
 
+
+    public int getCapienzaMassima() {
+        return capienzaMassima;
+    }
+
+    public void setCapienzaMassima(int capienzaMassima) {
+        this.capienzaMassima = capienzaMassima;
+    }
+
+    public String getNumeroAula() {
+        return numeroAula;
+    }
+
+    public void setNumeroAula(String numeroAula) {
+        this.numeroAula = numeroAula;
+    }
 }

@@ -11,4 +11,19 @@ public class Studente extends Utente {
         this.annoAccademico = annoAccademico;
     }
 
+    public int getAnnoAccademico() {
+        return annoAccademico;
+    }
+
+    public void setAnnoAccademico(int annoAccademico) {
+        this.annoAccademico = annoAccademico;
+    }
+
+    public String getMatricola() {
+        return matricola;
+    }
+
+    public void setMatricola(String matricola) {
+        this.matricola = matricola;
+    }
 }
