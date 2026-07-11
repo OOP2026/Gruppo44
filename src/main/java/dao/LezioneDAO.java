@@ -1,10 +1,12 @@
 package dao;
-
 import java.sql.ResultSet;
 import java.time.LocalTime;
 
+
 public interface LezioneDAO {
-    void creaLezioneDB(String giornoSettimana, LocalTime oraInizio, LocalTime oraFine, String aula, String insegnamento) throws Exception;
-    ResultSet getLezioniDB(String email) throws Exception;
-    ResultSet getLezioniDB(int anno) throws Exception;
+    void creaLezione(String giornoSettimana, LocalTime oraInizio, LocalTime oraFine, String aula, String insegnamento) throws Exception;
+    ResultSet getLezioni(String email) throws Exception;
+    ResultSet getLezioni(int anno) throws Exception;
+    ResultSet getLezioni() throws Exception;
+    void eliminaLezione(String insegnamento, String giornoSettimana, LocalTime oraInizio) throws Exception;
 }

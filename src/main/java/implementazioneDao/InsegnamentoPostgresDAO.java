@@ -1,20 +1,18 @@
 package implementazioneDao;
 import dao.InsegnamentoDAO;
 import database_connection.ConnessioneDatabase;
-
 import java.sql.*;
-import java.util.ArrayList;
+
 
 public class InsegnamentoPostgresDAO implements InsegnamentoDAO {
-    private Connection connessioneDatabase;
+    private final Connection connessioneDatabase;
 
     public InsegnamentoPostgresDAO() {
         try{
             connessioneDatabase = ConnessioneDatabase.getInstance().getConnection();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
     }
 
     /**
@@ -70,5 +68,31 @@ public class InsegnamentoPostgresDAO implements InsegnamentoDAO {
             throw new Exception("Si è verificato un errore nel database.");
         }
         return rs;
+    }
+
+    public void eliminaInsegnamento(String nomeInsegnamento) throws Exception {
+        String sql = "DELETE FROM insegnamento WHERE nome = ?;";
+
+        try(PreparedStatement query = connessioneDatabase.prepareStatement(sql)) {
+            query.setString(1, nomeInsegnamento);
+        } catch (SQLException e) {
+            throw new Exception("Si è verificato un errore nel database.");
+        }
+    }
+
+    /**
+     *
+     */
+    public void aggiornaInsegnamento (String nomeInsegnamento, int numeroCFU, int anno, String emailDocente) throws Exception {
+        String sql = "UPDATE  insegnamento SET numeroCFU = ?, anno_accademico = ?, email_docente = ? WHERE nome = ?;";
+         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql)) {
+             query.setInt(1,  numeroCFU);
+             query.setInt (2, anno);
+             query.setString(3, emailDocente);
+             query.setString(4, nomeInsegnamento);
+             query.executeUpdate();
+         } catch (SQLException e) {
+             throw new Exception("Si è verificato un errore nel database.");
+         }
     }
 }

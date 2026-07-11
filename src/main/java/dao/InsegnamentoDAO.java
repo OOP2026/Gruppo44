@@ -1,12 +1,11 @@
 package dao;
-
-import model.Docente;
-
 import java.sql.ResultSet;
-import java.util.ArrayList;
+
 
 public interface InsegnamentoDAO {
-    public void creaInsegnamento(String nome, int numeroCFU, int anno, String email ) throws Exception;
-    public ResultSet getInsegnamentiDocente(String emailDocente) throws Exception;
-    public ResultSet getInsegnamenti() throws Exception;
+    void creaInsegnamento(String nome, int numeroCFU, int anno, String email ) throws Exception;
+    ResultSet getInsegnamentiDocente(String emailDocente) throws Exception;
+    ResultSet getInsegnamenti() throws Exception;
+    void eliminaInsegnamento(String nomeInsegnamento) throws Exception;
+    void aggiornaInsegnamento (String nomeInsegnamento, int numeroCFU, int anno, String emailDocente) throws Exception;
 }

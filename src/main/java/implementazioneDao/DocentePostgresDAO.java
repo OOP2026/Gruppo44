@@ -7,13 +7,13 @@ import java.sql.*;
 
 public class DocentePostgresDAO implements DocenteDAO {
 
-    private Connection connessioneDatabase;
+    private final Connection connessioneDatabase;
 
     public DocentePostgresDAO() {
         try{
             connessioneDatabase = ConnessioneDatabase.getInstance().getConnection();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -21,7 +21,7 @@ public class DocentePostgresDAO implements DocenteDAO {
      * Effettua il login di un {@link model.Docente} verificando le credenziali nel database
      * @param email L'indirizzo email del docente
      * @param password La password associata all'account del docente
-     * @return Un oggetto {@link ResultSet} contenente i dati del docente se l'autentificazione ha successo
+     * @return Un oggetto {@link ResultSet} contenente i dati del docente se l'autenticazione ha successo
      * @throws Exception Se le credenziali sono errate, se si verifica un errore di connessione o se non viene trovato alcun record corrispondente
      */
     public ResultSet login(String email, String password) throws Exception
@@ -63,4 +63,11 @@ public class DocentePostgresDAO implements DocenteDAO {
 
     }
 
+    public void eliminaDocente(String email) throws Exception {
+        String sql = "DELETE FROM docente WHERE email LIKE ?;";
+        try (PreparedStatement query = connessioneDatabase.prepareStatement(sql)){
+            query.setString(1, email);
+            query.executeUpdate();
+        } catch (SQLException e){throw new Exception("Errore: si è verificato un errore nel database!");}
+    }
 }

@@ -3,15 +3,17 @@ import dao.RichiestaDAO;
 import database_connection.ConnessioneDatabase;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class RichiestaPostgresDAO implements RichiestaDAO {
-    private Connection connessioneDatabase;
+
+    private final Connection connessioneDatabase;
 
     public RichiestaPostgresDAO() {
         try{
             connessioneDatabase = ConnessioneDatabase.getInstance().getConnection();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -25,15 +27,15 @@ public class RichiestaPostgresDAO implements RichiestaDAO {
      * @param oraFineRichiesta L'ora di fine richiesta dal docente.
      * @throws Exception In caso di errori nel database.
      */
-    public void aggiungiRichiestaSpostamento(String nomeInsegnamento, String oraOriginale, String dataOriginale, String dataRichiesta, String oraInizioRichiesta, String oraFineRichiesta, String aula) throws Exception{
+    public void aggiungiRichiestaSpostamento(String nomeInsegnamento, LocalTime oraOriginale, LocalDate dataOriginale, LocalDate dataRichiesta, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta, String aula) throws Exception{
         String sql = "INSERT INTO richiesta (insegnamento, ora_inizio_originale, data_originale, data_richiesta, ora_inizio, ora_fine, giorno_settimana, aula) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-        int giornoSettimana = LocalDate.parse(dataOriginale).getDayOfWeek().getValue() - 1;
+        int giornoSettimana = dataOriginale.getDayOfWeek().getValue() - 1;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, nomeInsegnamento);
             query.setTime(2, Time.valueOf(oraOriginale));
-            query.setString(3, dataOriginale);
-            query.setString(4, dataRichiesta);
+            query.setDate(3, Date.valueOf(dataOriginale));
+            query.setDate(4, Date.valueOf (dataRichiesta));
             query.setTime(5, Time.valueOf(oraInizioRichiesta));
             query.setTime(6, Time.valueOf(oraFineRichiesta));
             query.setInt(7, giornoSettimana);

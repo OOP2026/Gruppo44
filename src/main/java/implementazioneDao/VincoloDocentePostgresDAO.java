@@ -1,21 +1,18 @@
 package implementazioneDao;
-
 import dao.VincoloDocenteDAO;
 import database_connection.ConnessioneDatabase;
-
 import java.sql.*;
-import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
 
-    private Connection connessioneDatabase;
+    private final Connection connessioneDatabase;
 
     public VincoloDocentePostgresDAO() {
         try{
             connessioneDatabase = ConnessioneDatabase.getInstance().getConnection();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e) ;
         }
     }
 
@@ -38,6 +35,16 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
             query.setTime(4, Time.valueOf(oraFine));
             query.executeUpdate();
         } catch (SQLException e) {throw new Exception("Si è verificato un errore nel database.");}
+    }
+
+    public void eliminaVincoloDocente (String email, String giorno,LocalTime oraInizio ) throws Exception {
+        String sql = "DELETE FROM vincolo_docente WHERE email_docente = ? AND giorno = ? AND  ora_inizio = ?;";
+        try(PreparedStatement query = connessioneDatabase.prepareStatement(sql)) {
+            query.setString(1, email);
+            query.setString(2, giorno);
+            query.setTime(3, Time.valueOf(oraInizio));
+            query.executeUpdate();
+        }  catch (SQLException e) {throw new Exception("Si è verificato un errore nel database.");}
     }
 
     /**
