@@ -1,11 +1,10 @@
 package dao;
 
-import model.Aula;
-
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public interface AulaDAO {
-    void creaAula (String nomeAula, int capienzaMassima) throws Exception;
-    void eliminaAula (String nomeAula) throws Exception;
-    ResultSet getAule() throws Exception;
+    void creaAula (String nomeAula, int capienzaMassima) throws SQLException;
+    void eliminaAula (String nomeAula) throws SQLException;
+    ResultSet getAule() throws SQLException;
 }

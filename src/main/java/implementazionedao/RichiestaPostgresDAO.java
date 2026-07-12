@@ -1,4 +1,4 @@
-package implementazioneDao;
+package implementazionedao;
 import dao.RichiestaDAO;
 import database_connection.ConnessioneDatabase;
 import java.sql.*;
@@ -25,9 +25,9 @@ public class RichiestaPostgresDAO implements RichiestaDAO {
      * @param dataRichiesta La data richiesta dal docente.
      * @param oraInizioRichiesta L'ora di inizio richiesta dal docente.
      * @param oraFineRichiesta L'ora di fine richiesta dal docente.
-     * @throws Exception In caso di errori nel database.
+     * @throws SQLException In caso di errori nel database.
      */
-    public void aggiungiRichiestaSpostamento(String nomeInsegnamento, LocalTime oraOriginale, LocalDate dataOriginale, LocalDate dataRichiesta, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta, String aula) throws Exception{
+    public void aggiungiRichiestaSpostamento(String nomeInsegnamento, LocalTime oraOriginale, LocalDate dataOriginale, LocalDate dataRichiesta, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta, String aula) throws SQLException{
         String sql = "INSERT INTO richiesta (insegnamento, ora_inizio_originale, data_originale, data_richiesta, ora_inizio, ora_fine, giorno_settimana, aula) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
         int giornoSettimana = dataOriginale.getDayOfWeek().getValue() - 1;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
@@ -42,41 +42,41 @@ public class RichiestaPostgresDAO implements RichiestaDAO {
             query.setString(8, aula);
             query.executeUpdate();
 
-        } catch (SQLException e) {throw new Exception("Non è possibile aggiungere richiesta!");
+        } catch (SQLException e) {throw new SQLException("Non è possibile aggiungere richiesta!");
         }
     }
 
     /**
      * Restituisce tutte le richieste di spostamento delle lezioni presenti nel database.
      * @return ResultSet contenente i dati di tutte le richieste.
-     * @throws Exception In caso di errori nel database.
+     * @throws SQLException In caso di errori nel database.
      */
-    public ResultSet getRegistroRichiesteSpostamento() throws Exception{
-        String sql = "SELECT * FROM richiesta";
+    public ResultSet getRegistroRichiesteSpostamento() throws SQLException{
+        String sql = "SELECT insegnamento, data_originale, data_richiesta, ora_inizio_originale, ora_inizio, ora_fine, id_richiesta, giorno_settimana, aula FROM richiesta";
         ResultSet result;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql)){
             result = query.executeQuery();
         }
-        catch (SQLException e){throw new Exception("Si è verificato un errore!");}
+        catch (SQLException e){throw new SQLException("Si è verificato un errore!");}
         return result;
     }
 
     /**
      * Cancella una richiesta di spostamento dal database e ne restituisce i dati.
-     * @param id_richiesta l'identificativo della richiesta.
+     * @param idRichiesta l'identificativo della richiesta.
      * @return ResultSet contenente i dati della richiesta cancellata.
-     * @throws Exception In caso di errori nel database.
+     * @throws SQLException In caso di errori nel database.
      */
-    public ResultSet cancellaRichiesta(int id_richiesta) throws Exception {
+    public ResultSet cancellaRichiesta(int idRichiesta) throws SQLException {
         String sql= "DELETE FROM richiesta WHERE id_richiesta = ? RETURNING *;";
         ResultSet result;
 
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
-            query.setInt(1, id_richiesta);
+            query.setInt(1, idRichiesta);
             result = query.executeQuery();
         }
-        catch (SQLException e) {throw new Exception("Si è verificato un errore!");}
+        catch (SQLException e) {throw new SQLException("Si è verificato un errore!");}
         return result;
     }
 

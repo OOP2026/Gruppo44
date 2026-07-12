@@ -17,7 +17,7 @@ public class LayeredArchitectureTest {
             .layer("Boundaries").definedBy("gui..")
             .layer("Controls").definedBy("controller..")
             .layer("Entities").definedBy("model..")
-            .layer("Database").definedBy("implementazioneDao..")
+            .layer("Database").definedBy("implementazionedao..")
 
             .whereLayer("Boundaries").mayNotBeAccessedByAnyLayer()
             .whereLayer("Controls").mayOnlyBeAccessedByLayers("Boundaries")

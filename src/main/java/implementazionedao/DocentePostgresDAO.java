@@ -1,4 +1,4 @@
-package implementazioneDao;
+package implementazionedao;
 
 import dao.DocenteDAO;
 import database_connection.ConnessioneDatabase;
@@ -22,23 +22,23 @@ public class DocentePostgresDAO implements DocenteDAO {
      * @param email L'indirizzo email del docente
      * @param password La password associata all'account del docente
      * @return Un oggetto {@link ResultSet} contenente i dati del docente se l'autenticazione ha successo
-     * @throws Exception Se le credenziali sono errate, se si verifica un errore di connessione o se non viene trovato alcun record corrispondente
+     * @throws SQLException Se le credenziali sono errate, se si verifica un errore di connessione o se non viene trovato alcun record corrispondente
      */
-    public ResultSet login(String email, String password) throws Exception
+    public ResultSet login(String email, String password) throws SQLException
     {
-        String sql = "SELECT * FROM docente WHERE email LIKE ? AND password LIKE ?;";
+        String sql = "SELECT nome, cognome, email, password FROM docente WHERE email LIKE ? AND password LIKE ?;";
         ResultSet rs;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, email);
             query.setString(2, password);
             rs = query.executeQuery(sql);
-        } catch (SQLException e) {throw new Exception("Credenziali errate.");}
+        } catch (SQLException e) {throw new SQLException("Credenziali errate.");}
         if(rs.next())
         {
             return rs;
         }
-        else{throw new Exception("Credenziali errate.");}
+        else{throw new SQLException("Credenziali errate.");}
     }
 
     /**
@@ -47,9 +47,9 @@ public class DocentePostgresDAO implements DocenteDAO {
      * @param cognome Il cognome del docente
      * @param email L'indirizzo email del docente
      * @param password La password per l'account del docente
-     * @throws Exception Se si verifica un errore durante l'esecuzione della query o se l'inserimento nel database non va a buon fine
+     * @throws SQLException Se si verifica un errore durante l'esecuzione della query o se l'inserimento nel database non va a buon fine
      */
-    public void creaDocente(String nome, String cognome, String email, String password) throws Exception
+    public void creaDocente(String nome, String cognome, String email, String password) throws SQLException
     {
         String sql = "INSERT INTO docente(nome, cognome, email, password) VALUES(?,?,?,?);";
         try (PreparedStatement query = connessioneDatabase.prepareStatement(sql))
@@ -59,15 +59,15 @@ public class DocentePostgresDAO implements DocenteDAO {
             query.setString(3, email);
             query.setString(4, password);
             query.executeUpdate();
-        } catch (SQLException e){throw new Exception("Errore: registrazione fallita.");}
+        } catch (SQLException e){throw new SQLException("Errore: registrazione fallita.");}
 
     }
 
-    public void eliminaDocente(String email) throws Exception {
+    public void eliminaDocente(String email) throws SQLException {
         String sql = "DELETE FROM docente WHERE email LIKE ?;";
         try (PreparedStatement query = connessioneDatabase.prepareStatement(sql)){
             query.setString(1, email);
             query.executeUpdate();
-        } catch (SQLException e){throw new Exception("Errore: si è verificato un errore nel database!");}
+        } catch (SQLException e){throw new SQLException("Errore: si è verificato un errore nel database!");}
     }
 }

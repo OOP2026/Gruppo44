@@ -36,12 +36,12 @@ public class LayerContainmentTest {
     @ArchTest
     public static final ArchRule DAO_implementations_reside_in_the_DAO_implementation_layer = classes()
             .that().haveSimpleNameEndingWith("Dao")
-            .should().resideInAPackage("project.implementazioneDao");
+            .should().resideInAPackage("project.implementazionedao");
 
     @ArchTest
     public static final ArchRule DAO_implementations_only_reside_in_the_DAO_implementation_layer = noClasses()
             .that().haveSimpleNameNotEndingWith("Dao")
-            .should().resideInAPackage("project.implementazioneDao");
+            .should().resideInAPackage("project.implementazionedao");
 
     @ArchTest
     public static final ArchRule GUIs_reside_in_the_GUI_layer = classes()

@@ -4,18 +4,20 @@ package controller;
 import dao.LezioneDAO;
 import model.*;
 import dao.*;
-import implementazioneDao.*;
+import implementazionedao.*;
 
 import java.sql.*;
 import java.time.LocalTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Controller {
 
-	public Controller() {
-	}
+	//public Controller() {}
+	private final String oraInizioDatabase = "ora_inizio";
 
 	private static Controller instance;
 
@@ -107,10 +109,9 @@ public class Controller {
 	 * @return ArrayList di {@link String} della forma: "[oraInizio]\n[oraFine]\n[insegnamento]\n[aula]"
 	 * @throws Exception In caso di errori nel database.
 	 */
-	private ArrayList<String>[] formatLezioni(ResultSet rs) throws Exception{
+	private ArrayList<String>[] formatLezioni(ResultSet rs) throws SQLException{
 
 		ArrayList<String>[] stringArr = new ArrayList[5];
-
 		try {
 			while (rs.next()) {
 				int giorno = rs.getInt("giorno_settimana");
@@ -121,7 +122,7 @@ public class Controller {
 
 				stringArr[giorno].add(oraInizio + "\n" + oraFine + "\n" + insegnamento + "\n" + aula);
 			}
-		} catch (SQLException e) {throw new Exception("Si è verificato un errore nel database.");}
+		} catch (SQLException e) {throw new SQLException("Si è verificato un errore nel database.");}
 		return stringArr;
 	}
 
@@ -267,7 +268,7 @@ public class Controller {
 	 * @return ArrayList di stringhe contenente gli insegnamenti di un determinato docente. Le stringhe sono della forma: "[nome], anno [X], [Y] CFU"
 	 * @throws Exception In caso di errori nel database.
 	 */
-	public ArrayList<String> getInsegnamentiDocente(String emailDocente) throws Exception {
+	public List<String> getInsegnamentiDocente(String emailDocente) throws Exception {
 		InsegnamentoDAO i = new InsegnamentoPostgresDAO();
 		ResultSet rs = i.getInsegnamentiDocente(emailDocente);
 
@@ -282,7 +283,7 @@ public class Controller {
 	/**
 	 *
 	 */
-	public ArrayList<String> getInsegnamenti() throws Exception {
+	public List<String> getInsegnamenti() throws Exception {
 		InsegnamentoDAO d = new InsegnamentoPostgresDAO();
 		ResultSet rs = d.getInsegnamenti();
 
@@ -307,7 +308,7 @@ public class Controller {
 	 * @return ArrayList di stringhe della forma: "Lezione di [insegnamento] giorno [gg/mm/yyyy] ore [hh:mm] -> giorno [gg/mm/yyyy] ore [hh:mm]"
 	 * @throws Exception In caso di errori nel database.
 	 */
-	public ArrayList<String>getRegistroRichiesteSpostamento() throws Exception {
+	public List<String>getRegistroRichiesteSpostamento() throws Exception {
 		RichiestaDAO r = new RichiestaPostgresDAO();
 		ArrayList<String> registroRichiesteSpostamento = new ArrayList<>();
 		try(ResultSet rs = r.getRegistroRichiesteSpostamento()) {
@@ -321,17 +322,17 @@ public class Controller {
 
 	/**
 	 * Approva una richiesta di spostamento di una lezione. La richiesta viene eliminata dal database, e inserisce una variazione corrispondente chiamando {@link #creaVariazione}.
-	 * @param id_richiesta L'identificativo della richiesta da approvare.
+	 * @param idRichiesta L'identificativo della richiesta da approvare.
 	 * @throws Exception In caso di errori nel database.
 	 */
-	public void approvaRichiesta(int id_richiesta) throws Exception {
+	public void approvaRichiesta(int idRichiesta) throws Exception {
 		RichiestaDAO r = new RichiestaPostgresDAO();
 
-		try(ResultSet rs = r.cancellaRichiesta(id_richiesta)){
+		try(ResultSet rs = r.cancellaRichiesta(idRichiesta)){
 			if(rs.next()) {
 				creaVariazione(rs.getString ("insegnamento" ), rs.getDate("data_originale").toLocalDate(), rs.getDate("data_richiesta").toLocalDate(), rs.getTime("ora_inizio_originale").toLocalTime(), rs.getTime("ora_inizio").toLocalTime(), rs.getTime("ora_fine").toLocalTime(), rs.getString("aula"));
 			}
-			else{throw new Exception("La richiesta non esiste!");
+			else{throw new SQLException("La richiesta non esiste!");
 			}
 		}
 	}
@@ -341,12 +342,12 @@ public class Controller {
 	 * @param id_richiesta L'identificativo della richiesta da rifiutare.
 	 * @throws Exception In caso di errori nel database.
 	 */
-	public void rifiutaRichiesta(int id_richiesta) throws Exception {
+	public void rifiutaRichiesta(int idRichiesta) throws Exception {
 		RichiestaDAO r = new RichiestaPostgresDAO();
 
-		try (ResultSet rs = r.cancellaRichiesta(id_richiesta)){
+		try (ResultSet rs = r.cancellaRichiesta(idRichiesta)){
 			if(!rs.next()) {
-				throw new Exception("La richiesta non esiste!");
+				throw new SQLException("La richiesta non esiste!");
 			}
 		}
 	}
@@ -356,7 +357,7 @@ public class Controller {
 	 * @return Hashmap che usa come chiave l'email di un docente e come valore un ArrayList di stringhe contenente i suoi vincoli inseriti. Le stringhe sono della forma "Giorno: [gg/mm/yyyy], ore: [hh:mm] - [hh:mm]".
 	 * @throws Exception In caso di errori nel database.
 	 */
-	public HashMap<String, ArrayList<String>> getRegistroVincoliDocenti() throws Exception{
+	public Map<String, List<String>> getRegistroVincoliDocenti() throws Exception{
 		HashMap<String, ArrayList<String>> h = new HashMap<>();
 		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
 
@@ -376,7 +377,7 @@ public class Controller {
 	 * @return Un ArrayList di stringhe contenente i vincoli di indisponibilità inseriti da un docente. Le stringhe sono della forma "Giorno: [gg/mm/yyyy], ore: [hh:mm] - [hh:mm]".
 	 * @throws Exception In caso di errori nel database.
 	 */
-	public ArrayList<String> getVincoliDocente(String emailDocente) throws Exception{
+	public List<String> getVincoliDocente(String emailDocente) throws Exception{
 		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
 		ArrayList<String> arr = new ArrayList<>();
 
@@ -398,7 +399,7 @@ public class Controller {
 		ResultSet rs = s.getAnnoStudente(email);
 		if (rs.next()) {
 			return rs.getInt("anno_accademico");
-		} else throw new Exception("Lo studente non esiste!");
+		} else throw new SQLException("Lo studente non esiste!");
 	}
 
 	/**
@@ -407,13 +408,13 @@ public class Controller {
 	 * @return Un ArrayList di stringhe contenente tutte le variazioni. Le stringhe sono della forma "[insegnamento]: [gg/mm/yyyy] ore [hh:mm] spostata a [gg/mm/yyyy] ore [hh:mm]-[hh:mm] "
 	 * @throws Exception In caso di errori nel database.
 	 */
-	public ArrayList<String> getVariazioni(int anno) throws Exception{
+	public List<String> getVariazioni(int anno) throws Exception{
 		VariazioneDAO v = new VariazionePostgresDAO();
 		ResultSet rs = v.getVariazioni(anno);
 		return formatVariazioni(rs);
 	}
 
-	public ArrayList<String> formatVariazioni (ResultSet rs) throws Exception{
+	public List<String> formatVariazioni (ResultSet rs) throws SQLException{
 
 		ArrayList<String> stringArr = new ArrayList<>();
 		while(rs.next()){
@@ -431,7 +432,7 @@ public class Controller {
 	 * @return Un ArrayList di stringhe contenente tutte le variazioni. Le stringhe sono della forma "[insegnamento]: [gg/mm/yyyy] ore [hh:mm] spostata a [gg/mm/yyyy] ore [hh:mm]-[hh:mm] "
 	 * @throws Exception In caso di errori nel database.
 	 */
-	public ArrayList<String> getVariazioni(String email) throws Exception{
+	public List<String> getVariazioni(String email) throws Exception{
 		VariazioneDAO v = new VariazionePostgresDAO();
 		ResultSet rs = v.getVariazioni(email);
 		return formatVariazioni(rs);
@@ -447,7 +448,7 @@ public class Controller {
 		a.eliminaAula(nomeAula);
 	}
 
-	public ArrayList<String> getAule() throws Exception {
+	public List<String> getAule() throws Exception {
 		AulaDAO a = new AulaPostgresDAO();
 		ArrayList<String> stringArr = new ArrayList<>();
 		try(ResultSet rs = a.getAule()){
