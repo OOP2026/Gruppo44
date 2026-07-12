@@ -19,8 +19,8 @@ public class Controller {
 	//public Controller() {}
 	private Docente docenteAttivo;
 	private Studente studenteAttivo;
-	private ArrayList<Docente> docentiLocale;
-	private ArrayList<Studente> studentiLocale;
+	private ArrayList<Docente> docentiLocale = new ArrayList<>();
+	private ArrayList<Studente> studentiLocale = new ArrayList<>();
 	private ArrayList<Aula> auleLocale;
 	private ArrayList<Insegnamento> insegnamentiLocale;
 	private ArrayList<Lezione> lezioniLocale;
