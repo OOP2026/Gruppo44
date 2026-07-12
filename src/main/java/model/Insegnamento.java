@@ -1,29 +1,21 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Insegnamento {
-    public String nome;
-    int numeroCFU;
-    public ArrayList<Lezione> lezioni;
-    public int annoAccademico;
-    public Docente docente;
+    private String nome;
+    private int numeroCFU;
+    private List<Lezione> lezioni;
+    private int annoAccademico;
+    private String docente;
 
-    public Insegnamento(String nome, int numeroCFU, int annoAccademico, Docente docente) {
+    public Insegnamento(String nome, int numeroCFU, int annoAccademico, String docente) {
         this.nome = nome;
         this.numeroCFU = numeroCFU;
         this.annoAccademico = annoAccademico;
         lezioni = new ArrayList<>();
         this.docente = docente;
-    }
-
-
-    public Insegnamento(String nome, int numeroCFU, int annoAccademico) {
-        this.nome = nome;
-        this.numeroCFU = numeroCFU;
-        this.annoAccademico = annoAccademico;
-        lezioni = new ArrayList<>();
-        this.docente = null;
     }
 
 
@@ -43,11 +35,11 @@ public class Insegnamento {
         this.numeroCFU = numeroCFU;
     }
 
-    public ArrayList<Lezione> getLezioni() {
+    public List<Lezione> getLezioni() {
         return lezioni;
     }
 
-    public void setLezioni(ArrayList<Lezione> lezioni) {
+    public void setLezioni(List<Lezione> lezioni) {
         this.lezioni = lezioni;
     }
 
@@ -59,11 +51,11 @@ public class Insegnamento {
         this.annoAccademico = annoAccademico;
     }
 
-    public Docente getDocente() {
+    public String getDocente() {
         return docente;
     }
 
-    public void setDocente(Docente docente) {
+    public void setDocente(String docente) {
         this.docente = docente;
     }
 }

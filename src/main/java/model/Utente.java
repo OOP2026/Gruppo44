@@ -2,11 +2,10 @@ package model;
 
 
 public class Utente {
-    protected String nome;
-    protected String cognome;
-    protected String email;
-    //protected String login;
-    protected String password;
+    private String nome;
+    private String cognome;
+    private String email;
+    private String password;
 
     public Utente(String nome, String cognome, String email, String password) {
         //Costruttore che assegna le varie stringhe all'attributo corrispondente

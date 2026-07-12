@@ -1,12 +1,12 @@
 package model;
 
 public class Aula {
-    int capienzaMassima;
-    String numeroAula;
+    private int capienzaMassima;
+    private String nomeAula;
 
-    Aula(int capienzaMassima, String numeroAula){
+    public Aula(String numeroAula, int capienzaMassima) {
         this.capienzaMassima = capienzaMassima;
-        this.numeroAula = numeroAula;
+        this.nomeAula = numeroAula;
     }
 
 
@@ -18,11 +18,11 @@ public class Aula {
         this.capienzaMassima = capienzaMassima;
     }
 
-    public String getNumeroAula() {
-        return numeroAula;
+    public String getNomeAula() {
+        return nomeAula;
     }
 
-    public void setNumeroAula(String numeroAula) {
-        this.numeroAula = numeroAula;
+    public void setNomeAula(String nomeAula) {
+        this.nomeAula = nomeAula;
     }
 }

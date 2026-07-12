@@ -5,21 +5,26 @@ import java.time.LocalTime;
 
 public class Richiesta {
 
-    public String insegnamento;
-    public LocalDate giornoOriginale;
-    public LocalDate giornoRichiesto;
-    public LocalTime oraInizioRichiesta;
-    public LocalTime oraInizioOriginale;
-    public LocalTime oraFineRichiesta;
-    public String aula;
+    private String insegnamento;
+    private LocalDate giornoOriginale;
+    private LocalDate giornoRichiesto;
+    private LocalTime oraInizioRichiesta;
+    private LocalTime oraInizioOriginale;
+    private LocalTime oraFineRichiesta;
+    private String aula;
+
+    public int idRichiesta;
 
 
-    public String getAula() {
-        return aula;
-    }
-
-    public void setAula(String aula) {
+    public Richiesta(String insegnamento, LocalDate giornoOriginale, LocalDate giornoRichiesto, LocalTime oraInizioOriginale, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta, String aula, int idRichiesta){
+        this.insegnamento = insegnamento;
+        this.giornoOriginale = giornoOriginale;
+        this.giornoRichiesto = giornoRichiesto;
+        this.oraInizioOriginale = oraInizioOriginale;
+        this.oraInizioRichiesta = oraInizioRichiesta;
+        this.oraFineRichiesta = oraFineRichiesta;
         this.aula = aula;
+        this.idRichiesta = idRichiesta;
     }
 
     public Richiesta(String insegnamento, LocalDate giornoOriginale, LocalDate giornoRichiesto, LocalTime oraInizioOriginale, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta, String aula){
@@ -78,5 +83,21 @@ public class Richiesta {
 
     public void setOraFineRichiesta(LocalTime oraFineRichiesta) {
         this.oraFineRichiesta = oraFineRichiesta;
+    }
+
+    public int getIdRichiesta() {
+        return idRichiesta;
+    }
+
+    public void setIdRichiesta(int idRichiesta) {
+        this.idRichiesta = idRichiesta;
+    }
+
+    public String getAula() {
+        return aula;
+    }
+
+    public void setAula(String aula) {
+        this.aula = aula;
     }
 }

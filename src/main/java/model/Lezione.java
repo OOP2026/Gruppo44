@@ -3,11 +3,11 @@ package model;
 import java.time.LocalTime;
 
 public class Lezione {
-    public GiornoSettimana giornoSettimana;
-    LocalTime oraInizio;
-    LocalTime oraFine;
-    String aula;
-    String insegnamento;
+    private GiornoSettimana giornoSettimana;
+    private LocalTime oraInizio;
+    private LocalTime oraFine;
+    private String aula;
+    private String insegnamento;
 
     public Lezione(GiornoSettimana g, LocalTime oraInizio, LocalTime oraFine, String aula, String insegnamento) {
         this.giornoSettimana = g;

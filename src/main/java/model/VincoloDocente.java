@@ -3,16 +3,24 @@ package model;
 import java.time.LocalTime;
 
 public class VincoloDocente {
-    public Docente docente;
-    public GiornoSettimana giorno;
-    public LocalTime oraInizio;
-    public LocalTime oraFine;
+    private String docente;
+    private GiornoSettimana giorno;
+    private LocalTime oraInizio;
+    private LocalTime oraFine;
 
-    public Docente getDocente() {
+    public VincoloDocente(String docente, GiornoSettimana giorno, LocalTime oraInizio, LocalTime oraFine) {
+        this.docente = docente;
+        this.giorno = giorno;
+        this.oraInizio = oraInizio;
+        this.oraFine = oraFine;
+    }
+
+
+    public String getDocente() {
         return docente;
     }
 
-    public void setDocente(Docente docente) {
+    public void setDocente(String docente) {
         this.docente = docente;
     }
 
