@@ -4,7 +4,7 @@ package model;
 public class Utente {
     protected String nome;
     protected String cognome;
-    public String email;
+    protected String email;
     //protected String login;
     protected String password;
 

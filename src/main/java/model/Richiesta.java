@@ -5,30 +5,38 @@ import java.time.LocalTime;
 
 public class Richiesta {
 
-    public Insegnamento insegnamento;
+    public String insegnamento;
     public LocalDate giornoOriginale;
     public LocalDate giornoRichiesto;
     public LocalTime oraInizioRichiesta;
     public LocalTime oraInizioOriginale;
     public LocalTime oraFineRichiesta;
-    public String statoRichiesta;
+    public String aula;
 
-    Richiesta(Insegnamento insegnamneto, LocalDate giornoOriginale, LocalDate giornoRichiesto, LocalTime oraInizioOriginale, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta){
-        this.insegnamento = insegnamneto;
+
+    public String getAula() {
+        return aula;
+    }
+
+    public void setAula(String aula) {
+        this.aula = aula;
+    }
+
+    public Richiesta(String insegnamento, LocalDate giornoOriginale, LocalDate giornoRichiesto, LocalTime oraInizioOriginale, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta, String aula){
+        this.insegnamento = insegnamento;
         this.giornoOriginale = giornoOriginale;
         this.giornoRichiesto = giornoRichiesto;
         this.oraInizioOriginale = oraInizioOriginale;
         this.oraInizioRichiesta = oraInizioRichiesta;
         this.oraFineRichiesta = oraFineRichiesta;
-        this.statoRichiesta = "In attesa";
-        //il costruttore non accetta parametri per statoRichiesta e la imposta sempre a IN_ATTESA perché una richiesta sarà sempre in attesa appena creata
+        this.aula = aula;
     }
 
-    public Insegnamento getInsegnamento() {
+    public String getInsegnamento() {
         return insegnamento;
     }
 
-    public void setInsegnamento(Insegnamento insegnamento) {
+    public void setInsegnamento(String insegnamento) {
         this.insegnamento = insegnamento;
     }
 
@@ -70,13 +78,5 @@ public class Richiesta {
 
     public void setOraFineRichiesta(LocalTime oraFineRichiesta) {
         this.oraFineRichiesta = oraFineRichiesta;
-    }
-
-    public String getStatoRichiesta() {
-        return statoRichiesta;
-    }
-
-    public void setStatoRichiesta(String statoRichiesta) {
-        this.statoRichiesta = statoRichiesta;
     }
 }
