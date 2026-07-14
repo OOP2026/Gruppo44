@@ -12,7 +12,7 @@ public class DashboardStudente extends JPanel {
     private final MainPanel mainPanel;
     private String[] dati; // nome, cognome, email, matricola, anno
 
-    // registrazione == true mostra il form di iscrizione, false mostra il login
+    // con registrazione == true mostra il form di iscrizione, false mostra il login
     public DashboardStudente(MainPanel mainPanel, boolean registrazione) {
         this.mainPanel = mainPanel;
         setBackground(Stile.AZZURRO);
