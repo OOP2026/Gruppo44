@@ -1,436 +1,392 @@
 package gui;
 
 import controller.Controller;
+
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DashboardDocente extends JPanel {
 
-    protected MainPanel mainPanel;
-    protected String emailDocenteLoggato; // Memorizza il docente corrente
+    protected final MainPanel mainPanel;
+    protected String[] dati; // contiene nome[0], cognome[1], email[2] riempito dopo il login
 
-    // Pannello principale di stato per autenticazione
-    private JPanel panelAutenticazione;
-
-    // Campi Login
-    private JTextField txtLoginEmail;
-    private JPasswordField txtLoginPassword;
-
-    // Campi Registrazione
-    private JTextField txtRegNome;
-    private JTextField txtRegCognome;
-    private JTextField txtRegEmail;
-    private JPasswordField txtRegPassword;
-
-    // Struttura per memorizzare temporaneamente i vincoli inseriti nel pop-up prima del salvataggio
-    protected List<String[]> vincoliTemporanei = new ArrayList<>();
-
-    public DashboardDocente(MainPanel mainPanel) {
+    // registrazione = true mostra il form di iscrizione, false mostra il login
+    public DashboardDocente(MainPanel mainPanel, boolean registrazione) {
         this.mainPanel = mainPanel;
+        setBackground(Stile.AZZURRO);
         setLayout(new BorderLayout());
-        setBackground(new Color(235, 243, 249));
 
-        // =====================================================================
-        // 1. COSTRUZIONE STRUTTURA DI AUTENTICAZIONE (LOGIN + REGISTRAZIONE)
-        // =====================================================================
+        if (registrazione) {
+            mostraRegistrazione();
+        } else {
+            mostraLogin();
+        }
+    }
 
-        panelAutenticazione = new JPanel(new BorderLayout(0, 15));
-        panelAutenticazione.setBackground(new Color(235, 243, 249));
-        panelAutenticazione.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    // costruttore protected usato solo dalla sottoclasse DashboardResponsabile, che (al momento) entra già autenticata
+    // non mostra né login né registrazione, ci pensa la docente (per ora) a chiamare mostraAreaPersonale().
+    protected DashboardDocente(MainPanel mainPanel) {
+        this.mainPanel = mainPanel;
+        setBackground(Stile.AZZURRO);
+        setLayout(new BorderLayout());
+    }
 
-        JLabel lblTitoloPortale = new JLabel("PORTALE DOCENTI - UNIVERSITÀ FEDERICO II", JLabel.CENTER);
-        lblTitoloPortale.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        lblTitoloPortale.setForeground(new Color(24, 43, 73));
-        panelAutenticazione.add(lblTitoloPortale, BorderLayout.NORTH);
+    private void mostraLogin() {
+        removeAll();
+        LoginPanel login = new LoginPanel("ACCESSO DOCENTE", Stile.BLU_CHIARO);
 
-        //stuttura analoga a studente con pnlSdoppiato (1 riga e 2 colonne per login e registrazione)
-        JPanel pnlSdoppiato = new JPanel(new GridLayout(1, 2, 30, 0));
-        pnlSdoppiato.setBackground(new Color(235, 243, 249));
+        login.getPulsanteAccedi().addActionListener(e -> {
+            String email = login.getEmail();
+            String password = login.getPassword();
 
-        // ================= COLONNA SINISTRA: LOGIN =================
-        //
-        JPanel pnlLogin = new JPanel(new GridBagLayout());
-        pnlLogin.setBackground(Color.WHITE);
-        pnlLogin.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(141, 185, 224), 2),
-                "ACCEDI AL PORTALE", 0, 0, new Font("Segoe UI", Font.BOLD, 14), new Color(24, 43, 73)));
-
-        GridBagConstraints gbcL = new GridBagConstraints();
-        gbcL.insets = new Insets(8, 12, 8, 12);
-        gbcL.fill = GridBagConstraints.HORIZONTAL;
-
-        gbcL.gridx = 0; gbcL.gridy = 0; pnlLogin.add(new JLabel("Email Docente:"), gbcL);
-        txtLoginEmail = new JTextField(12);
-        gbcL.gridx = 1; pnlLogin.add(txtLoginEmail, gbcL); //x=1 colonna 1
-
-        gbcL.gridx = 0; gbcL.gridy = 1; pnlLogin.add(new JLabel("Password:"), gbcL); //mi sposto a riga 1
-        txtLoginPassword = new JPasswordField(12);
-        gbcL.gridx = 1; pnlLogin.add(txtLoginPassword, gbcL);
-
-        JButton btnAccedi = new JButton("ACCEDI");
-        btnAccedi.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnAccedi.setBackground(new Color(141, 185, 224));
-        btnAccedi.setFocusPainted(false);
-        gbcL.gridx = 0; gbcL.gridy = 2; gbcL.gridwidth = 2; //riga 2 + occupa larghezza 2
-        gbcL.insets = new Insets(20, 12, 8, 12);
-        pnlLogin.add(btnAccedi, gbcL);
-
-
-
-        // ================= STRUTTURA COLONNA DESTRA: REGISTRAZIONE =================
-        //
-        JPanel pnlRegistrazione = new JPanel(new GridBagLayout());
-        pnlRegistrazione.setBackground(Color.WHITE);
-        pnlRegistrationBorde(pnlRegistrazione);
-
-
-        GridBagConstraints gbcR = new GridBagConstraints();
-        gbcR.insets = new Insets(8, 12, 8, 12);
-        gbcR.fill = GridBagConstraints.HORIZONTAL;
-
-        gbcR.gridx = 0; gbcR.gridy = 0; pnlRegistrazione.add(new JLabel("Nome:"), gbcR);
-        txtRegNome = new JTextField(12); gbcR.gridx = 1; pnlRegistrazione.add(txtRegNome, gbcR);
-
-        gbcR.gridx = 0; gbcR.gridy = 1; pnlRegistrazione.add(new JLabel("Cognome:"), gbcR);
-        txtRegCognome = new JTextField(12); gbcR.gridx = 1; pnlRegistrazione.add(txtRegCognome, gbcR);
-
-        gbcR.gridx = 0; gbcR.gridy = 2; pnlRegistrazione.add(new JLabel("Email:"), gbcR);
-        txtRegEmail = new JTextField(12); gbcR.gridx = 1; pnlRegistrazione.add(txtRegEmail, gbcR);
-
-        gbcR.gridx = 0; gbcR.gridy = 3; pnlRegistrazione.add(new JLabel("Password:"), gbcR);
-        txtRegPassword = new JPasswordField(12); gbcR.gridx = 1; pnlRegistrazione.add(txtRegPassword, gbcR);
-
-
-        // PULSANTE POP-UP VINCOLI
-        JButton btnApriVincoli = new JButton("Imposta Vincoli Orari");
-        btnApriVincoli.setBackground(new Color(243, 156, 18));
-        btnApriVincoli.setForeground(Color.WHITE);
-        gbcR.gridx = 0; gbcR.gridy = 4; gbcR.gridwidth = 2;
-        gbcR.insets = new Insets(15, 12, 5, 12);
-        pnlRegistrazione.add(btnApriVincoli, gbcR);
-
-        // PULSANTE REGISTRATI
-        JButton btnRegistrati = new JButton("REGISTRATI");
-        btnRegistrati.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnRegistrati.setBackground(new Color(168, 218, 220));
-        gbcR.gridx = 0; gbcR.gridy = 5; gbcR.gridwidth = 2;
-        gbcR.insets = new Insets(10, 12, 5, 12);
-        pnlRegistrazione.add(btnRegistrati, gbcR);
-
-        //AGGIUNGO I PANEL COMPLETI DI PULSANTI
-        pnlSdoppiato.add(pnlLogin);
-        pnlSdoppiato.add(pnlRegistrazione);
-        panelAutenticazione.add(pnlSdoppiato, BorderLayout.CENTER);
-
-        //PULSANTE TORNA ALLA HOME
-        JButton btnIndietroHome = new JButton("LOGOUT");
-        btnIndietroHome.setBackground(new Color(230, 126, 34));
-        btnIndietroHome.setForeground(Color.WHITE);
-        panelAutenticazione.add(btnIndietroHome, BorderLayout.SOUTH);
-
-        //AGGIUNGO AL CENTRO DEL PANEL AUTENTICAZIONE
-        add(panelAutenticazione, BorderLayout.CENTER);
-
-        // =====================================================================
-        // 2. LISTENERS BTN HOME E VINCOLI
-        // =====================================================================
-        btnIndietroHome.addActionListener(e -> mainPanel.mostraHome());
-        btnApriVincoli.addActionListener(e -> apriPopUpVincoli());
-
-        // LOGICA DI REGISTRAZIONE AUTOMATIZZATA SENZA SELEZIONE MANUALE
-        btnRegistrati.addActionListener(e -> {
-            String nome = txtRegNome.getText().trim();
-            String cognome = txtRegCognome.getText().trim();
-            String email = txtRegEmail.getText().trim();
-            String password = new String(txtRegPassword.getPassword());
-
-            if (nome.isEmpty() || cognome.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Errore: Tutti i campi anagrafici sono obbligatori!", "Campi Mancanti", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            //
-                                               //CONTROLLER
-            // Chiamata al controller per registrare l'anagrafica e associare gli insegnamenti dal DB
-            Controller.getInstance().creaDocente(nome, cognome, email, password);
-
-
-                                               //CONTROLLER
-            // Invio dei vincoli orari impostati dal docente nel pop-up
-            for (String[] v : vincoliTemporanei) {
-                Controller.getInstance().aggiungiVincoloDocente(email, v[0], v[1], v[2]);
-            }
-
-            JOptionPane.showMessageDialog(this, "Registrazione completata!\n Adesso puoi visualizzare gli insegnamenti di tua competenza.", "Benvenuto nel sistema universitario!", JOptionPane.INFORMATION_MESSAGE);
-
-            // Svuotamento campi grafici
-            txtRegNome.setText(""); txtRegCognome.setText(""); txtRegEmail.setText(""); txtRegPassword.setText("");
-            vincoliTemporanei.clear();
-        });
-
-
-
-
-        //
-                    // LOGICA DI ACCESSO - VERIFICO IO SE DOCENTE = RESPONSABILE
-        //
-        btnAccedi.addActionListener(e -> {
-            String email = txtLoginEmail.getText().trim();
-            String password = new String(txtLoginPassword.getPassword());
-
-            if (email.isEmpty() || password.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Errore: Inserisci credenziali!", "Campi Vuoti", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (email.equalsIgnoreCase("resp@unina.it") && password.equals("resp")) {
-                JOptionPane.showMessageDialog(this, "Benvenuto nella Dashboard Responsabile!", "Accesso Autorizzato", JOptionPane.INFORMATION_MESSAGE);
+            // il Responsabile ha un accesso con credenziali fisse
+            //DA MODIFICARE
+            if (email.equals("resp@unina.it") && password.equals("resp")) {
                 mainPanel.cambiaSchermata(new DashboardResponsabile(mainPanel, email));
                 return;
             }
 
-                          //CONTROLLER
-            //
-
-            boolean loginSuccesso = Controller.getInstance().login(email, password);
-            if (loginSuccesso) {
-                this.emailDocenteLoggato = email;
-                JOptionPane.showMessageDialog(this, "Accesso Docente eseguito con successo!", "Login Autorizzato", JOptionPane.INFORMATION_MESSAGE);
-                passaAlTabelloneDocente();
-            } else {
-                JOptionPane.showMessageDialog(this, "Errore: Credenziali non valide!", "Errore Accesso", JOptionPane.ERROR_MESSAGE);
+            try {
+                dati = Controller.getInstance().loginDocente(email, password);
+                mostraAreaPersonale();
+            } catch (Exception errore) {
+                JOptionPane.showMessageDialog(this, errore.getMessage(), "Accesso negato.", JOptionPane.ERROR_MESSAGE);
             }
         });
-    }
 
-    private void pnlRegistrationBorde(JPanel pnl) {
-        pnl.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(168, 218, 220), 2),
-                "NUOVA REGISTRAZIONE DOCENTE", 0, 0, new Font("Segoe UI", Font.BOLD, 14), new Color(44, 62, 80)));
-    }
-
-    private void apriPopUpVincoli() {
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Imposta Vincoli Docente (Max 3)", true);
-        dialog.setSize(500, 250);
-        dialog.setLayout(new BorderLayout(10, 10));
-        dialog.setLocationRelativeTo(this);
-
-        JPanel pnlCentrale = new JPanel(new GridLayout(4, 4, 5, 5));
-        pnlCentrale.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        pnlCentrale.add(new JLabel("Attivo", JLabel.CENTER));
-        pnlCentrale.add(new JLabel("Giorno", JLabel.CENTER));
-        pnlCentrale.add(new JLabel("Ora Inizio", JLabel.CENTER));
-        pnlCentrale.add(new JLabel("Ora Fine", JLabel.CENTER));
-
-        String[] giorni = {"LUNEDI", "MARTEDI", "MERCOLEDI", "GIOVEDI", "VENERDI"};
-        String[] orariInizio = {"08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30"};
-        String[] orariFine = {"09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30"};
-
-        JCheckBox[] checks = new JCheckBox[3];
-        JComboBox<String>[] combosGiorno = new JComboBox[3];
-        JComboBox<String>[] combosInizio = new JComboBox[3];
-        JComboBox<String>[] combosFine = new JComboBox[3];
-
-        for (int i = 0; i < 3; i++) {
-            checks[i] = new JCheckBox();
-            checks[i].setHorizontalAlignment(SwingConstants.CENTER);
-            combosGiorno[i] = new JComboBox<>(giorni);
-            combosInizio[i] = new JComboBox<>(orariInizio);
-            combosFine[i] = new JComboBox<>(orariFine);
-
-            pnlCentrale.add(checks[i]);
-            pnlCentrale.add(combosGiorno[i]);
-            pnlCentrale.add(combosInizio[i]);
-            pnlCentrale.add(combosFine[i]);
-        }
-
-        JButton btnSalva = new JButton("SALVA VINCOLI");
-        btnSalva.setBackground(new Color(46, 204, 113));
-        btnSalva.setForeground(Color.WHITE);
-        btnSalva.addActionListener(e -> {
-            vincoliTemporanei.clear();
-            for (int i = 0; i < 3; i++) {
-                if (checks[i].isSelected()) {
-                    String g = (String) combosGiorno[i].getSelectedItem();
-                    String in = (String) combosInizio[i].getSelectedItem();
-                    String fi = (String) combosFine[i].getSelectedItem();
-                    vincoliTemporanei.add(new String[]{g, in, fi}); //giorno, inizio, fine
-                }
-            }
-            dialog.dispose();
-        });
-
-        dialog.add(pnlCentrale, BorderLayout.CENTER);
-        dialog.add(btnSalva, BorderLayout.SOUTH);
-        dialog.setVisible(true);
-    }
-
-    // =====================================================================
-    // 4. INTERFACCIA POST-LOGIN: CARICAMENTO DINAMICO DEI CORSI DEL DOCENTE
-    // =====================================================================
-    protected void passaAlTabelloneDocente() {
-        this.removeAll();
-
-        JPanel pnlPrincipale = new JPanel(new BorderLayout(15, 0));
-        pnlPrincipale.setBackground(new Color(235, 243, 249));
-        pnlPrincipale.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        // Sidebar sinistra
-        JPanel pnlSidebar = new JPanel(new GridBagLayout());
-        pnlSidebar.setBackground(Color.WHITE);
-        pnlSidebar.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(24, 43, 73)), "AZIONI DISPONIBILI"));
-        pnlSidebar.setPreferredSize(new Dimension(250, 0));
-
-        // chiamo metodo per inserimento pulsanti standard nella barra laterale
-        aggiornaSidebarOpzioni(pnlSidebar);
-
-        // ================= CONNESSIONE VIEW-CONTROLLER- INSEGNAMENTI DOCENTE =================
-        // Estraiamo i corsi assegnati automaticamente a questa mail ed esponiamoli sotto i pulsanti
-        //
-        GridBagConstraints gbcCorsi = new GridBagConstraints();
-        gbcCorsi.insets = new Insets(25, 10, 5, 10);
-        gbcCorsi.fill = GridBagConstraints.HORIZONTAL;
-        gbcCorsi.gridx = 0; gbcCorsi.gridy = 1; // Posizionato sotto il tasto spostamento
-
-        JPanel pnlCorsiAssegnati = new JPanel(new GridLayout(0, 1, 5, 5));
-        pnlCorsiAssegnati.setBackground(new Color(240, 244, 248));
-        pnlCorsiAssegnati.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(141, 185, 224)), "I TUOI INSEGNAMENTI"));
-
-        ArrayList<String> corsiInCarico = Controller.getInstance().getInsegnamentiDocente(emailDocenteLoggato);
-        if (corsiInCarico != null && !corsiInCarico.isEmpty()) {
-            for (String corso : corsiInCarico) {
-                JLabel lblCorso = new JLabel("• " + corso);
-                lblCorso.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-                lblCorso.setForeground(new Color(44, 62, 80));
-                pnlCorsiAssegnati.add(lblCorso);
-            }
-        } else {
-            pnlCorsiAssegnati.add(new JLabel("Nessun corso associato."));
-        }
-        pnlSidebar.add(pnlCorsiAssegnati, gbcCorsi);
-        // ===================================================================================
-
-        // Tabella centrale del Timetable
-        JPanel pnlTabella = new JPanel(new BorderLayout(0, 10));
-        pnlTabella.setBackground(new Color(235, 243, 249));
-
-        JLabel lblTabellaTitolo = new JLabel("LEZIONI DA IMPARTIRE (IL TUO CARICO DIDATTICO)", JLabel.CENTER);
-        lblTabellaTitolo.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblTabellaTitolo.setForeground(new Color(24, 43, 73));
-        pnlTabella.add(lblTabellaTitolo, BorderLayout.NORTH);
-
-        String[] colonne = {"Orario", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì"};
-        DefaultTableModel modelloTabella = new DefaultTableModel(colonne, 9);
-        JTable tabellaOrari = new JTable(modelloTabella);
-        tabellaOrari.setRowHeight(40);
-
-        String[] orari = {"08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30"};
-        for (int i = 0; i < orari.length; i++) {
-            modelloTabella.setValueAt(orari[i], i, 0);
-        }
-
-        try {
-            ArrayList<String>[] lezioniErogate = Controller.getInstance().getLezioni(emailDocenteLoggato);
-            if (lezioniErogate != null) {
-                for (int giorno = 0; giorno < 5; giorno++) {
-                    if (!lezioniErogate[giorno].isEmpty()) {
-                        modelloTabella.setValueAt(lezioniErogate[giorno].get(0), 1, giorno + 1);
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            modelloTabella.setValueAt("<html><b>POO</b><br>Aula A6</html>", 4, 1);
-        }
-
-        JScrollPane scrollTabella = new JScrollPane(tabellaOrari);
-        pnlTabella.add(scrollTabella, BorderLayout.CENTER);
-
-        JButton btnLogout = new JButton("DISCONNETTI E TORNA ALLA HOME");
-        btnLogout.setBackground(new Color(192, 57, 43));
-        btnLogout.setForeground(Color.WHITE);
-        btnLogout.addActionListener(e -> mainPanel.mostraHome());
-        pnlTabella.add(btnLogout, BorderLayout.SOUTH);
-
-        pnlPrincipale.add(pnlSidebar, BorderLayout.WEST);
-        pnlPrincipale.add(pnlTabella, BorderLayout.CENTER);
-
-        add(pnlPrincipale, BorderLayout.CENTER);
+        add(centra(login), BorderLayout.CENTER);
         revalidate();
         repaint();
     }
 
-    protected void aggiornaSidebarOpzioni(JPanel pnlSidebar) {
+    private void mostraRegistrazione() {
+        removeAll();
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Color.WHITE);
+        form.setBorder(Stile.creaBordoTitolato("REGISTRAZIONE DOCENTE", Stile.BLU_CHIARO, Stile.BLU_SCURO));
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = Stile.INSET_STANDARD;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0;
 
-        JButton btnSpostamento = new JButton("Richiedi Spostamento");
-        btnSpostamento.setBackground(new Color(141, 185, 224));
-        btnSpostamento.addActionListener(e -> apriFinestraRichiestaSpostamento());
+        JTextField campoNome = new JTextField(18);
+        JTextField campoCognome = new JTextField(18);
+        JTextField campoEmail = new JTextField(18);
+        JPasswordField campoPassword = new JPasswordField(18);
 
-        pnlSidebar.add(btnSpostamento, gbc);
+        int riga = 0;
+        riga = aggiungiCampo(form, gbc, riga, "Nome:", campoNome);
+        riga = aggiungiCampo(form, gbc, riga, "Cognome:", campoCognome);
+        riga = aggiungiCampo(form, gbc, riga, "Email:", campoEmail);
+        riga = aggiungiCampo(form, gbc, riga, "Password:", campoPassword);
+
+        JButton pulsanteRegistrati = Stile.creaPulsante("REGISTRATI", Stile.BLU_CHIARO);
+        pulsanteRegistrati.addActionListener(e -> {
+            try {
+                dati = Controller.getInstance().creaDocente(
+                        campoNome.getText().trim(), campoCognome.getText().trim(),
+                        campoEmail.getText().trim(), new String(campoPassword.getPassword()));
+                mostraAreaPersonale();
+            } catch (Exception errore) {
+                JOptionPane.showMessageDialog(this, errore.getMessage(), "Registrazione non riuscita", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        gbc.gridy = riga;
+        form.add(pulsanteRegistrati, gbc);
+
+        add(centra(form), BorderLayout.CENTER);
+        revalidate();
+        repaint();
+    }
+
+    // Come in studente aggiunge una riga label + campo e restituisce la riga successiva libera
+    protected int aggiungiCampo(JPanel form, GridBagConstraints gbc, int riga, String etichetta, JComponent campo) {
+        JLabel label = new JLabel(etichetta);
+        label.setFont(Stile.FONT_ETICHETTA);
+        gbc.gridy = riga++;
+        form.add(label, gbc);
+        gbc.gridy = riga++;
+        form.add(campo, gbc);
+        return riga;
+    }
+
+    //analogo a studente
+    protected JPanel centra(JPanel contenuto) {
+        JPanel esterno = new JPanel(new GridBagLayout());
+        esterno.setBackground(Stile.AZZURRO);
+        esterno.add(contenuto);
+        return esterno;
+    }
+
+    // schermata personale dopo il login
+    // usata da DashboardResponsabile che mostra pero' voci diverse
+    protected void mostraAreaPersonale() {
+        removeAll();
+
+        String[] nomeScelta = {"Dati anagrafici", "I miei insegnamenti", "Le mie lezioni", "Richiedi spostamento", "I miei vincoli"};
+        JPanel[] pannelli = {
+                pannelloDatiAnagrafici(),
+                pannelloInsegnamenti(),
+                pannelloLezioni(),
+                pannelloRichiestaSpostamento(),
+                pannelloVincoli()
+        };
+
+        add(new PannelloRiutilizzabileMenu(nomeScelta, pannelli), BorderLayout.CENTER);
+        add(creaBarraSuperiore(), BorderLayout.NORTH);
+        revalidate();
+        repaint();
+    }
+
+    protected JPanel creaBarraSuperiore() {
+        JPanel barra = new JPanel(new BorderLayout());
+        barra.setBackground(Stile.AZZURRO);
+        barra.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+
+        JLabel benvenuto = new JLabel("Benvenuto, " + dati[0] + " " + dati[1]);
+        benvenuto.setFont(Stile.FONT_TITOLO_MEDIO);
+        benvenuto.setForeground(Stile.BLU_SCURO);
+
+        JButton pulsanteLogout = Stile.creaPulsanteTestoBianco("LOGOUT", Stile.ARANCIONE1);
+        pulsanteLogout.addActionListener(e -> mainPanel.mostraHome());
+
+        barra.add(benvenuto, BorderLayout.WEST);
+        barra.add(pulsanteLogout, BorderLayout.EAST);
+        return barra;
+    }
+
+    protected JPanel pannelloDatiAnagrafici() {
+        JPanel pannello = new JPanel(new GridLayout(3, 1, 0, 10));
+        pannello.setBackground(Color.WHITE);
+        pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        pannello.add(rigaDato("Nome:", dati[0]));
+        pannello.add(rigaDato("Cognome:", dati[1]));
+        pannello.add(rigaDato("Email:", dati[2]));
+        return pannello;
+    }
+
+    protected JLabel rigaDato(String etichetta, String valore) {
+        JLabel label = new JLabel(etichetta + " " + valore);
+        label.setFont(Stile.FONT_TESTO);
+        return label;
+    }
+
+    // elenco dei nomi degli insegnamenti del docente più un form per proporne uno nuovo
+    protected JPanel pannelloInsegnamenti() {
+        JPanel pannello = new JPanel(new BorderLayout(0, 15));
+        pannello.setBackground(Color.WHITE);
+        pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JPanel lista = new JPanel();
+        lista.setLayout(new BoxLayout(lista, BoxLayout.Y_AXIS));
+        lista.setBackground(Color.WHITE);
+        aggiornaListaInsegnamenti(lista);
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Color.WHITE);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = Stile.INSET_STANDARD;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+
+        JTextField campoNome = new JTextField(18);
+        int riga = aggiungiCampo(form, gbc, 0, "Nuovo insegnamento:", campoNome);
+
+        JButton pulsanteProponi = Stile.creaPulsante("PROPONI", Stile.BLU_CHIARO);
+        pulsanteProponi.addActionListener(e -> {
+            try {
+                Controller.getInstance().creaInsegnamento(campoNome.getText().trim(), 0, 0, dati[2]);
+                campoNome.setText("");
+                aggiornaListaInsegnamenti(lista);
+            } catch (Exception errore) {
+                JOptionPane.showMessageDialog(this, errore.getMessage(), "Inserimento insegnamento non riuscito", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        gbc.gridy = riga;
+        form.add(pulsanteProponi, gbc);
+
+        pannello.add(new JLabel("I tuoi insegnamenti:"), BorderLayout.NORTH);
+        pannello.add(lista, BorderLayout.CENTER);
+        pannello.add(form, BorderLayout.SOUTH);
+        return pannello;
+    }
+
+    private void aggiornaListaInsegnamenti(JPanel lista) {
+        lista.removeAll();
+        try {
+            List<String> insegnamenti = Controller.getInstance().getInsegnamentiDocente(dati[2]);
+            if (insegnamenti.isEmpty()) {
+                lista.add(new JLabel("Nessun insegnamento proposto."));
+            }
+            for (String insegnamento : insegnamenti) {
+                String nome = insegnamento.split(",")[0]; // il controller restituisce "nome, anno X, Y CFU"
+                JLabel riga = new JLabel("• " + nome);
+                riga.setFont(Stile.FONT_TESTO);
+                lista.add(riga);
+            }
+        } catch (Exception errore) {
+            lista.add(new JLabel("Errore nel recupero degli insegnamenti: " + errore.getMessage()));
+        }
+        lista.revalidate();
+        lista.repaint();
+    }
+
+    // orario delle lezioni che il docente deve tenere giorno per giorno
+    protected JPanel pannelloLezioni() {
+        JPanel pannello = new JPanel();
+        pannello.setLayout(new BoxLayout(pannello, BoxLayout.Y_AXIS));
+        pannello.setBackground(Color.WHITE);
+        pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        String[] giorni = {"LUNEDI", "MARTEDI", "MERCOLEDI", "GIOVEDI", "VENERDI"};
+        try {
+            ArrayList<String>[] lezioni = Controller.getInstance().getLezioni(dati[2]);
+            for (int i = 0; i < giorni.length; i++) {
+                JLabel titoloGiorno = new JLabel(giorni[i]);
+                titoloGiorno.setFont(Stile.FONT_ETICHETTA);
+                pannello.add(titoloGiorno);
+
+                ArrayList<String> lezioniGiorno = lezioni[i];
+                if (lezioniGiorno == null || lezioniGiorno.isEmpty()) {
+                    pannello.add(new JLabel("Nessuna lezione"));
+                } else {
+                    for (String lezione : lezioniGiorno) {
+                        String[] campi = lezione.split("\n"); // oraInizio, oraFine, insegnamento, aula
+                        JLabel riga = new JLabel(campi[0] + "-" + campi[1] + "  " + campi[2] + " (aula " + campi[3] + ")");
+                        riga.setFont(Stile.FONT_TESTO);
+                        pannello.add(riga);
+                    }
+                }
+                pannello.add(Box.createVerticalStrut(10));
+            }
+        } catch (Exception errore) {
+            pannello.add(new JLabel("Errore nel recupero delle lezioni: " + errore.getMessage()));
+        }
+        return pannello;
+    }
+
+    // form per inviare la richiesta spostamento di una lezione
+    // converto per il controller (che vuole orario/data come LocalTime/LocalDate e anche l'aula: qui li convertiamo.
+    protected JPanel pannelloRichiestaSpostamento() {
+        JPanel pannello = new JPanel(new GridBagLayout());
+        pannello.setBackground(Color.WHITE);
+        pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = Stile.INSET_STANDARD;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+
+        JTextField campoInsegnamento = new JTextField(18);
+        JTextField campoOraOriginale = new JTextField(18);
+        JTextField campoGiornoOriginale = new JTextField(18);
+        JTextField campoGiornoRichiesto = new JTextField(18);
+        JTextField campoOraInizioRichiesta = new JTextField(18);
+        JTextField campoOraFineRichiesta = new JTextField(18);
+        JTextField campoAula = new JTextField(18);
+
+        int riga = 0;
+        riga = aggiungiCampo(pannello, gbc, riga, "Insegnamento:", campoInsegnamento);
+        riga = aggiungiCampo(pannello, gbc, riga, "Ora originale (hh:mm):", campoOraOriginale);
+        riga = aggiungiCampo(pannello, gbc, riga, "Giorno originale (aaaa-mm-gg):", campoGiornoOriginale);
+        riga = aggiungiCampo(pannello, gbc, riga, "Giorno richiesto (aaaa-mm-gg):", campoGiornoRichiesto);
+        riga = aggiungiCampo(pannello, gbc, riga, "Ora inizio richiesta (hh:mm):", campoOraInizioRichiesta);
+        riga = aggiungiCampo(pannello, gbc, riga, "Ora fine richiesta (hh:mm):", campoOraFineRichiesta);
+        riga = aggiungiCampo(pannello, gbc, riga, "Aula richiesta:", campoAula);
+
+        JButton pulsanteInvia = Stile.creaPulsante("INVIA RICHIESTA", Stile.ARANCIONE2);
+        pulsanteInvia.addActionListener(e -> {
+            try {
+                Controller.getInstance().aggiungiRichiestaSpostamento(
+                        campoInsegnamento.getText().trim(),
+                        LocalTime.parse(campoOraOriginale.getText().trim()),
+                        LocalDate.parse(campoGiornoOriginale.getText().trim()),
+                        LocalDate.parse(campoGiornoRichiesto.getText().trim()),
+                        LocalTime.parse(campoOraInizioRichiesta.getText().trim()),
+                        LocalTime.parse(campoOraFineRichiesta.getText().trim()),
+                        campoAula.getText().trim());
+                JOptionPane.showMessageDialog(this, "Richiesta inviata.");
+            } catch (Exception errore) {
+                JOptionPane.showMessageDialog(this, errore.getMessage(), "Richiesta non inviata", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        gbc.gridy = riga;
+        pannello.add(pulsanteInvia, gbc);
+
+        return pannello;
+    }
+
+    // elenco dei vincoli già inseriti e form per aggiungerne uno nuovo o modificare
+    protected JPanel pannelloVincoli() {
+        JPanel pannello = new JPanel(new BorderLayout(0, 15));
+        pannello.setBackground(Color.WHITE);
+        pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JPanel listaVincoli = new JPanel();
+        listaVincoli.setLayout(new BoxLayout(listaVincoli, BoxLayout.Y_AXIS));
+        listaVincoli.setBackground(Color.WHITE);
+        aggiornaListaVincoli(listaVincoli);
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Color.WHITE);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = Stile.INSET_STANDARD;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+
+        JComboBox<String> campoGiorno = new JComboBox<>(new String[]{"LUNEDI", "MARTEDI", "MERCOLEDI", "GIOVEDI", "VENERDI"});
+        JTextField campoOraInizio = new JTextField(10);
+        JTextField campoOraFine = new JTextField(10);
+
+        int riga = 0;
+        riga = aggiungiCampo(form, gbc, riga, "Giorno:", campoGiorno);
+        riga = aggiungiCampo(form, gbc, riga, "Ora inizio (hh:mm):", campoOraInizio);
+        riga = aggiungiCampo(form, gbc, riga, "Ora fine (hh:mm):", campoOraFine);
+
+        JButton pulsanteAggiungi = Stile.creaPulsante("AGGIUNGI VINCOLO", Stile.ARANCIONE2);
+        pulsanteAggiungi.addActionListener(e -> {
+            try {
+                Controller.getInstance().aggiungiVincoloDocente(
+                        dati[2], (String) campoGiorno.getSelectedItem(),
+                        campoOraInizio.getText().trim(), campoOraFine.getText().trim());
+                aggiornaListaVincoli(listaVincoli);
+            } catch (Exception errore) {
+                JOptionPane.showMessageDialog(this, errore.getMessage(), "Vincolo non aggiunto", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        gbc.gridy = riga;
+        form.add(pulsanteAggiungi, gbc);
+
+        pannello.add(new JLabel("I tuoi vincoli attuali:"), BorderLayout.NORTH);
+        pannello.add(listaVincoli, BorderLayout.CENTER);
+        pannello.add(form, BorderLayout.SOUTH);
+        return pannello;
     }
 
 
-    private void apriFinestraRichiestaSpostamento() {
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Invia richiesta spostamento", true);
-        dialog.setSize(400, 450);
-        dialog.setLayout(new BorderLayout());
-
-        // --- DATI ---
-        String[] giorni = {"LUNEDI", "MARTEDI", "MERCOLEDI", "GIOVEDI", "VENERDI"};
-        String[] orari = {"08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30"};
-
-        // --- COMPONENTI ---
-        JTextField txtNome = new JTextField(12);
-        JComboBox<String> cbOraOrig = new JComboBox<>(orari);
-        JComboBox<String> cbGiornoOrig = new JComboBox<>(giorni);
-        JComboBox<String> cbGiornoRich = new JComboBox<>(giorni);
-        JComboBox<String> cbOraInizioRich = new JComboBox<>(orari);
-        JComboBox<String> cbOraFineRich = new JComboBox<>(orari);
-
-        // --- LAYOUT ---
-        JPanel pnlForm = new JPanel(new GridLayout(6, 2, 10, 10));
-        pnlForm.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        pnlForm.add(new JLabel("Insegnamento:")); pnlForm.add(txtNome);
-        pnlForm.add(new JLabel("Ora Originale:")); pnlForm.add(cbOraOrig);
-        pnlForm.add(new JLabel("Giorno Originale:")); pnlForm.add(cbGiornoOrig);
-        pnlForm.add(new JLabel("Giorno Richiesto:")); pnlForm.add(cbGiornoRich);
-        pnlForm.add(new JLabel("Ora Inizio Richiesta:")); pnlForm.add(cbOraInizioRich);
-        pnlForm.add(new JLabel("Ora Fine Richiesta:")); pnlForm.add(cbOraFineRich);
-
-        JButton btnInvia = new JButton("Invia Richiesta");
-        btnInvia.setBackground(new Color(243, 156, 18));
-        btnInvia.setForeground(Color.WHITE);
-
-        btnInvia.addActionListener(e -> {
-            // Chiamata al controller con le 6 stringhe richieste
-            boolean inviata = Controller.getInstance().aggiungiRichiestaSpostamento(
-                    txtNome.getText().trim(),
-                    cbOraOrig.getSelectedItem().toString(), //cb é combobox
-                    cbGiornoOrig.getSelectedItem().toString(),
-                    cbGiornoRich.getSelectedItem().toString(),
-                    cbOraInizioRich.getSelectedItem().toString(),
-                    cbOraFineRich.getSelectedItem().toString()
-            );
-
-            if (inviata) {
-                JOptionPane.showMessageDialog(dialog, "Richiesta inoltrata correttamente!");
-                dialog.dispose();
-            } else {
-                JOptionPane.showMessageDialog(dialog, "Errore nell'invio della richiesta.");
+    private void aggiornaListaVincoli(JPanel listaVincoli) {
+        listaVincoli.removeAll();
+        try {
+            List<String> vincoli = Controller.getInstance().getVincoliDocente(dati[2]);
+            if (vincoli.isEmpty()) {
+                listaVincoli.add(new JLabel("Nessun vincolo inserito."));
             }
-        });
-
-        dialog.add(pnlForm, BorderLayout.CENTER);
-        dialog.add(btnInvia, BorderLayout.SOUTH);
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
+            for (String vincolo : vincoli) {
+                JLabel riga = new JLabel(vincolo);
+                riga.setFont(Stile.FONT_TESTO);
+                listaVincoli.add(riga);
+            }
+        } catch (Exception errore) {
+            listaVincoli.add(new JLabel("Errore nel recupero dei vincoli: " + errore.getMessage()));
+        }
+        listaVincoli.revalidate();
+        listaVincoli.repaint();
     }
 }

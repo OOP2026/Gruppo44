@@ -1,199 +1,373 @@
 package gui;
 
 import controller.Controller;
+
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
-
+import java.util.Arrays;
+import java.util.List;
+//estende docente per averne le funzionalità grafiche ma nella sua dashboard
+//ha solo le funzionalità da responsabile e non mostra nessuna delle voci del Docente
 public class DashboardResponsabile extends DashboardDocente {
 
+    private static final String[] GIORNI = {"LUNEDI", "MARTEDI", "MERCOLEDI", "GIOVEDI", "VENERDI"};
+
     public DashboardResponsabile(MainPanel mainPanel, String email) {
-        super(mainPanel);
-        this.emailDocenteLoggato = email;
-        // Salta l'autenticazione ed entra direttamente nel tabellone di controllo
-        passaAlTabelloneDocente();
+        super(mainPanel); // il Responsabile entra già autenticato
+        this.dati = new String[]{"Responsabile", "", email};
+        mostraAreaPersonale();
     }
 
-    // Sovrascrive la sidebar per mostrare solo i poteri del Responsabile Porfirio Tramontana
     @Override
-    protected void aggiornaSidebarOpzioni(JPanel pnlSidebar) {
-        pnlSidebar.removeAll(); // Rimuove il bottone "Invia Richiesta" del docente comune
+    protected void mostraAreaPersonale() {
+        removeAll();
+        String[] nomeScelta = {"Gestisci aule", "Elenco insegnamenti", "Gestisci richieste"};
+        JPanel[] pannelli = {pannelloGestisciAule(), pannelloElencoInsegnamenti(), pannelloGestisciRichieste()};
 
+        add(new PannelloRiutilizzabileMenu(nomeScelta, pannelli), BorderLayout.CENTER);
+        add(creaBarraSuperiore(), BorderLayout.NORTH);
+        revalidate();
+        repaint();
+    }
+
+    // GESTIONE DELLE AULE
+    // getAule() restituisce solo il nome e non la capienza, anche se creaAula
+    // la richiede in fase di creazione, qui non viene mostrata
+
+    private JPanel pannelloGestisciAule() {
+        JPanel pannello = new JPanel(new BorderLayout(0, 15));
+        pannello.setBackground(Color.WHITE);
+        pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JPanel lista = new JPanel();
+        lista.setLayout(new BoxLayout(lista, BoxLayout.Y_AXIS));
+        lista.setBackground(Color.WHITE);
+        aggiornaListaAule(lista);
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(12, 10, 12, 10);
+        gbc.insets = Stile.INSET_STANDARD;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0;
 
-        JLabel lblRuolo = new JLabel("RUOLO: RESPONSABILE", JLabel.CENTER);
-        lblRuolo.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblRuolo.setForeground(new Color(192, 57, 43));
-        pnlSidebar.add(lblRuolo, gbc);
+        JTextField campoNome = new JTextField(10);
+        JTextField campoCapienza = new JTextField(10);
+        int riga = aggiungiCampo(form, gbc, 0, "Nuova aula:", campoNome);
+        riga = aggiungiCampo(form, gbc, riga, "Capienza massima:", campoCapienza);
 
-
-        // =====================================================================
-        // 1. CORREZIONE: GESTIONE RICHIESTE REALI CON APPROVA / RIFIUTA
-        // =====================================================================
-        gbc.gridy = 1;
-        JButton btnVediRichieste = new JButton("Visualizza Richieste Spostamento");
-        btnVediRichieste.setBackground(new Color(168, 218, 220));
-
-        btnVediRichieste.addActionListener(e -> {
-            // Creiamo una finestra di dialogo pop-up (JDialog) personalizzata per mostrare la lista e i bottoni
-            JDialog dialogRichieste = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Bacheca Richieste Ricevute", true);
-            dialogRichieste.setLayout(new BorderLayout(10, 10));
-            dialogRichieste.setSize(550, 350);
-            dialogRichieste.setLocationRelativeTo(this);
-
-            // JList grafica per mostrare le richieste
-            JList<String> listaRichiesteGrafica = new JList<>();
-            listaRichiesteGrafica.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-            // Sotto-funzione per aggiornare la lista in tempo reale dentro il pop-up
-            Runnable rinfrescaLista = () -> {
-                ArrayList<String> richiesteReali = Controller.getInstance().getRegistroRichiesteSpostamento();
-                if (richiesteReali.isEmpty()) {
-                    listaRichiesteGrafica.setListData(new String[]{"Nessuna richiesta presente"});
-                } else {
-                    listaRichiesteGrafica.setListData(richiesteReali.toArray(new String[0]));
-                }
-            };
-
-            // Primo caricamento dati
-            rinfrescaLista.run();
-            dialogRichieste.add(new JScrollPane(listaRichiesteGrafica), BorderLayout.CENTER);
-
-            // Pannello inferiore con i pulsanti Approva e Rifiuta
-            JPanel pnlBottoniAzioni = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-            JButton btnApprova = new JButton("Approva");
-            JButton btnRifiuta = new JButton("Rifiuta");
-
-            btnApprova.setBackground(new Color(46, 204, 113));
-            btnApprova.setForeground(Color.WHITE);
-            btnRifiuta.setBackground(new Color(231, 76, 60));
-            btnRifiuta.setForeground(Color.WHITE);
-
-            pnlBottoniAzioni.add(btnApprova);
-            pnlBottoniAzioni.add(btnRifiuta);
-            dialogRichieste.add(pnlBottoniAzioni, BorderLayout.SOUTH);
-
-            // Logica del Bottone Approva
-            btnApprova.addActionListener(ae -> {
-                int indiceSelezionato = listaRichiesteGrafica.getSelectedIndex();
-                ArrayList<String> richiesteAttuali = Controller.getInstance().getRegistroRichiesteSpostamento();
-
-                if (indiceSelezionato != -1 && !richiesteAttuali.isEmpty()) {
-                    boolean approvata = Controller.getInstance().approvaRichiesta(indiceSelezionato);
-                    rinfrescaLista.run(); // Rinfresca lo schermo
-                    if(approvata) JOptionPane.showMessageDialog(dialogRichieste, "Richiesta approvata con successo!");
-                    else JOptionPane.showMessageDialog(dialogRichieste, "Errore: richiesta non compatibile con l'orario attuale.");
-                } else {
-                    JOptionPane.showMessageDialog(dialogRichieste, "Seleziona una richiesta valida da approvare.");
-                }
-            });
-
-            // Logica del Bottone Rifiuta
-            btnRifiuta.addActionListener(ae -> {
-                int indiceSelezionato = listaRichiesteGrafica.getSelectedIndex();
-                ArrayList<String> richiesteAttuali = Controller.getInstance().getRegistroRichiesteSpostamento();
-
-                if (indiceSelezionato != -1 && !richiesteAttuali.isEmpty()) {
-                    Controller.getInstance().rifiutaRichiesta(indiceSelezionato);
-                    rinfrescaLista.run(); // Rinfresca lo schermo
-                    JOptionPane.showMessageDialog(dialogRichieste, "Richiesta rifiutata e rimossa dal sistema.");
-                } else {
-                    JOptionPane.showMessageDialog(dialogRichieste, "Seleziona una richiesta valida da rifiutare.");
-                }
-            });
-
-            dialogRichieste.setVisible(true);
-        });
-        pnlSidebar.add(btnVediRichieste, gbc);
-
-
-        // =====================================================================
-        // 2. CORREZIONE: VISUALIZZA VINCOLI REALI DAL CONTROLLER
-        // =====================================================================
-        gbc.gridy = 2;
-        JButton btnVediVincoli = new JButton("Visualizza Vincoli Orari Docenti");
-        btnVediVincoli.setBackground(new Color(141, 185, 224));
-
-        btnVediVincoli.addActionListener(e -> {
-            // Recuperiamo la mappa reale dei vincoli dal controller
-            HashMap<String, ArrayList<String>> mappaVincoli = Controller.getInstance().getRegistroVincoliDocenti();
-            StringBuilder riepilogoTestuale = new StringBuilder("Registro Vincoli Orari di Sistema:\n\n");
-
-            if (mappaVincoli.isEmpty()) {
-                riepilogoTestuale.append("Nessun docente ha inserito vincoli temporali al momento.");
-            } else {
-                // Cicliamo sulla mappa per costruire la stringa dinamica
-                mappaVincoli.forEach((emailDocente, listaVincoli) -> {
-                    riepilogoTestuale.append("• Docente: ").append(emailDocente).append("\n");
-                    for (String vincolo : listaVincoli) {
-                        riepilogoTestuale.append("  - ").append(vincolo).append("\n");
-                    }
-                    riepilogoTestuale.append("\n");
-                });
+        JButton pulsanteAggiungi = Stile.creaPulsante("AGGIUNGI AULA", Stile.BLU_CHIARO);
+        pulsanteAggiungi.addActionListener(e -> {
+            try {
+                int capienza = Integer.parseInt(campoCapienza.getText().trim());
+                Controller.getInstance().creaAula(campoNome.getText().trim(), capienza);
+                campoNome.setText("");
+                campoCapienza.setText("");
+                aggiornaListaAule(lista);
+            } catch (Exception errore) {
+                JOptionPane.showMessageDialog(this, errore.getMessage(), "Aula non aggiunta", JOptionPane.ERROR_MESSAGE);
             }
-
-            JOptionPane.showMessageDialog(this, riepilogoTestuale.toString(),
-                    "Anagrafica Vincoli Docenti", JOptionPane.INFORMATION_MESSAGE);
         });
-        pnlSidebar.add(btnVediVincoli, gbc);
+        gbc.gridy = riga;
+        form.add(pulsanteAggiungi, gbc);
 
+        pannello.add(new JLabel("Aule esistenti:"), BorderLayout.NORTH);
+        pannello.add(lista, BorderLayout.CENTER);
+        pannello.add(form, BorderLayout.SOUTH);
+        return pannello;
+    }
 
-        // =====================================================================
-        // 3 e 4. CORREZIONE: INSERIMENTO LEZIONE NON CASUALE MA TRAMITE FORM GUI
-        // =====================================================================
-        gbc.gridy = 3;
-        JButton btnGeneraOrario = new JButton("AGGIUNGI NUOVA LEZIONE");
-        btnGeneraOrario.setBackground(new Color(46, 204, 113));
-        btnGeneraOrario.setForeground(Color.WHITE);
-        btnGeneraOrario.setFont(new Font("Segoe UI", Font.BOLD, 11));
+    private void aggiornaListaAule(JPanel lista) {
+        lista.removeAll();
+        try {
+            List<String> aule = Controller.getInstance().getAule();
+            if (aule.isEmpty()) lista.add(new JLabel("Nessuna aula inserita."));
+            for (String nomeAula : aule) lista.add(rigaAula(nomeAula, lista));
+        } catch (Exception errore) {
+            lista.add(new JLabel("Errore nel recupero delle aule: " + errore.getMessage()));
+        }
+        lista.revalidate();
+        lista.repaint();
+    }
 
-        btnGeneraOrario.addActionListener(e -> {
-            // Creiamo un piccolo pannello form di inserimento dati a runtime
-            JPanel pnlFormInnesco = new JPanel(new GridLayout(5, 2, 8, 8));
+    private JPanel rigaAula(String nome, JPanel listaCompleta) {
+        JPanel riga = new JPanel(new BorderLayout(10, 0));
+        riga.setBackground(Color.WHITE);
+        riga.add(new JLabel(nome), BorderLayout.CENTER);
 
-            JTextField txtInsegnamento = new JTextField("Programmazione Object-Oriented");
-            JComboBox<model.GiornoSettimana> cmbGiorno = new JComboBox<>(model.GiornoSettimana.values());
-            JTextField txtInizio = new JTextField("11:30");
-            JTextField txtFine = new JTextField("13:30");
-            JTextField txtAula = new JTextField("A6");
-
-            pnlFormInnesco.add(new JLabel("Insegnamento:"));   pnlFormInnesco.add(txtInsegnamento);
-            pnlFormInnesco.add(new JLabel("Giorno:"));         pnlFormInnesco.add(cmbGiorno);
-            pnlFormInnesco.add(new JLabel("Ora Inizio (HH:mm):")); pnlFormInnesco.add(txtInizio);
-            pnlFormInnesco.add(new JLabel("Ora Fine (HH:mm):"));   pnlFormInnesco.add(txtFine);
-            pnlFormInnesco.add(new JLabel("Aula:"));           pnlFormInnesco.add(txtAula);
-
-            int opzioneScelta = JOptionPane.showConfirmDialog(this, pnlFormInnesco,
-                    "Pianificazione Nuova Lezione Amministrativa", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-            if (opzioneScelta == JOptionPane.OK_OPTION) {
+        JButton pulsanteElimina = Stile.creaPulsanteTestoBianco("ELIMINA", Stile.ROSSO_CHIARO);
+        pulsanteElimina.addActionListener(e -> {
+            int conferma = JOptionPane.showConfirmDialog(this, "Eliminare l'aula \"" + nome + "\"?", "Conferma eliminazione", JOptionPane.YES_NO_OPTION);
+            if (conferma == JOptionPane.YES_OPTION) {
                 try {
-                    // Estraiamo i dati digitati realmente dal Responsabile sul form grafico
-                    String nomeCorso = txtInsegnamento.getText();
-                    model.GiornoSettimana giorno = (model.GiornoSettimana) cmbGiorno.getSelectedItem();
-                    LocalTime oraInizio = LocalTime.parse(txtInizio.getText());
-                    LocalTime oraFine = LocalTime.parse(txtFine.getText());
-                    String nomeAula = txtAula.getText();
-
-                    // Invocazione reale del metodo del controller del collega
-                    Controller.getInstance().creaLezione(nomeCorso, giorno, oraInizio, oraFine, nomeAula);
-
-                    JOptionPane.showMessageDialog(this,
-                            "La lezione è stata validata ed inserita nel calendario generale di sistema.",
-                            "Pianificazione Riuscita", JOptionPane.INFORMATION_MESSAGE);
-
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this,
-                            "Errore di inserimento: Verifica che il formato dell'orario sia corretto (es. 09:30).",
-                            "Errore Formattazione Dati", JOptionPane.ERROR_MESSAGE);
+                    Controller.getInstance().eliminaAula(nome);
+                    aggiornaListaAule(listaCompleta);
+                } catch (Exception errore) {
+                    JOptionPane.showMessageDialog(this, errore.getMessage(), "Eliminazione non riuscita", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
-        pnlSidebar.add(btnGeneraOrario, gbc);
+        riga.add(pulsanteElimina, BorderLayout.EAST);
+        return riga;
+    }
+
+    // GESTIONE INSEGNAMENTI
+
+    // aggiornaInsegnamento() fa sia l'attivazione (modificando anno e CFU) sia il cambio di docente
+
+    private JPanel pannelloElencoInsegnamenti() {
+        JPanel pannello = new JPanel();
+        pannello.setLayout(new BoxLayout(pannello, BoxLayout.Y_AXIS));
+        pannello.setBackground(Color.WHITE);
+        pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        aggiornaElencoInsegnamenti(pannello);
+        return pannello;
+    }
+
+    private void aggiornaElencoInsegnamenti(JPanel pannello) {
+        pannello.removeAll();
+        try {
+            List<String> insegnamenti = Controller.getInstance().getInsegnamenti();
+            if (insegnamenti.isEmpty()) pannello.add(new JLabel("Nessun insegnamento presente."));
+            for (String riga : insegnamenti) {
+                pannello.add(rigaInsegnamento(riga, pannello));
+                pannello.add(Box.createVerticalStrut(10));
+            }
+        } catch (Exception errore) {
+            pannello.add(new JLabel("Errore nel recupero degli insegnamenti: " + errore.getMessage()));
+        }
+        pannello.revalidate();
+        pannello.repaint();
+    }
+
+    //gestisco gli insegnamenti da getInsegnamenti()
+    //split(",") spezza la stringa in un array ed usa la virgola come separatore
+    //tipo: ["Basi di Dati"," anno 2"," 9 CFU"]
+    private JPanel rigaInsegnamento(String testo, JPanel listaCompleta) {
+        String nome = testo.split(",")[0].trim();
+
+        JPanel riga = new JPanel();
+        riga.setLayout(new BoxLayout(riga, BoxLayout.Y_AXIS));
+        riga.setBackground(Stile.AZZURRO);
+        riga.setBorder(BorderFactory.createLineBorder(Stile.BLU_CHIARO, 1));
+
+        JLabel intestazione = new JLabel(testo);
+        intestazione.setFont(Stile.FONT_ETICHETTA);
+        riga.add(intestazione);
+
+        JPanel campi = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        campi.setBackground(Stile.AZZURRO);
+
+        JTextField campoEmail = new JTextField(14);
+        JTextField campoAnno = new JTextField(3);
+        JTextField campoCfu = new JTextField(3);
+
+        JButton pulsanteAggiorna = Stile.creaPulsante("ATTIVA / AGGIORNA", Stile.VERDE_SCURO);
+        pulsanteAggiorna.addActionListener(e -> {
+            try {
+                int anno = Integer.parseInt(campoAnno.getText().trim());
+                int cfu = Integer.parseInt(campoCfu.getText().trim());
+                Controller.getInstance().aggiornaInsegnamento(nome, cfu, anno, campoEmail.getText().trim());
+                aggiornaElencoInsegnamenti(listaCompleta);
+            } catch (Exception errore) {
+                JOptionPane.showMessageDialog(this, errore.getMessage(), "Aggiornamento non riuscito", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        JButton pulsanteCrea = Stile.creaPulsante("CREA LEZIONE", Stile.BLU_CHIARO);
+        pulsanteCrea.addActionListener(e -> mostraFinestraCreaLezione(nome));
+
+        JButton pulsanteElimina = Stile.creaPulsanteTestoBianco("ELIMINA", Stile.ROSSO_CHIARO);
+        pulsanteElimina.addActionListener(e -> {
+            int conferma = JOptionPane.showConfirmDialog(this, "Eliminare l'insegnamento \"" + nome + "\"?", "Conferma eliminazione", JOptionPane.YES_NO_OPTION);
+            if (conferma == JOptionPane.YES_OPTION) {
+                try {
+                    Controller.getInstance().eliminaInsegnamento(nome);
+                    aggiornaElencoInsegnamenti(listaCompleta);
+                } catch (Exception errore) {
+                    JOptionPane.showMessageDialog(this, errore.getMessage(), "Eliminazione non riuscita", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        campi.add(new JLabel("Email docente:"));
+        campi.add(campoEmail);
+        campi.add(new JLabel("Anno:"));
+        campi.add(campoAnno);
+        campi.add(new JLabel("CFU:"));
+        campi.add(campoCfu);
+        campi.add(pulsanteAggiorna);
+        campi.add(pulsanteCrea);
+        campi.add(pulsanteElimina);
+        riga.add(campi);
+        return riga;
+    }
+
+    // CREZIONE DELLE LEZIONI
+    // controllo automatico sui vincoli del docente e sull'aula occupata
+    // L'aula si scrive a mano
+
+    private void mostraFinestraCreaLezione(String nomeInsegnamento) {
+        JDialog finestra = new JDialog();
+        finestra.setTitle("Crea lezione — " + nomeInsegnamento);
+        finestra.setModal(true);
+        finestra.setSize(380, 340);
+        finestra.setLocationRelativeTo(this);
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Color.WHITE);
+        form.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = Stile.INSET_STANDARD;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+
+        JTextField campoEmailDocente = new JTextField(18);
+        JComboBox<String> campoGiorno = new JComboBox<>(GIORNI);
+        JTextField campoOraInizio = new JTextField(10);
+        JTextField campoOraFine = new JTextField(10);
+        JTextField campoAula = new JTextField(10);
+
+        int riga = 0;
+        riga = aggiungiCampo(form, gbc, riga, "Email docente:", campoEmailDocente);
+        riga = aggiungiCampo(form, gbc, riga, "Giorno:", campoGiorno);
+        riga = aggiungiCampo(form, gbc, riga, "Ora inizio (hh:mm):", campoOraInizio);
+        riga = aggiungiCampo(form, gbc, riga, "Ora fine (hh:mm):", campoOraFine);
+        riga = aggiungiCampo(form, gbc, riga, "Aula:", campoAula);
+
+        JButton pulsanteCrea = Stile.creaPulsante("CREA LEZIONE", Stile.VERDE_SCURO);
+        pulsanteCrea.addActionListener(e -> {
+            try {
+                String giorno = (String) campoGiorno.getSelectedItem();
+                LocalTime oraInizio = LocalTime.parse(campoOraInizio.getText().trim());
+                LocalTime oraFine = LocalTime.parse(campoOraFine.getText().trim());
+
+                for (String vincolo : Controller.getInstance().getVincoliDocente(campoEmailDocente.getText().trim())) {
+                    if (vincoloInConflitto(vincolo, giorno, oraInizio, oraFine)) {
+                        JOptionPane.showMessageDialog(finestra, "Orario in conflitto con un vincolo del docente:\n" + vincolo, "Lezione non creata", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                }
+
+                String aula = campoAula.getText().trim();
+                if (aulaOccupata(giorno, aula, oraInizio, oraFine)) {
+                    JOptionPane.showMessageDialog(finestra, "L'aula " + aula + " è già occupata in quel giorno/orario.", "Lezione non creata", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                Controller.getInstance().creaLezione(nomeInsegnamento, giorno, campoOraInizio.getText().trim(), campoOraFine.getText().trim(), aula);
+                JOptionPane.showMessageDialog(finestra, "Lezione creata.");
+                finestra.dispose();
+            } catch (Exception errore) {
+                JOptionPane.showMessageDialog(finestra, errore.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        gbc.gridy = riga;
+        form.add(pulsanteCrea, gbc);
+
+        finestra.setContentPane(form);
+        finestra.setVisible(true);
+    }
+
+    // Controlla se un vincolo (stringa "Giorno: LUNEDI, ore: 10:00-12:00") va in conflitto
+    // con l'orario di una nuova lezione nello stesso giorno.
+    private boolean vincoloInConflitto(String vincolo, String giorno, LocalTime nuovoInizio, LocalTime nuovoFine) {
+        try {
+            String[] parti = vincolo.replace("Giorno: ", "").replace("ore: ", "").split(", ");
+            if (!parti[0].trim().equalsIgnoreCase(giorno)) return false;
+            String[] orari = parti[1].split("-");
+            LocalTime vincoloInizio = LocalTime.parse(orari[0].trim().substring(0, 5));
+            LocalTime vincoloFine = LocalTime.parse(orari[1].trim().substring(0, 5));
+            return nuovoInizio.isBefore(vincoloFine) && vincoloInizio.isBefore(nuovoFine);
+        } catch (Exception errore) {
+            return false; // formato imprevisto: non blocco per un vincolo che non riesco a leggere
+        }
+    }
+
+    // Controlla se una data aula ha già una lezione sovrapposta in quel giorno/orario,
+    // guardando TUTTE le lezioni del sistema (getLezioni() senza parametri), non solo
+    // quelle di un anno o di un docente specifico.
+    private boolean aulaOccupata(String giorno, String aula, LocalTime nuovoInizio, LocalTime nuovoFine) throws Exception {
+        ArrayList<String>[] tutteLeLezioni = Controller.getInstance().getLezioni();
+        int indiceGiorno = Arrays.asList(GIORNI).indexOf(giorno);
+        ArrayList<String> lezioniGiorno = tutteLeLezioni[indiceGiorno];
+        if (lezioniGiorno == null) return false;
+
+        for (String lezione : lezioniGiorno) {
+            String[] campi = lezione.split("\n"); // oraInizio, oraFine, insegnamento, aula
+            if (!campi[3].equals(aula)) continue;
+
+            LocalTime inizioEsistente = LocalTime.parse(campi[0].substring(0, 5));
+            LocalTime fineEsistente = LocalTime.parse(campi[1].substring(0, 5));
+            if (nuovoInizio.isBefore(fineEsistente) && inizioEsistente.isBefore(nuovoFine)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // GESTIONE RICHIESTE SPOSTAMENTO
+    // l'indice nella lista viene usato come identificativo della richiesta, perché
+    // getRegistroRichiesteSpostamento() non restituisce l'id insieme al testo
+
+    private JPanel pannelloGestisciRichieste() {
+        JPanel pannello = new JPanel();
+        pannello.setLayout(new BoxLayout(pannello, BoxLayout.Y_AXIS));
+        pannello.setBackground(Color.WHITE);
+        pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        aggiornaListaRichieste(pannello);
+        return pannello;
+    }
+
+    private void aggiornaListaRichieste(JPanel pannello) {
+        pannello.removeAll();
+        try {
+            List<String> richieste = Controller.getInstance().getRegistroRichiesteSpostamento();
+            if (richieste.isEmpty()) pannello.add(new JLabel("Nessuna richiesta in attesa."));
+            for (int i = 0; i < richieste.size(); i++) {
+                int indice = i;
+                pannello.add(rigaRichiesta(richieste.get(i), indice, pannello));
+                pannello.add(Box.createVerticalStrut(8));
+            }
+        } catch (Exception errore) {
+            pannello.add(new JLabel("Errore nel recupero delle richieste: " + errore.getMessage()));
+        }
+        pannello.revalidate();
+        pannello.repaint();
+    }
+
+    private JPanel rigaRichiesta(String testoRichiesta, int indice, JPanel listaCompleta) {
+        JPanel riga = new JPanel(new BorderLayout(10, 0));
+        riga.setBackground(Color.WHITE);
+        riga.add(new JLabel(testoRichiesta), BorderLayout.CENTER);
+
+        JButton pulsanteApprova = Stile.creaPulsanteTestoBianco("APPROVA", Stile.VERDE_SCURO);
+        pulsanteApprova.addActionListener(e -> {
+            try {
+                Controller.getInstance().approvaRichiesta(indice);
+                aggiornaListaRichieste(listaCompleta);
+            } catch (Exception errore) {
+                JOptionPane.showMessageDialog(this, errore.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        JButton pulsanteRifiuta = Stile.creaPulsanteTestoBianco("RIFIUTA", Stile.ROSSO_CHIARO);
+        pulsanteRifiuta.addActionListener(e -> {
+            try {
+                Controller.getInstance().rifiutaRichiesta(indice);
+                aggiornaListaRichieste(listaCompleta);
+            } catch (Exception errore) {
+                JOptionPane.showMessageDialog(this, errore.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        JPanel pulsanti = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        pulsanti.setBackground(Color.WHITE);
+        pulsanti.add(pulsanteApprova);
+        pulsanti.add(pulsanteRifiuta);
+        riga.add(pulsanti, BorderLayout.EAST);
+        return riga;
     }
 }

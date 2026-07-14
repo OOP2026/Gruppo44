@@ -1,94 +1,107 @@
-package gui; // Posizionato nel pacchetto view su IntelliJ
+package gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
+// La schermata iniziale ha due colonne affiancate per Studente e Docente
+// con due pulsanti: accedi e registrati
 public class DashboardHome extends JPanel {
 
-    private MainPanel mainPanel; // Riferimento al mainPanel per i cambi di schermata
-    //nel mainPanel abbiamo i metodi che ci servono per cambiare schermata
-
     public DashboardHome(MainPanel mainPanel) {
-        this.mainPanel = mainPanel;
+        setBackground(Stile.AZZURRO);
+        setLayout(new BorderLayout());
 
-        // Colore di sfondo azzurro pastello accademico
-        setBackground(new Color(235, 243, 249));
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(12, 12, 12, 12); // Spaziatura generosa tra gli elementi
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        add(creaIntestazione(), BorderLayout.NORTH);
+        add(creaGrigliaColonne(mainPanel), BorderLayout.CENTER);
+    }
 
-        // --- INTESTAZIONE ISTITUZIONALE ---
+    // Nome ateneo + sottotitolo + domanda per scelta in alto alla schermata
+    private JPanel creaIntestazione() {
+        JPanel pannello = new JPanel(new GridLayout(3, 1, 0, 8));
+        pannello.setBackground(Stile.AZZURRO);
+        pannello.setBorder(BorderFactory.createEmptyBorder(25, 20, 25, 20));
+
         JLabel lblAteneo = new JLabel("UNIVERSITÀ DEGLI STUDI DI NAPOLI FEDERICO II", JLabel.CENTER);
-        lblAteneo.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblAteneo.setForeground(new Color(24, 43, 73)); // Blu notte istituzionale
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
-        add(lblAteneo, gbc);
+        lblAteneo.setFont(Stile.FONT_TITOLO_MEDIO);
+        lblAteneo.setForeground(Stile.BLU_SCURO);
 
-        // --- TITOLO DI BENVENUTO ---
         JLabel lblBenvenuto = new JLabel("Benvenuto nel Sistema di Gestione Orari", JLabel.CENTER);
-        lblBenvenuto.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        lblBenvenuto.setForeground(new Color(70, 80, 95));
-        gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2;
-        add(lblBenvenuto, gbc);
+        lblBenvenuto.setFont(Stile.FONT_SOTTOTITOLO);
+        lblBenvenuto.setForeground(Stile.TESTO_CHIARO);
 
-        // --- ISTRUZIONE PER L'UTENTE ---
-        JLabel lblIstruzione = new JLabel("Per accedere o registrarti, seleziona il tuo profilo:", JLabel.CENTER);
-        lblIstruzione.setFont(new Font("Segoe UI", Font.ITALIC, 13));
-        lblIstruzione.setForeground(new Color(44, 62, 80));
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
-        gbc.insets = new Insets(30, 12, 15, 12); // Aumentiamo lo stacco sopra l'istruzione
-        add(lblIstruzione, gbc);
+        JLabel lblIstruzione = new JLabel("Seleziona il tuo profilo per accedere o registrarti:", JLabel.CENTER);
+        lblIstruzione.setFont(Stile.FONT_ISTRUZIONE);
+        lblIstruzione.setForeground(Stile.TESTO_SCURO);
 
-        // Ripristiniamo la larghezza delle colonne a 1 per i pulsanti affiancati
-        gbc.gridwidth = 1;
-        gbc.insets = new Insets(10, 15, 10, 15);
+        pannello.add(lblAteneo);
+        pannello.add(lblBenvenuto);
+        pannello.add(lblIstruzione);
+        return pannello;
+    }
 
-        // --- PULSANTE PORTALE STUDENTE ---
-        JButton btnStudente = new JButton("PORTALE STUDENTE");
-        btnStudente.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnStudente.setBackground(new Color(168, 218, 220)); // Verde acqua / Salvia pastello
-        btnStudente.setForeground(new Color(44, 62, 80));
-        btnStudente.setPreferredSize(new Dimension(180, 50)); // Pulsante grande e cliccabile
-        btnStudente.setFocusPainted(false);
-        gbc.gridx = 0; gbc.gridy = 3;
-        add(btnStudente, gbc);
+    // le due colonne Studente a sinistra e Docente a destra
+    private JPanel creaGrigliaColonne(MainPanel mainPanel) {
+        JPanel griglia = new JPanel(new GridLayout(1, 2, 30, 0));
+        griglia.setBackground(Stile.AZZURRO);
+        griglia.setBorder(BorderFactory.createEmptyBorder(10, 30, 30, 30));
 
-        // --- PULSANTE PORTALE DOCENTE ---
-        JButton btnDocente = new JButton("PORTALE DOCENTE");
-        btnDocente.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnDocente.setBackground(new Color(141, 185, 224)); // Carta da zucchero pastello
-        btnDocente.setForeground(new Color(44, 62, 80));
-        btnDocente.setPreferredSize(new Dimension(180, 50));
-        btnDocente.setFocusPainted(false);
-        gbc.gridx = 1; gbc.gridy = 3;
-        add(btnDocente, gbc);
+        griglia.add(creaColonnaStudente(mainPanel));
+        griglia.add(creaColonnaDocente(mainPanel));
 
+        return griglia;
+    }
 
+    // la colonna Studente ha titolo + pulsante accedi + pulsante registrati
+    private JPanel creaColonnaStudente(MainPanel mainPanel) {
+        JPanel colonna = creaColonnaBase("PORTALE STUDENTE", Stile.VERDE_CHIARO);
 
-        // --- AZIONI DEI PULSANTI ---
-/*
-Ogni pulsante (Portale Studente, Portale Docente) è dotato di un ActionListener (add)
- che rimane in ascolto dell'ActionEvent (il click dell'utente) per avviare automaticamente
- il metodo actionPerformed che invoca i metodi di navigazione definiti nel MainPanel
- (es. mainPanel.mostraDashboardStudente()).
- */
-        // Quando clicchi su Studente, dici al MainPanel di mostrare la Dashboard dello studente
-        btnStudente.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mainPanel.mostraDashboardStudente();
-            }
-        });
+        JButton pulsanteAccedi = Stile.creaPulsante("ACCEDI", Stile.VERDE_CHIARO);
+        pulsanteAccedi.setPreferredSize(Stile.PULSANTE_GRANDE);
+        pulsanteAccedi.addActionListener(e -> mainPanel.mostraLoginStudente());
 
-        // Quando clicchi su Docente, dici al MainPanel di mostrare la Dashboard del docente
-        btnDocente.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mainPanel.mostraDashboardDocente();
-            }
-        });
+        JButton pulsanteRegistrati = Stile.creaPulsante("REGISTRATI", Color.WHITE);
+        pulsanteRegistrati.setBorder(BorderFactory.createLineBorder(Stile.VERDE_CHIARO, 2));
+        pulsanteRegistrati.setPreferredSize(Stile.PULSANTE_GRANDE);
+        pulsanteRegistrati.addActionListener(e -> mainPanel.mostraRegistrazioneStudente());
+
+        aggiungiPulsanti(colonna, pulsanteAccedi, pulsanteRegistrati);
+        return colonna;
+    }
+
+    // la colonna Docente ha titolo + pulsante accedi + pulsante registrati
+    private JPanel creaColonnaDocente(MainPanel mainPanel) {
+        JPanel colonna = creaColonnaBase("PORTALE DOCENTE", Stile.BLU_CHIARO);
+
+        JButton pulsanteAccedi = Stile.creaPulsante("ACCEDI", Stile.BLU_CHIARO);
+        pulsanteAccedi.setPreferredSize(Stile.PULSANTE_GRANDE);
+        pulsanteAccedi.addActionListener(e -> mainPanel.mostraLoginDocente());
+
+        JButton pulsanteRegistrati = Stile.creaPulsante("REGISTRATI", Color.WHITE);
+        pulsanteRegistrati.setBorder(BorderFactory.createLineBorder(Stile.BLU_CHIARO, 2));
+        pulsanteRegistrati.setPreferredSize(Stile.PULSANTE_GRANDE);
+        pulsanteRegistrati.addActionListener(e -> mainPanel.mostraRegistrazioneDocente());
+
+        aggiungiPulsanti(colonna, pulsanteAccedi, pulsanteRegistrati);
+        return colonna;
+    }
+
+    // panel vuoto con solo il bordo titolato definito in Stile, comune a entrambe le colonne
+    private JPanel creaColonnaBase(String titolo, Color colore) {
+        JPanel colonna = new JPanel(new GridBagLayout());
+        colonna.setBackground(Color.WHITE);
+        colonna.setBorder(Stile.creaBordoTitolato(titolo, colore, Stile.BLU_SCURO));
+        return colonna;
+    }
+
+    private void aggiungiPulsanti(JPanel colonna, JButton pulsanteAccedi, JButton pulsanteRegistrati) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(15, 25, 15, 25);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+
+        gbc.gridy = 0;
+        colonna.add(pulsanteAccedi, gbc);
+        gbc.gridy = 1;
+        colonna.add(pulsanteRegistrati, gbc);
     }
 }
