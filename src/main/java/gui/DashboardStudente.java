@@ -152,7 +152,7 @@ public class DashboardStudente extends JPanel {
         String[] giorni = {"LUNEDI", "MARTEDI", "MERCOLEDI", "GIOVEDI", "VENERDI"};
 
         try {
-            ArrayList<String>[] lezioni = Controller.getInstance().getLezioni(Integer.parseInt(dati[4]));
+            ArrayList<String>[] lezioni = Controller.getInstance().getLezioniStudente();
             DashboardUtils.aggiornaLezioni(pannello, giorni, lezioni);
         } catch (Exception e) {
             pannello.add(new JLabel("Errore nel recupero dell'orario: " + e.getMessage()));
@@ -168,7 +168,7 @@ public class DashboardStudente extends JPanel {
         pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         try {
-            List<String> variazioni = Controller.getInstance().getVariazioni();
+            List<String> variazioni = Controller.getInstance().getVariazioniStudente();
             if (variazioni.isEmpty()) {
                 pannello.add(new JLabel("Nessuna variazione al momento."));
             }

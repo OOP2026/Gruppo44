@@ -55,7 +55,7 @@ public class InsegnamentoPostgresDAO implements InsegnamentoDAO {
             crs.populate(rs);
         } catch (SQLException e) {
             crs.close();
-            throw new SQLException("Si è verificato un errore nel database.");
+            throw new SQLException("Si è verificato un errore nel recupero degli insegnamenti.");
         }
         return crs;
     }
@@ -79,10 +79,11 @@ public class InsegnamentoPostgresDAO implements InsegnamentoDAO {
     }
 
     public void eliminaInsegnamento(String nomeInsegnamento) throws SQLException {
-        String sql = "DELETE FROM insegnamento WHERE nome = ?;";
+        String sql = "DELETE FROM insegnamento WHERE nome LIKE ?;";
 
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql)) {
             query.setString(1, nomeInsegnamento);
+            query.executeUpdate();
         } catch (SQLException e) {
             throw new SQLException("Si è verificato un errore nel database.");
         }

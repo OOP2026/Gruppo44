@@ -9,5 +9,5 @@ public interface LezioneDAO {
     ResultSet getLezioni(String email) throws SQLException;
     ResultSet getLezioni(int anno) throws SQLException;
     ResultSet getLezioni() throws SQLException;
-    void eliminaLezione(String insegnamento, String giornoSettimana, LocalTime oraInizio) throws SQLException;
+    void eliminaLezioniInsegnamento(String insegnamento) throws SQLException;
 }

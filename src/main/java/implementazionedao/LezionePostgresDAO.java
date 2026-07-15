@@ -41,15 +41,13 @@ public class LezionePostgresDAO implements LezioneDAO {
             query.setString(4, aula);
             query.setString(5, insegnamento);
             query.executeUpdate();
-        } catch (SQLException e) {throw e;}
+        }
     }
 
-    public void eliminaLezione(String insegnamento, String giornoSettimana, LocalTime oraInizio) throws SQLException {
-        String sql = "DELETE FROM lezione WHERE insegnamento = ? AND giorno_settimana = ? AND ora_inizio = ?;";
+    public void eliminaLezioniInsegnamento(String insegnamento) throws SQLException {
+        String sql = "DELETE FROM lezione WHERE insegnamento = ? ;";
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql)) {
             query.setString(1, insegnamento);
-            query.setString (2, giornoSettimana);
-            query.setTime(3, Time.valueOf(oraInizio));
             query.executeUpdate();
         } catch (SQLException e) {throw new SQLException("Errore: si è verificato un errore nel database!");}
     }

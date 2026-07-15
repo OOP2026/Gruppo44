@@ -121,11 +121,12 @@ public class DashboardDocente extends JPanel {
     protected void mostraAreaPersonale() {
         removeAll();
 
-        String[] nomeScelta = {"Dati anagrafici", "I miei insegnamenti", "Le mie lezioni", "Richiedi spostamento", "I miei vincoli"};
+        String[] nomeScelta = {"Dati anagrafici", "I miei insegnamenti", "Le mie lezioni", "Variazioni", "Richiedi spostamento", "I miei vincoli"};
         JPanel[] pannelli = {
                 pannelloDatiAnagrafici(),
                 pannelloInsegnamenti(),
                 pannelloLezioni(),
+                pannelloVariazioni(),
                 pannelloRichiestaSpostamento(),
                 pannelloVincoli()
         };
@@ -341,4 +342,27 @@ public class DashboardDocente extends JPanel {
         listaVincoli.revalidate();
         listaVincoli.repaint();
     }
+
+    private JPanel pannelloVariazioni() {
+        JPanel pannello = new JPanel();
+        pannello.setLayout(new BoxLayout(pannello, BoxLayout.Y_AXIS));
+        pannello.setBackground(Color.WHITE);
+        pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        try {
+            List<String> variazioni = Controller.getInstance().getVariazioniDocente();
+            if (variazioni.isEmpty()) {
+                pannello.add(new JLabel("Nessuna variazione al momento."));
+            }
+            for (String variazione : variazioni) {
+                JLabel label = new JLabel(variazione);
+                label.setFont(Stile.FONT_TESTO);
+                pannello.add(label);
+            }
+        } catch (Exception e) {
+            pannello.add(new JLabel("Errore nel recupero delle variazioni: " + e.getMessage()));
+        }
+        return pannello;
+    }
+
 }
