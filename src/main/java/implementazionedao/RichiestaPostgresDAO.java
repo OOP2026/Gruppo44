@@ -1,7 +1,7 @@
 package implementazionedao;
 import dao.RichiestaDAO;
 import database_connection.ConnessioneDatabase;
-import model.GiornoSettimana;
+import common.GiornoSettimana;
 
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetProvider;

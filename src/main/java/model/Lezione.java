@@ -1,5 +1,7 @@
 package model;
 
+import common.GiornoSettimana;
+
 import java.time.LocalTime;
 
 public class Lezione {

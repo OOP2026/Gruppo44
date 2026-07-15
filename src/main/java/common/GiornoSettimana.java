@@ -1,4 +1,4 @@
-package model;
+package common;
 
 public enum GiornoSettimana {
     LUNEDI,
