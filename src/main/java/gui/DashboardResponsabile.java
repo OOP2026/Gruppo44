@@ -27,7 +27,7 @@ public class DashboardResponsabile extends DashboardDocente {
         JPanel[] pannelli = {pannelloGestisciAule(), pannelloElencoInsegnamenti(), pannelloGestisciRichieste()};
 
         add(new PannelloRiutilizzabileMenu(nomeScelta, pannelli), BorderLayout.CENTER);
-        add(creaBarraSuperiore(), BorderLayout.NORTH);
+        add(DashboardUtils.creaBarraSuperiore(dati, mainPanel), BorderLayout.NORTH);
         revalidate();
         repaint();
     }
@@ -37,13 +37,9 @@ public class DashboardResponsabile extends DashboardDocente {
     // la richiede in fase di creazione, qui non viene mostrata
 
     private JPanel pannelloGestisciAule() {
-        JPanel pannello = new JPanel(new BorderLayout(0, 15));
-        pannello.setBackground(Color.WHITE);
-        pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel pannello = DashboardUtils.creaPannelloGenerico();
 
-        JPanel lista = new JPanel();
-        lista.setLayout(new BoxLayout(lista, BoxLayout.Y_AXIS));
-        lista.setBackground(Color.WHITE);
+        JPanel lista = DashboardUtils.creaLista();
         aggiornaListaAule(lista);
 
         JPanel form = new JPanel(new GridBagLayout());

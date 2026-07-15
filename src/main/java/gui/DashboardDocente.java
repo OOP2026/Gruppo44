@@ -105,13 +105,7 @@ public class DashboardDocente extends JPanel {
 
     // Come in studente aggiunge una riga label + campo e restituisce la riga successiva libera
     protected int aggiungiCampo(JPanel form, GridBagConstraints gbc, int riga, String etichetta, JComponent campo) {
-        JLabel label = new JLabel(etichetta);
-        label.setFont(Stile.FONT_ETICHETTA);
-        gbc.gridy = riga++;
-        form.add(label, gbc);
-        gbc.gridy = riga++;
-        form.add(campo, gbc);
-        return riga;
+        return DashboardUtils.aggiungiCampo(form, gbc, riga, etichetta, campo);
     }
 
     //analogo a studente
@@ -137,27 +131,11 @@ public class DashboardDocente extends JPanel {
         };
 
         add(new PannelloRiutilizzabileMenu(nomeScelta, pannelli), BorderLayout.CENTER);
-        add(creaBarraSuperiore(), BorderLayout.NORTH);
+        add(DashboardUtils.creaBarraSuperiore(dati, mainPanel), BorderLayout.NORTH);
         revalidate();
         repaint();
     }
 
-    protected JPanel creaBarraSuperiore() {
-        JPanel barra = new JPanel(new BorderLayout());
-        barra.setBackground(Stile.AZZURRO);
-        barra.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-
-        JLabel benvenuto = new JLabel("Benvenuto, " + dati[0] + " " + dati[1]);
-        benvenuto.setFont(Stile.FONT_TITOLO_MEDIO);
-        benvenuto.setForeground(Stile.BLU_SCURO);
-
-        JButton pulsanteLogout = Stile.creaPulsanteTestoBianco("LOGOUT", Stile.ARANCIONE1);
-        pulsanteLogout.addActionListener(e -> mainPanel.mostraHome());
-
-        barra.add(benvenuto, BorderLayout.WEST);
-        barra.add(pulsanteLogout, BorderLayout.EAST);
-        return barra;
-    }
 
     protected JPanel pannelloDatiAnagrafici() {
         JPanel pannello = new JPanel(new GridLayout(3, 1, 0, 10));
@@ -178,13 +156,10 @@ public class DashboardDocente extends JPanel {
 
     // elenco dei nomi degli insegnamenti del docente più un form per proporne uno nuovo
     protected JPanel pannelloInsegnamenti() {
-        JPanel pannello = new JPanel(new BorderLayout(0, 15));
-        pannello.setBackground(Color.WHITE);
-        pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel pannello = DashboardUtils.creaPannelloGenerico();
 
-        JPanel lista = new JPanel();
-        lista.setLayout(new BoxLayout(lista, BoxLayout.Y_AXIS));
-        lista.setBackground(Color.WHITE);
+        JPanel lista = DashboardUtils.creaLista();
+
         aggiornaListaInsegnamenti(lista);
 
         JPanel form = new JPanel(new GridBagLayout());
@@ -246,23 +221,7 @@ public class DashboardDocente extends JPanel {
         String[] giorni = {"LUNEDI", "MARTEDI", "MERCOLEDI", "GIOVEDI", "VENERDI"};
         try {
             ArrayList<String>[] lezioni = Controller.getInstance().getLezioniDocente();
-            for (int i = 0; i < giorni.length; i++) {
-                JLabel titoloGiorno = new JLabel(giorni[i]);
-                titoloGiorno.setFont(Stile.FONT_ETICHETTA);
-                pannello.add(titoloGiorno);
-
-                ArrayList<String> lezioniGiorno = lezioni[i];
-                if (lezioniGiorno == null || lezioniGiorno.isEmpty()) {
-                    pannello.add(new JLabel("Nessuna lezione"));
-                } else {
-                    for (String lezione : lezioniGiorno) {
-                        JLabel riga = new JLabel(lezione);
-                        riga.setFont(Stile.FONT_TESTO);
-                        pannello.add(riga);
-                    }
-                }
-                pannello.add(Box.createVerticalStrut(10));
-            }
+            DashboardUtils.aggiornaLezioni(pannello, giorni, lezioni);
         } catch (Exception errore) {
             pannello.add(new JLabel("Errore nel recupero delle lezioni: " + errore.getMessage()));
         }
@@ -322,13 +281,9 @@ public class DashboardDocente extends JPanel {
 
     // elenco dei vincoli già inseriti e form per aggiungerne uno nuovo o modificare
     protected JPanel pannelloVincoli() {
-        JPanel pannello = new JPanel(new BorderLayout(0, 15));
-        pannello.setBackground(Color.WHITE);
-        pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel pannello = DashboardUtils.creaPannelloGenerico();
 
-        JPanel listaVincoli = new JPanel();
-        listaVincoli.setLayout(new BoxLayout(listaVincoli, BoxLayout.Y_AXIS));
-        listaVincoli.setBackground(Color.WHITE);
+        JPanel listaVincoli = DashboardUtils.creaLista();
         aggiornaListaVincoli(listaVincoli);
 
         JPanel form = new JPanel(new GridBagLayout());

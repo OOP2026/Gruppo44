@@ -93,13 +93,7 @@ public class DashboardStudente extends JPanel {
 
     // aggiunge una riga label + campo al form e restituisce la riga successiva (riga ++) libera
     private int aggiungiCampo(JPanel form, GridBagConstraints gbc, int riga, String etichetta, JComponent campo) {
-        JLabel label = new JLabel(etichetta);
-        label.setFont(Stile.FONT_ETICHETTA);
-        gbc.gridy = riga++;
-        form.add(label, gbc);
-        gbc.gridy = riga++;
-        form.add(campo, gbc);
-        return riga;
+        return DashboardUtils.aggiungiCampo(form, gbc, riga, etichetta, campo);
     }
 
     // centra il pannello di login/registrazione nella schermata invece di farlo occupare tutto lo spazio
@@ -123,26 +117,9 @@ public class DashboardStudente extends JPanel {
         };
 
         add(new PannelloRiutilizzabileMenu(nomeScelta, pannelli), BorderLayout.CENTER);
-        add(creaBarraSuperiore(), BorderLayout.NORTH);
+        add(DashboardUtils.creaBarraSuperiore(dati, mainPanel), BorderLayout.NORTH);
         revalidate();
         repaint();
-    }
-
-    private JPanel creaBarraSuperiore() {
-        JPanel barra = new JPanel(new BorderLayout());
-        barra.setBackground(Stile.AZZURRO);
-        barra.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-
-        JLabel lblBenvenuto = new JLabel("Benvenuto, " + dati[0] + " " + dati[1]);
-        lblBenvenuto.setFont(Stile.FONT_TITOLO_MEDIO);
-        lblBenvenuto.setForeground(Stile.BLU_SCURO);
-
-        JButton pulsanteLogout = Stile.creaPulsanteTestoBianco("LOGOUT", Stile.ARANCIONE1);
-        pulsanteLogout.addActionListener(e -> mainPanel.mostraHome());
-
-        barra.add(lblBenvenuto, BorderLayout.WEST);
-        barra.add(pulsanteLogout, BorderLayout.EAST);
-        return barra;
     }
 
     // dati anagrafici dello studente presi dall'array restituito dal Controller
@@ -176,24 +153,7 @@ public class DashboardStudente extends JPanel {
 
         try {
             ArrayList<String>[] lezioni = Controller.getInstance().getLezioni(Integer.parseInt(dati[4]));
-
-            for (int i = 0; i < giorni.length; i++) {
-                JLabel titoloGiorno = new JLabel(giorni[i]);
-                titoloGiorno.setFont(Stile.FONT_ETICHETTA);
-                pannello.add(titoloGiorno);
-
-                ArrayList<String> lezioniGiorno = lezioni[i];
-                if (lezioniGiorno == null || lezioniGiorno.isEmpty()) {
-                    pannello.add(new JLabel("Nessuna lezione"));
-                } else {
-                    for (String lezione : lezioniGiorno) { // oraInizio, oraFine, insegnamento, aula
-                        JLabel riga = new JLabel(lezione);
-                        riga.setFont(Stile.FONT_TESTO);
-                        pannello.add(riga);
-                    }
-                }
-                pannello.add(Box.createVerticalStrut(10));
-            }
+            DashboardUtils.aggiornaLezioni(pannello, giorni, lezioni);
         } catch (Exception e) {
             pannello.add(new JLabel("Errore nel recupero dell'orario: " + e.getMessage()));
         }
