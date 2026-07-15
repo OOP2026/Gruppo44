@@ -222,7 +222,7 @@ public class Controller {
 		LezioneDAO l = new LezionePostgresDAO();
     	l.creaLezione(lezione.getGiornoSettimana().toString(), lezione.getOraInizio(), lezione.getOraFine(), lezione.getAula(), lezione.getInsegnamento());
 	} // fine CreaLezione
-	
+
 	/**
 	 * Aggiunge un {@link Insegnamento} al database.
 	 * @param nome Il nome dell'insegnamento.

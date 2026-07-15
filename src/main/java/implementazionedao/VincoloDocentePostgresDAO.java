@@ -37,7 +37,7 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
             query.setTime(3, Time.valueOf(oraInizio));
             query.setTime(4, Time.valueOf(oraFine));
             query.executeUpdate();
-        } catch (SQLException e) {throw e;}
+        }
     }
 
     public void eliminaVincoloDocente (String email, String giorno,LocalTime oraInizio ) throws SQLException {

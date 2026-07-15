@@ -46,7 +46,7 @@ public class RichiestaPostgresDAO implements RichiestaDAO {
             query.setString(8, aula);
             query.executeUpdate();
 
-        } catch (SQLException e) {throw e;}
+        }
     }
 
     /**
