@@ -387,11 +387,11 @@ public class Controller {
 		try(ResultSet rs = r.cancellaRichiesta(idRichiesta)){
 			if(rs.next()) {
 				creaVariazione(rs.getString ("insegnamento" ), rs.getString("data_originale"), rs.getString("data_richiesta"), rs.getString("ora_inizio_originale"), rs.getString("ora_inizio"), rs.getString("ora_fine"), rs.getString("aula"));
+				richiesteLocale.removeIf(richiesta ->  richiesta.getIdRichiesta() == (idRichiesta));
 			}
 			else{throw new SQLException("La richiesta non esiste!");
 			}
 		}
-		richiesteLocale.removeIf(richiesta ->  richiesta.getIdRichiesta() == (idRichiesta));
 
 	}
 
@@ -407,8 +407,8 @@ public class Controller {
 			if(!rs.next()) {
 				throw new SQLException("La richiesta non esiste!");
 			}
+			richiesteLocale.removeIf(richiesta ->  richiesta.getIdRichiesta() == (idRichiesta));
 		}
-		richiesteLocale.removeIf(richiesta ->  richiesta.getIdRichiesta() == (idRichiesta));
 	}
 
 
@@ -472,13 +472,13 @@ public class Controller {
 	public List<String> getVariazioniStudente() throws SQLException{
 		VariazioneDAO v = new VariazionePostgresDAO();
 		ResultSet rs = v.getVariazioni(studenteAttivo.getAnnoAccademico());
-		istanziaVariazione(rs);
+		istanziaVariazioni(rs);
 		return formatVariazioni(variazioniLocale);
 	}
 
 
 
-	private void istanziaVariazione(ResultSet rs) throws SQLException{
+	private void istanziaVariazioni(ResultSet rs) throws SQLException{
 
 
 		ArrayList<Variazione> arrVariazione = new ArrayList<>();
@@ -528,7 +528,7 @@ public class Controller {
 		String email = docenteAttivo.getEmail();
 		VariazioneDAO v = new VariazionePostgresDAO();
 		ResultSet rs = v.getVariazioni(email);
-		istanziaVariazione(rs);
+		istanziaVariazioni(rs);
 		return formatVariazioni(variazioniLocale);
 	}
 
