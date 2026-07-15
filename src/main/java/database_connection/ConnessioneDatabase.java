@@ -7,7 +7,7 @@ public class ConnessioneDatabase {
     public Connection connection = null;
     private static final String NOME = "postgres";
     private static final String PASSWORD = "pswpostgres";
-    private static final String URL = "jdbc:postgresql://localhost:5432/Orario";
+    private static final String URL = "jdbc:postgresql://localhost:5432/orario";
 
     private ConnessioneDatabase() throws SQLException {
 

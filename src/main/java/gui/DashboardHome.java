@@ -21,15 +21,15 @@ public class DashboardHome extends JPanel {
         pannello.setBackground(Stile.AZZURRO);
         pannello.setBorder(BorderFactory.createEmptyBorder(25, 20, 25, 20));
 
-        JLabel lblAteneo = new JLabel("UNIVERSITÀ DEGLI STUDI DI NAPOLI FEDERICO II", JLabel.CENTER);
+        JLabel lblAteneo = new JLabel("UNIVERSITÀ DEGLI STUDI DI NAPOLI FEDERICO II", SwingConstants.CENTER);
         lblAteneo.setFont(Stile.FONT_TITOLO_MEDIO);
         lblAteneo.setForeground(Stile.BLU_SCURO);
 
-        JLabel lblBenvenuto = new JLabel("Benvenuto nel Sistema di Gestione Orari", JLabel.CENTER);
+        JLabel lblBenvenuto = new JLabel("Benvenuto nel Sistema di Gestione Orari", SwingConstants.CENTER);
         lblBenvenuto.setFont(Stile.FONT_SOTTOTITOLO);
         lblBenvenuto.setForeground(Stile.TESTO_CHIARO);
 
-        JLabel lblIstruzione = new JLabel("Seleziona il tuo profilo per accedere o registrarti:", JLabel.CENTER);
+        JLabel lblIstruzione = new JLabel("Seleziona il tuo profilo per accedere o registrarti:", SwingConstants.CENTER);
         lblIstruzione.setFont(Stile.FONT_ISTRUZIONE);
         lblIstruzione.setForeground(Stile.TESTO_SCURO);
 

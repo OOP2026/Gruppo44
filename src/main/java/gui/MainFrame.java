@@ -10,7 +10,7 @@ public class MainFrame extends JFrame {
         setTitle("Sistema di Gestione Orario Universitario");
         setSize(900, 650);
         setResizable(false);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // centra la finestra sullo schermo
         setLayout(new BorderLayout());
 

@@ -5,9 +5,9 @@ import controller.Controller;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
+
 //estende docente per averne le funzionalità grafiche ma nella sua dashboard
 //ha solo le funzionalità da responsabile e non mostra nessuna delle voci del Docente
 public class DashboardResponsabile extends DashboardDocente {
@@ -86,7 +86,7 @@ public class DashboardResponsabile extends DashboardDocente {
             if (aule.isEmpty()) lista.add(new JLabel("Nessuna aula inserita."));
             for (String nomeAula : aule) lista.add(rigaAula(nomeAula, lista));
         } catch (Exception errore) {
-            lista.add(new JLabel("Errore nel recupero delle aule: " + errore.getMessage()));
+            lista.add(new JLabel(errore.getMessage()));
         }
         lista.revalidate();
         lista.repaint();
@@ -136,7 +136,7 @@ public class DashboardResponsabile extends DashboardDocente {
                 pannello.add(Box.createVerticalStrut(10));
             }
         } catch (Exception errore) {
-            pannello.add(new JLabel("Errore nel recupero degli insegnamenti: " + errore.getMessage()));
+            pannello.add(new JLabel(errore.getMessage()));
         }
         pannello.revalidate();
         pannello.repaint();
@@ -241,27 +241,11 @@ public class DashboardResponsabile extends DashboardDocente {
         pulsanteCrea.addActionListener(e -> {
             try {
                 String giorno = (String) campoGiorno.getSelectedItem();
-                LocalTime oraInizio = LocalTime.parse(campoOraInizio.getText().trim());
-                LocalTime oraFine = LocalTime.parse(campoOraFine.getText().trim());
-
-                for (String vincolo : Controller.getInstance().getVincoliDocente(campoEmailDocente.getText().trim())) {
-                    if (vincoloInConflitto(vincolo, giorno, oraInizio, oraFine)) {
-                        JOptionPane.showMessageDialog(finestra, "Orario in conflitto con un vincolo del docente:\n" + vincolo, "Lezione non creata", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                }
-
-                String aula = campoAula.getText().trim();
-                if (aulaOccupata(giorno, aula, oraInizio, oraFine)) {
-                    JOptionPane.showMessageDialog(finestra, "L'aula " + aula + " è già occupata in quel giorno/orario.", "Lezione non creata", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                Controller.getInstance().creaLezione(nomeInsegnamento, giorno, campoOraInizio.getText().trim(), campoOraFine.getText().trim(), aula);
+                Controller.getInstance().creaLezione(nomeInsegnamento, giorno, campoOraInizio.getText().trim(), campoOraFine.getText().trim(), campoAula.getText().trim());
                 JOptionPane.showMessageDialog(finestra, "Lezione creata.");
                 finestra.dispose();
             } catch (Exception errore) {
-                JOptionPane.showMessageDialog(finestra, errore.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(finestra, errore.getMessage(), "Errore nella creazione della lezione", JOptionPane.ERROR_MESSAGE);
             }
         });
         gbc.gridy = riga;
@@ -271,42 +255,6 @@ public class DashboardResponsabile extends DashboardDocente {
         finestra.setVisible(true);
     }
 
-    // Controlla se un vincolo (stringa "Giorno: LUNEDI, ore: 10:00-12:00") va in conflitto
-    // con l'orario di una nuova lezione nello stesso giorno.
-    private boolean vincoloInConflitto(String vincolo, String giorno, LocalTime nuovoInizio, LocalTime nuovoFine) {
-        try {
-            String[] parti = vincolo.replace("Giorno: ", "").replace("ore: ", "").split(", ");
-            if (!parti[0].trim().equalsIgnoreCase(giorno)) return false;
-            String[] orari = parti[1].split("-");
-            LocalTime vincoloInizio = LocalTime.parse(orari[0].trim().substring(0, 5));
-            LocalTime vincoloFine = LocalTime.parse(orari[1].trim().substring(0, 5));
-            return nuovoInizio.isBefore(vincoloFine) && vincoloInizio.isBefore(nuovoFine);
-        } catch (Exception errore) {
-            return false; // formato imprevisto: non blocco per un vincolo che non riesco a leggere
-        }
-    }
-
-    // Controlla se una data aula ha già una lezione sovrapposta in quel giorno/orario,
-    // guardando TUTTE le lezioni del sistema (getLezioni() senza parametri), non solo
-    // quelle di un anno o di un docente specifico.
-    private boolean aulaOccupata(String giorno, String aula, LocalTime nuovoInizio, LocalTime nuovoFine) throws Exception {
-        ArrayList<String>[] tutteLeLezioni = Controller.getInstance().getLezioni();
-        int indiceGiorno = Arrays.asList(GIORNI).indexOf(giorno);
-        ArrayList<String> lezioniGiorno = tutteLeLezioni[indiceGiorno];
-        if (lezioniGiorno == null) return false;
-
-        for (String lezione : lezioniGiorno) {
-            String[] campi = lezione.split("\n"); // oraInizio, oraFine, insegnamento, aula
-            if (!campi[3].equals(aula)) continue;
-
-            LocalTime inizioEsistente = LocalTime.parse(campi[0].substring(0, 5));
-            LocalTime fineEsistente = LocalTime.parse(campi[1].substring(0, 5));
-            if (nuovoInizio.isBefore(fineEsistente) && inizioEsistente.isBefore(nuovoFine)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     // GESTIONE RICHIESTE SPOSTAMENTO
     // l'indice nella lista viene usato come identificativo della richiesta, perché
@@ -324,15 +272,14 @@ public class DashboardResponsabile extends DashboardDocente {
     private void aggiornaListaRichieste(JPanel pannello) {
         pannello.removeAll();
         try {
-            List<String> richieste = Controller.getInstance().getRegistroRichiesteSpostamento();
+            Map<Integer, String> richieste = Controller.getInstance().getRegistroRichiesteSpostamento();
             if (richieste.isEmpty()) pannello.add(new JLabel("Nessuna richiesta in attesa."));
-            for (int i = 0; i < richieste.size(); i++) {
-                int indice = i;
-                pannello.add(rigaRichiesta(richieste.get(i), indice, pannello));
+            richieste.forEach((key, value) -> {
+                pannello.add(rigaRichiesta(richieste.get(key), key , pannello));
                 pannello.add(Box.createVerticalStrut(8));
-            }
+            });
         } catch (Exception errore) {
-            pannello.add(new JLabel("Errore nel recupero delle richieste: " + errore.getMessage()));
+            pannello.add(new JLabel(errore.getMessage()));
         }
         pannello.revalidate();
         pannello.repaint();

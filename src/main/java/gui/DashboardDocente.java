@@ -4,8 +4,6 @@ import controller.Controller;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -202,7 +200,7 @@ public class DashboardDocente extends JPanel {
         JButton pulsanteProponi = Stile.creaPulsante("PROPONI", Stile.BLU_CHIARO);
         pulsanteProponi.addActionListener(e -> {
             try {
-                Controller.getInstance().creaInsegnamento(campoNome.getText().trim(), 0, 0, dati[2]);
+                Controller.getInstance().creaInsegnamento(campoNome.getText().trim(), 0, 0);
                 campoNome.setText("");
                 aggiornaListaInsegnamenti(lista);
             } catch (Exception errore) {
@@ -221,7 +219,7 @@ public class DashboardDocente extends JPanel {
     private void aggiornaListaInsegnamenti(JPanel lista) {
         lista.removeAll();
         try {
-            List<String> insegnamenti = Controller.getInstance().getInsegnamentiDocente(dati[2]);
+            List<String> insegnamenti = Controller.getInstance().getInsegnamentiDocente();
             if (insegnamenti.isEmpty()) {
                 lista.add(new JLabel("Nessun insegnamento proposto."));
             }
@@ -247,7 +245,7 @@ public class DashboardDocente extends JPanel {
 
         String[] giorni = {"LUNEDI", "MARTEDI", "MERCOLEDI", "GIOVEDI", "VENERDI"};
         try {
-            ArrayList<String>[] lezioni = Controller.getInstance().getLezioni(dati[2]);
+            ArrayList<String>[] lezioni = Controller.getInstance().getLezioniDocente();
             for (int i = 0; i < giorni.length; i++) {
                 JLabel titoloGiorno = new JLabel(giorni[i]);
                 titoloGiorno.setFont(Stile.FONT_ETICHETTA);
@@ -258,8 +256,7 @@ public class DashboardDocente extends JPanel {
                     pannello.add(new JLabel("Nessuna lezione"));
                 } else {
                     for (String lezione : lezioniGiorno) {
-                        String[] campi = lezione.split("\n"); // oraInizio, oraFine, insegnamento, aula
-                        JLabel riga = new JLabel(campi[0] + "-" + campi[1] + "  " + campi[2] + " (aula " + campi[3] + ")");
+                        JLabel riga = new JLabel(lezione);
                         riga.setFont(Stile.FONT_TESTO);
                         pannello.add(riga);
                     }
@@ -306,11 +303,11 @@ public class DashboardDocente extends JPanel {
             try {
                 Controller.getInstance().aggiungiRichiestaSpostamento(
                         campoInsegnamento.getText().trim(),
-                        LocalTime.parse(campoOraOriginale.getText().trim()),
-                        LocalDate.parse(campoGiornoOriginale.getText().trim()),
-                        LocalDate.parse(campoGiornoRichiesto.getText().trim()),
-                        LocalTime.parse(campoOraInizioRichiesta.getText().trim()),
-                        LocalTime.parse(campoOraFineRichiesta.getText().trim()),
+                        campoOraOriginale.getText().trim(),
+                        campoGiornoOriginale.getText().trim(),
+                        campoGiornoRichiesto.getText().trim(),
+                        campoOraInizioRichiesta.getText().trim(),
+                        campoOraFineRichiesta.getText().trim(),
                         campoAula.getText().trim());
                 JOptionPane.showMessageDialog(this, "Richiesta inviata.");
             } catch (Exception errore) {
@@ -354,7 +351,7 @@ public class DashboardDocente extends JPanel {
         pulsanteAggiungi.addActionListener(e -> {
             try {
                 Controller.getInstance().aggiungiVincoloDocente(
-                        dati[2], (String) campoGiorno.getSelectedItem(),
+                        (String) campoGiorno.getSelectedItem(),
                         campoOraInizio.getText().trim(), campoOraFine.getText().trim());
                 aggiornaListaVincoli(listaVincoli);
             } catch (Exception errore) {
@@ -374,7 +371,7 @@ public class DashboardDocente extends JPanel {
     private void aggiornaListaVincoli(JPanel listaVincoli) {
         listaVincoli.removeAll();
         try {
-            List<String> vincoli = Controller.getInstance().getVincoliDocente(dati[2]);
+            List<String> vincoli = Controller.getInstance().getVincoliDocente();
             if (vincoli.isEmpty()) {
                 listaVincoli.add(new JLabel("Nessun vincolo inserito."));
             }

@@ -5,7 +5,7 @@ import database_connection.ConnessioneDatabase;
 
 import java.sql.*;
 
-public class DocentePostgresDAO implements DocenteDAO {
+public class DocentePostgresDAO extends UtentePostgresDAO implements DocenteDAO{
 
     private final Connection connessioneDatabase;
 
@@ -27,18 +27,7 @@ public class DocentePostgresDAO implements DocenteDAO {
     public ResultSet login(String email, String password) throws SQLException
     {
         String sql = "SELECT nome, cognome, email, password FROM docente WHERE email LIKE ? AND password LIKE ?;";
-        ResultSet rs;
-        try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
-        {
-            query.setString(1, email);
-            query.setString(2, password);
-            rs = query.executeQuery(sql);
-        } catch (SQLException e) {throw new SQLException("Credenziali errate.");}
-        if(rs.next())
-        {
-            return rs;
-        }
-        else{throw new SQLException("Credenziali errate.");}
+        return super.login(sql, email,password);
     }
 
     /**

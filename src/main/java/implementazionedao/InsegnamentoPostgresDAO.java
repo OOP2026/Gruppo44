@@ -1,6 +1,9 @@
 package implementazionedao;
 import dao.InsegnamentoDAO;
 import database_connection.ConnessioneDatabase;
+
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
 import java.sql.*;
 
 
@@ -45,14 +48,16 @@ public class InsegnamentoPostgresDAO implements InsegnamentoDAO {
      */
     public ResultSet getInsegnamentiDocente(String emailDocente) throws SQLException {
         String sql = "SELECT nome, numerocfu, anno_accademico, email_docente FROM insegnamento WHERE email_docente = ?;";
-        ResultSet rs;
+        CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
         try (PreparedStatement query = connessioneDatabase.prepareStatement(sql)) {
             query.setString(1, emailDocente);
-            rs = query.executeQuery(sql);
+            ResultSet rs = query.executeQuery();
+            crs.populate(rs);
         } catch (SQLException e) {
+            crs.close();
             throw new SQLException("Si è verificato un errore nel database.");
         }
-        return rs;
+        return crs;
     }
 
     /**
@@ -61,13 +66,16 @@ public class InsegnamentoPostgresDAO implements InsegnamentoDAO {
 
     public ResultSet getInsegnamenti() throws SQLException {
         String sql = "SELECT nome, numerocfu, anno_accademico, email_docente FROM insegnamento;";
-        ResultSet rs;
+
+        CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
         try (PreparedStatement query = connessioneDatabase.prepareStatement(sql)) {
-            rs = query.executeQuery(sql);
+            ResultSet rs = query.executeQuery();
+            crs.populate(rs);
         } catch (SQLException e) {
+            crs.close();
             throw new SQLException("Si è verificato un errore nel database.");
         }
-        return rs;
+        return crs;
     }
 
     public void eliminaInsegnamento(String nomeInsegnamento) throws SQLException {

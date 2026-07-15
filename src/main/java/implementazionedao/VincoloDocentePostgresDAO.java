@@ -1,6 +1,9 @@
 package implementazionedao;
 import dao.VincoloDocenteDAO;
 import database_connection.ConnessioneDatabase;
+
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
 import java.sql.*;
 import java.time.LocalTime;
 
@@ -26,7 +29,7 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
      */
     public void creaVincolo(String email, String giorno, LocalTime oraInizio, LocalTime oraFine) throws SQLException
     {
-        String sql = "INSERT INTO vincolo_docente(email_docente, giorno, ora_inizio, ora_fine) VALUES(?,?,?,?);";
+        String sql = "INSERT INTO vincolo_docente(email_docente, giorno, ora_inizio, ora_fine) VALUES(?,?::giorno_settimana,?,?);";
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, email);
@@ -34,7 +37,7 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
             query.setTime(3, Time.valueOf(oraInizio));
             query.setTime(4, Time.valueOf(oraFine));
             query.executeUpdate();
-        } catch (SQLException e) {throw new SQLException("Si è verificato un errore nel database.");}
+        } catch (SQLException e) {throw e;}
     }
 
     public void eliminaVincoloDocente (String email, String giorno,LocalTime oraInizio ) throws SQLException {
@@ -56,13 +59,14 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
     public ResultSet getVincoli(String email) throws SQLException
     {
         String sql = "SELECT email_docente, giorno, ora_inizio, ora_fine FROM vincolo_docente WHERE email_docente LIKE ?;";
-        ResultSet rs;
+        CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, email);
-            rs = query.executeQuery(sql);
-        } catch (SQLException e) {throw new SQLException("Si è verificato un errore nel database.");}
-        return rs;
+            ResultSet rs = query.executeQuery();
+            crs.populate(rs);
+        } catch (SQLException e) {crs.close(); throw new SQLException("Si è verificato un errore nel database.");}
+        return crs;
     }
 
     /**
@@ -76,7 +80,7 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
         ResultSet rs;
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
-            rs = query.executeQuery(sql);
+            rs = query.executeQuery();
         } catch (SQLException e) {throw new SQLException("Si è verificato un errore nel database.");}
         return rs;
     }

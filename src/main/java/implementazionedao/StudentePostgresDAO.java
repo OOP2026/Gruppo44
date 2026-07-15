@@ -3,9 +3,11 @@ package implementazionedao;
 import dao.StudenteDAO;
 import database_connection.ConnessioneDatabase;
 
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
 import java.sql.*;
 
-public class StudentePostgresDAO implements StudenteDAO {
+public class StudentePostgresDAO extends UtentePostgresDAO implements StudenteDAO {
 
     private final Connection connessioneDatabase;
 
@@ -26,18 +28,7 @@ public class StudentePostgresDAO implements StudenteDAO {
     public ResultSet login(String email, String password) throws SQLException
     {
         String sql = "SELECT nome, cognome, email, password, matricola, anno_accademico FROM studente WHERE email LIKE ? AND password LIKE ?";
-        ResultSet rs;
-        try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
-        {
-            query.setString(1, email);
-            query.setString(2, password);
-            rs = query.executeQuery(sql);
-        } catch (SQLException e) {throw new SQLException("Credenziali errate.");}
-        if(rs.next())
-        {
-            return rs;
-        }
-        else{throw new SQLException("Credenziali errate.");}
+        return super.login(sql, email,password);
     }
 
     /**
@@ -82,13 +73,14 @@ public class StudentePostgresDAO implements StudenteDAO {
     public ResultSet getAnnoStudente(String email) throws  SQLException
     {
         String sql = "SELECT anno_accademico FROM studente WHERE email LIKE ?";
-        ResultSet rs;
+        CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, email);
-            rs = query.executeQuery();
+            ResultSet rs = query.executeQuery();
+            crs.populate(rs);
         }
-        catch (SQLException e){throw new SQLException("Si è verificato un errore!");}
-        return rs;
+        catch (SQLException e){crs.close(); throw new SQLException("Si è verificato un errore!");}
+        return crs;
     }
 }

@@ -186,9 +186,8 @@ public class DashboardStudente extends JPanel {
                 if (lezioniGiorno == null || lezioniGiorno.isEmpty()) {
                     pannello.add(new JLabel("Nessuna lezione"));
                 } else {
-                    for (String lezione : lezioniGiorno) {
-                        String[] campi = lezione.split("\n"); // oraInizio, oraFine, insegnamento, aula
-                        JLabel riga = new JLabel(campi[0] + "-" + campi[1] + "  " + campi[2] + " (aula " + campi[3] + ")");
+                    for (String lezione : lezioniGiorno) { // oraInizio, oraFine, insegnamento, aula
+                        JLabel riga = new JLabel(lezione);
                         riga.setFont(Stile.FONT_TESTO);
                         pannello.add(riga);
                     }
@@ -209,7 +208,7 @@ public class DashboardStudente extends JPanel {
         pannello.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         try {
-            List<String> variazioni = Controller.getInstance().getVariazioni(Integer.parseInt(dati[4])); //uso anno come filtro
+            List<String> variazioni = Controller.getInstance().getVariazioni();
             if (variazioni.isEmpty()) {
                 pannello.add(new JLabel("Nessuna variazione al momento."));
             }

@@ -3,6 +3,8 @@ package implementazionedao;
 import database_connection.ConnessioneDatabase;
 import dao.AulaDAO;
 
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
 import java.sql.*;
 
 public class AulaPostgresDAO implements AulaDAO{
@@ -39,10 +41,12 @@ public class AulaPostgresDAO implements AulaDAO{
 
     public ResultSet getAule() throws SQLException {
         String sql = "SELECT nome_aula, capienza_massima FROM aula";
-        ResultSet rs;
+        CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
+
         try (PreparedStatement query = connessioneDatabase.prepareStatement(sql)){
-            rs = query.executeQuery();
-        } catch (SQLException e) {throw new SQLException("Errore: si è verificato un errore nel database!");}
-        return rs;
+            ResultSet rs = query.executeQuery();
+            crs.populate(rs);
+        } catch (SQLException e) {crs.close(); throw new SQLException("Errore: si è verificato un errore nel database!");}
+        return crs;
     }
 }

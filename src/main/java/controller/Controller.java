@@ -21,12 +21,12 @@ public class Controller {
 	private Studente studenteAttivo;
 	private ArrayList<Docente> docentiLocale = new ArrayList<>();
 	private ArrayList<Studente> studentiLocale = new ArrayList<>();
-	private ArrayList<Aula> auleLocale;
-	private ArrayList<Insegnamento> insegnamentiLocale;
-	private ArrayList<Lezione> lezioniLocale;
-	private ArrayList<Richiesta> richiesteLocale;
-	private ArrayList<Variazione> variazioniLocale;
-	private ArrayList<VincoloDocente> vincoliLocale;
+	private ArrayList<Aula> auleLocale = new ArrayList<>();
+	private ArrayList<Insegnamento> insegnamentiLocale = new ArrayList<>();
+	private ArrayList<Lezione> lezioniLocale = new ArrayList<>();
+	private ArrayList<Richiesta> richiesteLocale = new ArrayList<>();
+	private ArrayList<Variazione> variazioniLocale = new ArrayList<>();
+	private ArrayList<VincoloDocente> vincoliLocale = new ArrayList<>();
 
 
 	private static Controller instance;
@@ -47,10 +47,10 @@ public class Controller {
 	 * @param email la email inserita dall'utente per eseguire l'accesso.
 	 * @param password la password inserita dall'utente per eseguire l'accesso.
 	 * @return Un array di {@link String} contenente, in ordine: nome, cognome, email dell'utente
-	 * @throws Exception Se l'email non è valida, ls password è sbagliata o in caso di errori nel database.
+	 * @throws SQLException Se l'email non è valida, ls password è sbagliata o in caso di errori nel database.
 	 * @see Docente
 	 */
-	public String[] loginDocente(String email, String password) throws Exception {
+	public String[] loginDocente(String email, String password) throws SQLException {
 		// prende i dati dal database, li mette nel model, li riprende dal model e li manda alla GUI
 		DocenteDAO d = new DocentePostgresDAO();
 		try (ResultSet rs = d.login(email, password)){
@@ -67,13 +67,13 @@ public class Controller {
 	 * @param email la email inserita dall'utente per eseguire l'accesso.
 	 * @param password la password inserita dall'utente per eseguire l'accesso.
 	 * @return Un array di {@link String} contenente, in ordine: nome, cognome, email, matricola, anno accademico dell'utente
-	 * @throws Exception Se l'email non è valida, ls password è sbagliata o in caso di errori nel database.
+	 * @throws SQLException Se l'email non è valida, ls password è sbagliata o in caso di errori nel database.
 	 */
-	public String[] loginStudente(String email, String password) throws Exception{
+	public String[] loginStudente(String email, String password) throws SQLException{
 
 		StudenteDAO s = new StudentePostgresDAO();
 
-		try (ResultSet rs = s.login(email, password)) {
+			try (ResultSet rs = s.login(email, password)) {
 			studenteAttivo = new Studente(rs.getString("nome"), rs.getString("cognome"), rs.getString("email"), rs.getString("password"), rs.getString("matricola"), rs.getInt("anno_accademico"));
 			return new String[] {studenteAttivo.getNome(),studenteAttivo.getCognome(), studenteAttivo.getEmail(), studenteAttivo.getMatricola(), String.valueOf(studenteAttivo.getAnnoAccademico())};
 		}
@@ -82,14 +82,13 @@ public class Controller {
 
 	/**
 	 * Restituisce tutte le lezioni erogate da un docente.
-	 * @param email L'email del docente di cui si vogliono recuperare le lezioni.
 	 * @return ArrayList di {@link String} nel format restituito da {@link #formatLezioni(ArrayList)}
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 * @see #formatLezioni(ArrayList)
 	 */
-	public ArrayList<String>[] getLezioni(String email) throws Exception{
+	public ArrayList<String>[] getLezioniDocente() throws SQLException{
 		LezioneDAO l = new LezionePostgresDAO();
-		ResultSet rs = l.getLezioni(email);
+		ResultSet rs = l.getLezioni(docenteAttivo.getEmail());
 		istanziaLezioni(rs);
 		return formatLezioni(lezioniLocale);
 	}
@@ -98,10 +97,10 @@ public class Controller {
 	 * Restituisce tutte le lezioni erogate per un anno accademico.
 	 * @param anno L'anno dello studente di cui si vogliono recuperare le lezioni.
 	 * @return ArrayList di {@link String} nel format restituito da {@link #formatLezioni(ArrayList)}
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 * @see #formatLezioni(ArrayList)
 	 */
-	public ArrayList<String>[] getLezioni(int anno) throws Exception{
+	public ArrayList<String>[] getLezioni(int anno) throws SQLException{
 		LezioneDAO l = new LezionePostgresDAO();
 		ResultSet rs= l.getLezioni(anno);
 		istanziaLezioni(rs);
@@ -111,7 +110,7 @@ public class Controller {
 	/**
 	 *
 	 */
-	public ArrayList<String>[] getLezioni() throws Exception{
+	public ArrayList<String>[] getLezioni() throws SQLException{
 		LezioneDAO l = new LezionePostgresDAO();
 		ResultSet rs = l.getLezioni();
 		istanziaLezioni(rs);
@@ -121,9 +120,8 @@ public class Controller {
 	/**
 	 * Accetta un ResultSet di lezioni e lo formatta in stringhe da restituire a un'interfaccia.
 	 * @return ArrayList di {@link String} della forma: "[oraInizio]\n[oraFine]\n[insegnamento]\n[aula]"
-	 * @throws SQLException In caso di errori nel database.
 	 */
-	private ArrayList<String>[] formatLezioni(ArrayList<Lezione> lezioniArr) throws SQLException{
+	private ArrayList<String>[] formatLezioni(ArrayList<Lezione> lezioniArr){
 		ArrayList<String>[] stringArr = new ArrayList[5];
 		for (int i = 0; i < stringArr.length; i++) {
 			stringArr[i] = new ArrayList<>();
@@ -135,7 +133,7 @@ public class Controller {
 				String aula = l.getAula();
 				String insegnamento = l.getInsegnamento();
 
-				stringArr[giorno].add(oraInizio + "\n" + oraFine + "\n" + insegnamento + "\n" + aula);
+				stringArr[giorno].add(oraInizio + "-" + oraFine + ": " + insegnamento + " (aula " + aula + ")");
 			}
 			return stringArr;
 	}
@@ -144,9 +142,8 @@ public class Controller {
 	private void istanziaLezioni(ResultSet rs) throws SQLException{
 
 		ArrayList<Lezione> arrLezioni = new ArrayList<>();
-		try {
 			while (rs.next()) {
-				GiornoSettimana giorno = GiornoSettimana.values()[rs.getInt("giorno_settimana") - 1];
+				GiornoSettimana giorno = GiornoSettimana.values()[GiornoSettimana.valueOf(rs.getString("giorno_settimana")).ordinal()];
 				LocalTime oraInizio = rs.getTime("ora_inizio").toLocalTime();
 				LocalTime oraFine = rs.getTime("ora_fine").toLocalTime();
 				String aula = rs.getString("aula");
@@ -156,7 +153,6 @@ public class Controller {
 				arrLezioni.add(l);
 			}
 			lezioniLocale = arrLezioni;
-		} catch (SQLException e) {throw new SQLException("Si è verificato un errore nel database.");}
 
 	}
 
@@ -170,9 +166,9 @@ public class Controller {
 	 * @param oraInizioRichiesta L'ora di inizio richiesta dal docente.
 	 * @param oraFineRichiesta L'ora di fine richiesta dal docente.
 	 * @param aula La nuova aula della lezione modificata.
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public void aggiungiRichiestaSpostamento(String nomeInsegnamento, String oraInizioOriginale, String dataOriginale, String dataRichiesta, String oraInizioRichiesta, String oraFineRichiesta, String aula) throws Exception
+	public void aggiungiRichiestaSpostamento(String nomeInsegnamento, String oraInizioOriginale, String dataOriginale, String dataRichiesta, String oraInizioRichiesta, String oraFineRichiesta, String aula) throws SQLException
 	{
 		Richiesta richiesta = new Richiesta(nomeInsegnamento, LocalDate.parse(dataOriginale), LocalDate.parse(dataRichiesta), LocalTime.parse(oraInizioOriginale), LocalTime.parse(oraInizioRichiesta), LocalTime.parse(oraFineRichiesta), aula);
 		richiesteLocale.add(richiesta);
@@ -188,9 +184,9 @@ public class Controller {
 	 * @param email L'email usata dall'utente per registrarsi univocamente.
 	 * @param password La password dell'utente per l'accesso.
 	 * @return Un array di stringhe contenente, in ordine: nome, cognome, email dell'utente
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public String[] creaDocente(String nome, String cognome, String email, String password) throws Exception{
+	public String[] creaDocente(String nome, String cognome, String email, String password) throws SQLException{
 		Docente docente = new Docente(nome, cognome, email, password);
 		docentiLocale.add(docente);
 		DocenteDAO d = new DocentePostgresDAO();
@@ -198,7 +194,7 @@ public class Controller {
 		return loginDocente(email, password);
 	} // fine CreaUtente
 
-	public void eliminaDocente(String email) throws Exception {
+	public void eliminaDocente(String email) throws SQLException {
 		DocenteDAO d = new DocentePostgresDAO();
 		d.eliminaDocente(email);
         docentiLocale.removeIf(docente -> docente.getEmail().equals(email));
@@ -213,9 +209,9 @@ public class Controller {
 	 * @param matricola La matricola dello studente.
 	 * @param anno L'anno accademico dello studente.
 	 * @return Un array di {@link String} contenente, in ordine: nome, cognome, email, matricola, anno accademico dell'utente
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public String[] creaStudente(String nome, String cognome, String email, String password, String matricola, int anno) throws Exception {
+	public String[] creaStudente(String nome, String cognome, String email, String password, String matricola, int anno) throws SQLException {
 		Studente studente = new Studente(nome, cognome, email, password, matricola, anno);
 		studentiLocale.add(studente);
 		StudenteDAO s = new StudentePostgresDAO();
@@ -223,7 +219,7 @@ public class Controller {
 		return loginStudente(email, password);
 	} // fine CreaUtente
 
-	public void eliminaStudente(String email) throws Exception {
+	public void eliminaStudente(String email) throws SQLException {
 		StudenteDAO s = new StudentePostgresDAO();
 		s.eliminaStudente(email);
 		studentiLocale.removeIf(studente -> studente.getEmail().equals(email));
@@ -236,16 +232,16 @@ public class Controller {
 	 * @param oraInizio L'orario di inizio della lezione.
 	 * @param oraFine L'orario di fine della lezione.
 	 * @param nomeAula Il nome dell'aula in cui la lezione è erogata.
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public void creaLezione(String nomeInsegnamento, String giornoSettimana, String oraInizio, String oraFine, String nomeAula) throws Exception {
+	public void creaLezione(String nomeInsegnamento, String giornoSettimana, String oraInizio, String oraFine, String nomeAula) throws SQLException {
 		Lezione lezione = new Lezione(GiornoSettimana.valueOf(giornoSettimana.toUpperCase()), LocalTime.parse(oraInizio), LocalTime.parse(oraFine), nomeAula, nomeInsegnamento);
 		lezioniLocale.add(lezione);
 		LezioneDAO l = new LezionePostgresDAO();
     	l.creaLezione(lezione.getGiornoSettimana().toString(), lezione.getOraInizio(), lezione.getOraFine(), lezione.getAula(), lezione.getInsegnamento());
 	} // fine CreaLezione
 
-	public void eliminaLezione(String insegnamento, String giornoSettimana, LocalTime oraInizio) throws Exception {
+	public void eliminaLezione(String insegnamento, String giornoSettimana, LocalTime oraInizio) throws SQLException {
 		LezioneDAO l = new LezionePostgresDAO();
 		l.eliminaLezione(insegnamento,  giornoSettimana, oraInizio);
 		lezioniLocale.removeIf(lezione ->  lezione.getInsegnamento().equals(insegnamento)&&lezione.getGiornoSettimana().toString().equals(giornoSettimana)&&lezione.getOraInizio().equals(oraInizio));
@@ -256,17 +252,16 @@ public class Controller {
 	 * @param nome Il nome dell'insegnamento.
 	 * @param numeroCFU Il numero di CFU accreditati dall'insegnamento.
 	 * @param anno L'anno accademico in cui l'insegnamento è erogato.
-	 * @param email l'email del docente che eroga l'insegnamento.
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public void creaInsegnamento(String nome, int numeroCFU, int anno, String email ) throws Exception {
-		Insegnamento insegnamento = new Insegnamento(nome, numeroCFU, anno, email);
+	public void creaInsegnamento(String nome, int numeroCFU, int anno) throws SQLException {
+		Insegnamento insegnamento = new Insegnamento(nome, numeroCFU, anno, docenteAttivo.getEmail());
 		insegnamentiLocale.add(insegnamento);
 		InsegnamentoDAO i = new InsegnamentoPostgresDAO();
 		i.creaInsegnamento(insegnamento.getNome(), insegnamento.getNumeroCFU(), insegnamento.getAnnoAccademico(), insegnamento.getDocente());
 	} //fine CreaInsegnamento
 
-	public void aggiornaInsegnamento (String nomeInsegnamento, int numeroCFU, int anno, String emailDocente) throws Exception {
+	public void aggiornaInsegnamento (String nomeInsegnamento, int numeroCFU, int anno, String emailDocente) throws SQLException {
 		InsegnamentoDAO i = new InsegnamentoPostgresDAO();
 		for(Insegnamento ins : insegnamentiLocale) {
 			if(ins.getNome().equals(nomeInsegnamento)) {
@@ -287,16 +282,16 @@ public class Controller {
 	 * @param nuovaOraInizio Il nuovo orario di inizio della lezione modificata.
 	 * @param nuovaOraFine Il nuovo orario di fine della lezione modificata.
 	 * @param aula La nuova aula della lezione modificata.
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public void creaVariazione(String insegnamento, String dataOriginale, String nuovaData, String oraInizioOriginale, String nuovaOraInizio, String nuovaOraFine, String aula) throws  Exception {
+	public void creaVariazione(String insegnamento, String dataOriginale, String nuovaData, String oraInizioOriginale, String nuovaOraInizio, String nuovaOraFine, String aula) throws  SQLException {
 		Variazione variazione = new Variazione(LocalDate.parse(dataOriginale), LocalDate.parse(nuovaData), LocalTime.parse(nuovaOraInizio), LocalTime.parse(nuovaOraFine), LocalTime.parse(oraInizioOriginale), insegnamento, aula);
 		variazioniLocale.add(variazione);
 		VariazioneDAO v = new VariazionePostgresDAO();
 		v.creaVariazione(variazione.getInsegnamento(), variazione.getDataOriginale(), variazione.getNuovaData(), variazione.getOraInizioOriginale(), variazione.getNuovaOraInizio(), variazione.getNuovaOraFine(), variazione.getAula());
 	} //fine CreaVariazione
 
-	public void eliminaVariazione(String insegnamento, String dataOriginale, String oraInizioOriginale ) throws Exception {
+	public void eliminaVariazione(String insegnamento, String dataOriginale, String oraInizioOriginale ) throws SQLException {
 		VariazioneDAO v = new VariazionePostgresDAO();
 		v.eliminaVariazione(insegnamento, LocalDate.parse(dataOriginale), LocalTime.parse(oraInizioOriginale));
 		variazioniLocale.removeIf(variaz -> variaz.getInsegnamento().equals(insegnamento)&&variaz.getDataOriginale().equals(LocalDate.parse(dataOriginale))&&variaz.getNuovaOraInizio().equals(LocalTime.parse(oraInizioOriginale)));
@@ -307,16 +302,16 @@ public class Controller {
 	 * @param giornoSettimana Il giorno dell'indisponibilità.
 	 * @param oraInizio L'ora di inizio dell'indisponibilità.
 	 * @param oraFine L'ora di fine dell'indisponibilità.
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public void aggiungiVincoloDocente(String giornoSettimana, String oraInizio, String oraFine) throws Exception {
+	public void aggiungiVincoloDocente(String giornoSettimana, String oraInizio, String oraFine) throws SQLException {
 		VincoloDocente vincolo =  new VincoloDocente(docenteAttivo.getEmail(), GiornoSettimana.valueOf(giornoSettimana), LocalTime.parse(oraInizio), LocalTime.parse(oraFine));
 		vincoliLocale.add(vincolo);
 		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
 		v.creaVincolo(vincolo.getDocente(), vincolo.getGiorno().toString(), vincolo.getOraInizio(), vincolo.getOraFine());
 	} //fine CreaVincolo
 
-	public void eliminaVincoloDocente (String email, String giorno, String oraInizio ) throws Exception {
+	public void eliminaVincoloDocente (String email, String giorno, String oraInizio ) throws SQLException {
 		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
 		v.eliminaVincoloDocente(email, giorno, LocalTime.parse(oraInizio));
 		vincoliLocale.removeIf(vincolo -> vincolo.getDocente().equals(email) && vincolo.getGiorno().equals(GiornoSettimana.valueOf(giorno))&&vincolo.getOraInizio().equals(LocalTime.parse(oraInizio)));
@@ -324,17 +319,16 @@ public class Controller {
 
 	/**
 	 * Accetta l'email di un docente e restituisce i suoi insegnamenti.
-	 * @param emailDocente L'email del docente che eroga l'insegnamento.
 	 * @return ArrayList di stringhe contenente gli insegnamenti di un determinato docente. Le stringhe sono della forma: "[nome], anno [X], [Y] CFU"
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public List<String> getInsegnamentiDocente(String emailDocente) throws Exception {
+	public List<String> getInsegnamentiDocente() throws SQLException {
 		InsegnamentoDAO i = new InsegnamentoPostgresDAO();
-		ResultSet rs = i.getInsegnamentiDocente(emailDocente);
+		ResultSet rs = i.getInsegnamentiDocente(docenteAttivo.getEmail());
 
 		ArrayList<Insegnamento> insegnamentiArr = new ArrayList<>();
 		while(rs.next()) {
-			Insegnamento insegnamento = new Insegnamento(rs.getString("nome"), rs.getInt("numerocfu"), rs.getInt("anno_accademico"), emailDocente );
+			Insegnamento insegnamento = new Insegnamento(rs.getString("nome"), rs.getInt("numerocfu"), rs.getInt("anno_accademico"), docenteAttivo.getEmail() );
 			insegnamentiArr.add(insegnamento);
 		} insegnamentiLocale = insegnamentiArr;
 
@@ -346,12 +340,8 @@ public class Controller {
 	}
 
 
-	/**
-	 *
-	 */
-	public List<String> getInsegnamenti() throws Exception {
+	public List<String> getInsegnamenti() throws SQLException {
 
-		//___________________________
 		InsegnamentoDAO i = new InsegnamentoPostgresDAO();
 		try(ResultSet rs = i.getInsegnamenti()) {
 			istanziaInsegnamenti(rs);
@@ -376,10 +366,8 @@ public class Controller {
 		return insegnamentiStr;
 	}
 
-	/**
-	 *
-	 */
-	public void eliminaInsegnamento(String nomeInsegnamento) throws Exception {
+
+	public void eliminaInsegnamento(String nomeInsegnamento) throws SQLException {
 		InsegnamentoDAO g = new InsegnamentoPostgresDAO();
 		g.eliminaInsegnamento(nomeInsegnamento);
 	}
@@ -388,9 +376,9 @@ public class Controller {
 	/**
 	 * Restituisce tutte le richieste di spostamento attualmente in attesa di risposta.
 	 * @return ArrayList di stringhe della forma: "Lezione di [insegnamento] giorno [gg/mm/yyyy] ore [hh:mm] -> giorno [gg/mm/yyyy] ore [hh:mm]"
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public List<String>getRegistroRichiesteSpostamento() throws Exception {
+	public Map<Integer, String>getRegistroRichiesteSpostamento() throws SQLException {
 		RichiestaDAO r = new RichiestaPostgresDAO();
 		ArrayList<Richiesta> richiesteArr = new ArrayList<>();
 		try(ResultSet rs = r.getRegistroRichiesteSpostamento()) {
@@ -399,11 +387,10 @@ public class Controller {
 				richiesteArr.add(richiesta);
 			}
 		} richiesteLocale = richiesteArr;
-
-		ArrayList<String> richiesteStr = new ArrayList<>();
+		Map<Integer, String> richiesteStr = new HashMap<>();
 		for(Richiesta richiesta : richiesteArr) {
-			richiesteStr.add("Lezione di " + richiesta.getInsegnamento() + " giorno " + richiesta.getGiornoOriginale() + " ore " + richiesta.getOraInizioOriginale() + " -> giorno " + richiesta.getGiornoRichiesto() + " ore " + richiesta.getOraInizioRichiesta() + " - " + richiesta.getOraFineRichiesta() + "aula" + richiesta.getAula());
-
+			String formatRichiesta = "Lezione di " + richiesta.getInsegnamento() + " giorno " + richiesta.getGiornoOriginale() + " ore " + richiesta.getOraInizioOriginale() + " -> giorno " + richiesta.getGiornoRichiesto() + " ore " + richiesta.getOraInizioRichiesta() + " - " + richiesta.getOraFineRichiesta() + "aula" + richiesta.getAula();
+			richiesteStr.put(richiesta.getIdRichiesta(), formatRichiesta);
 		}
 
 		return richiesteStr;
@@ -412,9 +399,9 @@ public class Controller {
 	/**
 	 * Approva una richiesta di spostamento di una lezione. La richiesta viene eliminata dal database, e inserisce una variazione corrispondente chiamando {@link #creaVariazione}.
 	 * @param idRichiesta L'identificativo della richiesta da approvare.
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public void approvaRichiesta(int idRichiesta) throws Exception {
+	public void approvaRichiesta(int idRichiesta) throws SQLException {
 		RichiestaDAO r = new RichiestaPostgresDAO();
 
 		try(ResultSet rs = r.cancellaRichiesta(idRichiesta)){
@@ -431,9 +418,9 @@ public class Controller {
 	/**
 	 * Rifiuta una richiesta di spostamento di una lezione. La richiesta viene eliminata dal database.
 	 * @param idRichiesta L'identificativo della richiesta da rifiutare.
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public void rifiutaRichiesta(int idRichiesta) throws Exception {
+	public void rifiutaRichiesta(int idRichiesta) throws SQLException {
 		RichiestaDAO r = new RichiestaPostgresDAO();
 
 		try (ResultSet rs = r.cancellaRichiesta(idRichiesta)){
@@ -448,9 +435,9 @@ public class Controller {
 	/**
 	 * Restituisce tutti i vincoli di indisponibilità inseriti da ogni docente.
 	 * @return Hashmap che usa come chiave l'email di un docente e come valore un ArrayList di stringhe contenente i suoi vincoli inseriti. Le stringhe sono della forma "Giorno: [gg/mm/yyyy], ore: [hh:mm] - [hh:mm]".
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public Map<String, ArrayList<String>> getRegistroVincoliDocenti() throws Exception{
+	public Map<String, ArrayList<String>> getRegistroVincoliDocenti() throws SQLException{
 		HashMap<String, ArrayList<String>> h = new HashMap<>();
 		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
 		ArrayList<VincoloDocente> vincoliArr = new ArrayList<>();
@@ -473,18 +460,17 @@ public class Controller {
 
 	/**
 	 * Restituisce le variazioni relative alle lezioni di un docente.
-	 * @param emailDocente L'email del docente considerato.
 	 * @return Un ArrayList di stringhe contenente i vincoli di indisponibilità inseriti da un docente. Le stringhe sono della forma "Giorno: [gg/mm/yyyy], ore: [hh:mm] - [hh:mm]".
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public List<String> getVincoliDocente(String emailDocente) throws Exception{
+	public List<String> getVincoliDocente() throws SQLException{
 		ArrayList<VincoloDocente> vincoliArr = new ArrayList<>();
 
 		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
 
-		try (ResultSet rs = v.getVincoli(emailDocente)){
+		try (ResultSet rs = v.getVincoli(docenteAttivo.getEmail())){
 			while(rs.next()) {
-				VincoloDocente vincolo = new VincoloDocente(emailDocente, GiornoSettimana.valueOf(rs.getString("giorno")), rs.getTime("ora_inizio").toLocalTime(), rs.getTime("ora_fine").toLocalTime());
+				VincoloDocente vincolo = new VincoloDocente(docenteAttivo.getEmail(), GiornoSettimana.valueOf(rs.getString("giorno")), rs.getTime("ora_inizio").toLocalTime(), rs.getTime("ora_fine").toLocalTime());
 				vincoliArr.add(vincolo);
 			}
 		}
@@ -500,10 +486,9 @@ public class Controller {
 
 	/**
 	 * Restituisce l'anno accademico dell'account studente attuale.
-	 * 	 * @return {@link int} che rappresenta l'anno accademico dello studente.
-	 * @throws Exception In caso di errori nel database.
+	 * 	 * @return {@link int} che rappresenta l'anno accademico dello studente attivo.
 	 */
-	public int getAnnoStudente() throws Exception{
+	public int getAnnoStudente(){
 		return studenteAttivo.getAnnoAccademico();
 	}
 
@@ -511,11 +496,11 @@ public class Controller {
 	 * Restituisce le variazioni relative alle lezioni di un anno accademico.
 	 * @param anno L'anno accademico delle cui lezioni si vogliono recuperare le variazioni.
 	 * @return Un ArrayList di stringhe contenente tutte le variazioni. Le stringhe sono della forma "[insegnamento]: [gg/mm/yyyy] ore [hh:mm] spostata a [gg/mm/yyyy] ore [hh:mm]-[hh:mm] "
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public List<String> getVariazioni(int anno) throws Exception{
+	public List<String> getVariazioni() throws SQLException{
 		VariazioneDAO v = new VariazionePostgresDAO();
-		ResultSet rs = v.getVariazioni(anno);
+		ResultSet rs = v.getVariazioni(studenteAttivo.getAnnoAccademico());
 		istanziaVariazione(rs);
 		return formatVariazioni(variazioniLocale);
 	}
@@ -526,14 +511,14 @@ public class Controller {
 
 
 		ArrayList<Variazione> arrVariazione = new ArrayList<>();
-		try {
+
 			while (rs.next()) {
 				String insegnamento = rs.getString("insegnamento");
 				LocalDate dataOriginale = rs.getDate("data_originale").toLocalDate();
 				LocalDate nuovaData = rs.getDate("nuova_data").toLocalDate();
-				LocalTime nuovaOraInizio = rs.getTime("nuova_ora_inizio").toLocalTime();
-				LocalTime nuovaOraFine = rs.getTime("nuova_ora_fine").toLocalTime();
-				LocalTime oraInizioOriginale = rs.getTime("ora_inizio").toLocalTime();
+				LocalTime nuovaOraInizio = rs.getTime("ora_inizio").toLocalTime();
+				LocalTime nuovaOraFine = rs.getTime("ora_fine").toLocalTime();
+				LocalTime oraInizioOriginale = rs.getTime("ora_inizio_originale").toLocalTime();
 				String aula = rs.getString("aula");
 
 
@@ -541,33 +526,18 @@ public class Controller {
 				arrVariazione.add(v);
 			}
 			variazioniLocale = arrVariazione;
-		} catch (SQLException e) {throw new SQLException("Si è verificato un errore nel database.");}
+
 
 
 	}
 
 
 
-	/*public List<String> formatVariazioni (ResultSet rs) throws SQLException{
+
+	public List<String> formatVariazioni (List<Variazione> variazioniArr){
 
 		ArrayList<String> stringArr = new ArrayList<>();
-		while(rs.next()){
-			//stringArr.add("La lezione di " + rs.getString("insegnamento") + " del "+rs.getString("data_originale")+" alle "+rs.getString("ora_originale")+" è spostata al giorno "+rs.getString("nuova_data")+" ore "+rs.getString("nuova_ora_inizio")+"-"+rs.getString("nuova_ora_fine")+".");
-			stringArr.add(rs.getString("insegnamento") + ": "+rs.getString("data_originale")+" ore "+rs.getString("ora_originale")+" spostata a "+rs.getString("nuova_data")+" ore "+rs.getString("nuova_ora_inizio")+"-"+rs.getString("nuova_ora_fine")+" nell'aula " + rs.getString("aula"));
-		}
-		return stringArr;
 
-	}*/
-
-
-
-	public List<String> formatVariazioni (List<Variazione> variazioniArr) throws SQLException{
-
-		ArrayList<String> stringArr = new ArrayList<>();
-		/*while(rs.next()){
-			//stringArr.add("La lezione di " + rs.getString("insegnamento") + " del "+rs.getString("data_originale")+" alle "+rs.getString("ora_originale")+" è spostata al giorno "+rs.getString("nuova_data")+" ore "+rs.getString("nuova_ora_inizio")+"-"+rs.getString("nuova_ora_fine")+".");
-		}*/
-		//il while diventa questo for
 		for(Variazione variazione : variazioniArr){
 			stringArr.add(variazione.getInsegnamento() + ": "+ variazione.getDataOriginale() +" ore "+variazione.getOraInizioOriginale()+" spostata a "+ variazione.getNuovaData() +" ore "+ variazione.getNuovaOraInizio() + "-"+ variazione.getNuovaOraFine() +" nell'aula " + variazione.getAula());
 			}
@@ -582,9 +552,9 @@ public class Controller {
 	 * Restituisce le variazioni relative alle lezioni di un docente.
 	 * @param email L'email del docente relativo.
 	 * @return Un ArrayList di stringhe contenente tutte le variazioni. Le stringhe sono della forma "[insegnamento]: [gg/mm/yyyy] ore [hh:mm] spostata a [gg/mm/yyyy] ore [hh:mm]-[hh:mm] "
-	 * @throws Exception In caso di errori nel database.
+	 * @throws SQLException In caso di errori nel database.
 	 */
-	public List<String> getVariazioni(String email) throws Exception{
+	public List<String> getVariazioni(String email) throws SQLException{
 		VariazioneDAO v = new VariazionePostgresDAO();
 		ResultSet rs = v.getVariazioni(email);
 		istanziaVariazione(rs);
@@ -592,7 +562,7 @@ public class Controller {
 	}
 
 
-	public void creaAula (String nomeAula, int capienzaMassima) throws Exception {
+	public void creaAula (String nomeAula, int capienzaMassima) throws SQLException {
 		Aula aula = new Aula(nomeAula, capienzaMassima);
 		auleLocale.add(aula);
 		AulaDAO a = new AulaPostgresDAO();
@@ -600,14 +570,14 @@ public class Controller {
 	}
 
 
-	public void eliminaAula (String nomeAula) throws Exception {
+	public void eliminaAula (String nomeAula) throws SQLException {
 		auleLocale.removeIf(aula ->  aula.getNomeAula().equals(nomeAula));
 		AulaDAO a = new AulaPostgresDAO();
 		a.eliminaAula(nomeAula);
 	}
 
 
-	public List<String> getAule() throws Exception {
+	public List<String> getAule() throws SQLException {
 		ArrayList<Aula> auleArr = new ArrayList<>();
 
 		AulaDAO a = new AulaPostgresDAO();

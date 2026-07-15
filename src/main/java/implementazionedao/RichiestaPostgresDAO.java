@@ -1,6 +1,10 @@
 package implementazionedao;
 import dao.RichiestaDAO;
 import database_connection.ConnessioneDatabase;
+import model.GiornoSettimana;
+
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -28,8 +32,8 @@ public class RichiestaPostgresDAO implements RichiestaDAO {
      * @throws SQLException In caso di errori nel database.
      */
     public void aggiungiRichiestaSpostamento(String nomeInsegnamento, LocalTime oraOriginale, LocalDate dataOriginale, LocalDate dataRichiesta, LocalTime oraInizioRichiesta, LocalTime oraFineRichiesta, String aula) throws SQLException{
-        String sql = "INSERT INTO richiesta (insegnamento, ora_inizio_originale, data_originale, data_richiesta, ora_inizio, ora_fine, giorno_settimana, aula) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-        int giornoSettimana = dataOriginale.getDayOfWeek().getValue() - 1;
+        String sql = "INSERT INTO richiesta (insegnamento, ora_inizio_originale, data_originale, data_richiesta, ora_inizio, ora_fine, giorno_settimana, aula) VALUES (?, ?, ?, ?, ?, ?, ?::giorno_settimana, ?);";
+        String giornoSettimana = GiornoSettimana.values()[dataOriginale.getDayOfWeek().getValue() - 1].name();
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, nomeInsegnamento);
@@ -38,12 +42,11 @@ public class RichiestaPostgresDAO implements RichiestaDAO {
             query.setDate(4, Date.valueOf (dataRichiesta));
             query.setTime(5, Time.valueOf(oraInizioRichiesta));
             query.setTime(6, Time.valueOf(oraFineRichiesta));
-            query.setInt(7, giornoSettimana);
+            query.setString(7, giornoSettimana);
             query.setString(8, aula);
             query.executeUpdate();
 
-        } catch (SQLException e) {throw new SQLException("Non è possibile aggiungere richiesta!");
-        }
+        } catch (SQLException e) {throw e;}
     }
 
     /**
@@ -53,12 +56,13 @@ public class RichiestaPostgresDAO implements RichiestaDAO {
      */
     public ResultSet getRegistroRichiesteSpostamento() throws SQLException{
         String sql = "SELECT insegnamento, data_originale, data_richiesta, ora_inizio_originale, ora_inizio, ora_fine, id_richiesta, giorno_settimana, aula FROM richiesta";
-        ResultSet result;
+        CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql)){
-            result = query.executeQuery();
+            ResultSet rs = query.executeQuery();
+            crs.populate(rs);
         }
-        catch (SQLException e){throw new SQLException("Si è verificato un errore!");}
-        return result;
+        catch (SQLException e){crs.close(); throw new SQLException("Si è verificato un errore!");}
+        return crs;
     }
 
     /**
@@ -69,15 +73,16 @@ public class RichiestaPostgresDAO implements RichiestaDAO {
      */
     public ResultSet cancellaRichiesta(int idRichiesta) throws SQLException {
         String sql= "DELETE FROM richiesta WHERE id_richiesta = ? RETURNING *;";
-        ResultSet result;
+        CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
 
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setInt(1, idRichiesta);
-            result = query.executeQuery();
+            ResultSet rs = query.executeQuery();
+            crs.populate(rs);
         }
-        catch (SQLException e) {throw new SQLException("Si è verificato un errore!");}
-        return result;
+        catch (SQLException e) {crs.close(); throw new SQLException("Si è verificato un errore!");}
+        return crs;
     }
 
 

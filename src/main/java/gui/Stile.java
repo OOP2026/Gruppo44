@@ -38,25 +38,25 @@ public final class Stile {
 
     public static final Color TESTO_CHIARO = new Color(70, 80, 95);
 
-
+    public static final String FONT = "Segoe UI";
 
     //  FONT
 
-    public static final Font FONT_TITOLO = new Font("Segoe UI", Font.BOLD, 20);
+    public static final Font FONT_TITOLO = new Font(FONT, Font.BOLD, 20);
 
-    public static final Font FONT_TITOLO_MEDIO = new Font("Segoe UI", Font.BOLD, 18);
+    public static final Font FONT_TITOLO_MEDIO = new Font(FONT, Font.BOLD, 18);
 
-    public static final Font FONT_SOTTOTITOLO = new Font("Segoe UI", Font.PLAIN, 15);
+    public static final Font FONT_SOTTOTITOLO = new Font(FONT, Font.PLAIN, 15);
 
-    public static final Font FONT_ISTRUZIONE = new Font("Segoe UI", Font.ITALIC, 13);
+    public static final Font FONT_ISTRUZIONE = new Font(FONT, Font.ITALIC, 13);
 
-    public static final Font FONT_ETICHETTA = new Font("Segoe UI", Font.BOLD, 14);
+    public static final Font FONT_ETICHETTA = new Font(FONT, Font.BOLD, 14);
 
-    public static final Font FONT_TESTO = new Font("Segoe UI", Font.PLAIN, 12);
+    public static final Font FONT_TESTO = new Font(FONT, Font.PLAIN, 12);
 
-    public static final Font FONT_PULSANTE = new Font("Segoe UI", Font.BOLD, 12);
+    public static final Font FONT_PULSANTE = new Font(FONT, Font.BOLD, 12);
 
-    public static final Font FONT_PULSANTE_PICCOLO = new Font("Segoe UI", Font.BOLD, 11);
+    public static final Font FONT_PULSANTE_PICCOLO = new Font(FONT, Font.BOLD, 11);
 
 
 

@@ -2,7 +2,10 @@ package implementazionedao;
 
 import dao.VariazioneDAO;
 import database_connection.ConnessioneDatabase;
+import model.GiornoSettimana;
 
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -29,8 +32,9 @@ public class VariazionePostgresDAO implements VariazioneDAO {
      * @throws SQLException In caso di errori nel database.
      */
     public void creaVariazione(String insegnamento, LocalDate dataOriginale, LocalDate nuovaData, LocalTime oraInizioOriginale, LocalTime nuovaOraInizio, LocalTime nuovaOraFine, String aula) throws SQLException{
-        String sql = "INSERT INTO variazione(insegnamento, data_originale, nuova_data, ora_inizio_originale, ora_inizio, ora_fine, giorno_settimana, aula) VALUES (?,?,?,?,?,?,?,?);";
-        int giornoSettimana = dataOriginale.getDayOfWeek().getValue() - 1;
+        String sql = "INSERT INTO variazione(insegnamento, data_originale, nuova_data, ora_inizio_originale, ora_inizio, ora_fine, giorno_settimana, aula) VALUES (?,?,?,?,?,?,?::giorno_settimana,?);";
+        String giornoSettimana = GiornoSettimana.values()[dataOriginale.getDayOfWeek().getValue() - 1].name();
+
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, insegnamento);
@@ -39,7 +43,7 @@ public class VariazionePostgresDAO implements VariazioneDAO {
             query.setTime(4, Time.valueOf(oraInizioOriginale));
             query.setTime(5, Time.valueOf(nuovaOraInizio));
             query.setTime(6, Time.valueOf(nuovaOraFine));
-            query.setInt(7, giornoSettimana);
+            query.setString(7, giornoSettimana);
             query.setString(8, aula);
             query.executeUpdate();
         } catch (SQLException e) {throw new SQLException("Errore nel database.");}
@@ -52,7 +56,7 @@ public class VariazionePostgresDAO implements VariazioneDAO {
             query.setDate(2, Date.valueOf(dataOriginale));
             query.setTime(3, Time.valueOf(oraInizioOriginale));
             query.executeUpdate();
-        } catch (SQLException e) {throw new SQLException("Errore: si è verificato un errore nel database.");}
+        }
     }
 
     /**
@@ -63,13 +67,14 @@ public class VariazionePostgresDAO implements VariazioneDAO {
      */
     public ResultSet getVariazioni(int anno) throws SQLException{
         String sql = "SELECT insegnamento, data_originale, nuova_data, ora_inizio_originale, ora_inizio, ora_fine, giorno_settimana, aula, nome, numerocfu, anno_accademico, email_docente FROM variazione JOIN insegnamento ON variazione.insegnamento LIKE insegnamento.nome WHERE insegnamento.anno_accademico = ?;";
-        ResultSet rs;
+        CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setInt(1, anno);
-            rs = query.executeQuery(sql);
-        } catch(SQLException e){throw new SQLException("Errore nel database.");}
-        return rs;
+            ResultSet rs = query.executeQuery();
+            crs.populate(rs);
+        } catch(SQLException e){crs.close(); throw e;}
+        return crs;
     }
 
     /**
@@ -80,12 +85,13 @@ public class VariazionePostgresDAO implements VariazioneDAO {
      */
     public ResultSet getVariazioni(String email) throws SQLException{
         String sql = "SELECT insegnamento, data_originale, nuova_data, ora_inizio_originale, ora_inizio, ora_fine, giorno_settimana, aula, nome, numerocfu, anno_accademico, email_docente FROM variazione JOIN insegnamento ON variazione.insegnamento LIKE insegnamento.nome WHERE insegnamento.email_docente LIKE ?;";
-        ResultSet rs;
+        CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, email);
-            rs = query.executeQuery(sql);
-        } catch(SQLException e){throw new SQLException("Errore nel database.");}
-        return rs;
+            ResultSet rs = query.executeQuery();
+            crs.populate(rs);
+        } catch(SQLException e){crs.close(); throw e;}
+        return crs;
     }
 }

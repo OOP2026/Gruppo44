@@ -1,6 +1,9 @@
 package implementazionedao;
 import dao.LezioneDAO;
 import database_connection.ConnessioneDatabase;
+
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
 import java.sql.*;
 import java.time.LocalTime;
 
@@ -29,7 +32,7 @@ public class LezionePostgresDAO implements LezioneDAO {
 
 
     public void creaLezione(String giornoSettimana, LocalTime oraInizio, LocalTime oraFine, String aula, String insegnamento) throws SQLException{
-        String sql = "INSERT INTO lezione(giorno_settimana, ora_inizio, ora_fine, aula, insegnamento) VALUES (?,?,?,?,?);";
+        String sql = "INSERT INTO lezione(giorno_settimana, ora_inizio, ora_fine, aula, insegnamento) VALUES (?::giorno_settimana,?,?,?,?);";
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, giornoSettimana);
@@ -38,7 +41,7 @@ public class LezionePostgresDAO implements LezioneDAO {
             query.setString(4, aula);
             query.setString(5, insegnamento);
             query.executeUpdate();
-        } catch (SQLException e) {throw new SQLException("Lezione non valida.");}
+        } catch (SQLException e) {throw e;}
     }
 
     public void eliminaLezione(String insegnamento, String giornoSettimana, LocalTime oraInizio) throws SQLException {
@@ -61,14 +64,14 @@ public class LezionePostgresDAO implements LezioneDAO {
 
     public ResultSet getLezioni(String email) throws SQLException {
         String sql = "SELECT giorno_settimana, ora_inizio, ora_fine, aula, insegnamento FROM lezione JOIN insegnamento ON lezione.insegnamento LIKE insegnamento.nome where insegnamento.email_docente LIKE ? ORDER BY ora_inizio;";
-        ResultSet rs;
+        CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setString(1, email);
-            rs = query.executeQuery(sql);
-        } catch (SQLException e) {throw new SQLException("Si è verificato un errore nel database.");}
-        return rs;
-
+            ResultSet rs = query.executeQuery();
+            crs.populate(rs);
+        } catch (SQLException e) {crs.close(); throw e;}
+        return crs;
     }
 
     /**
@@ -80,25 +83,29 @@ public class LezionePostgresDAO implements LezioneDAO {
 
     public ResultSet getLezioni(int anno) throws SQLException {
         String sql = "SELECT giorno_settimana, ora_inizio, ora_fine, aula, insegnamento FROM lezione JOIN insegnamento ON lezione.insegnamento LIKE insegnamento.nome where insegnamento.anno_accademico = ? ORDER BY ora_inizio;";
-        ResultSet rs;
+        CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
         {
             query.setInt(1, anno);
-            rs = query.executeQuery(sql);
-        } catch (SQLException e) {throw new SQLException("Si è verificato un errore nel database.");}
-        return rs;
+            ResultSet rs = query.executeQuery();
+            crs.populate(rs);
+        }
+        catch (SQLException e) {crs.close();throw new SQLException("Si è verificato un errore nel database.");}
+        return crs;
 
     }
 
 
     public ResultSet getLezioni() throws SQLException {
         String sql = "SELECT giorno_settimana, ora_inizio, ora_fine, aula, insegnamento FROM lezione ORDER BY ora_inizio;";
-        ResultSet rs;
+        CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql)){
-            rs = query.executeQuery();
+            ResultSet rs = query.executeQuery();
+            crs.populate(rs);
         } catch (SQLException e) {
-            throw new SQLException("Si è verificato un errore nel database.");
+            crs.close();
+            throw e;
         }
-        return rs;
+        return crs;
     }
 }
