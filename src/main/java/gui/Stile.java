@@ -42,7 +42,6 @@ public final class Stile {
 
     //  FONT
 
-    public static final Font FONT_TITOLO = new Font(FONT, Font.BOLD, 20);
 
     public static final Font FONT_TITOLO_MEDIO = new Font(FONT, Font.BOLD, 18);
 
@@ -56,8 +55,6 @@ public final class Stile {
 
     public static final Font FONT_PULSANTE = new Font(FONT, Font.BOLD, 12);
 
-    public static final Font FONT_PULSANTE_PICCOLO = new Font(FONT, Font.BOLD, 11);
-
 
 
     // DIMENSIONI RICORRENTI
@@ -65,9 +62,7 @@ public final class Stile {
     public static final Dimension PULSANTE_GRANDE = new Dimension(180, 50);
 
     public static final Insets INSET_STANDARD = new Insets(8, 12, 8, 12);
-
-    public static final Insets INSET_LARGO = new Insets(20, 12, 8, 12);
-
+    
 
 
     //  PULSANTI
