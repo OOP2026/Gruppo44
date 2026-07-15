@@ -290,10 +290,11 @@ public class Controller {
 		v.creaVincolo(vincolo.getDocente(), vincolo.getGiorno().toString(), vincolo.getOraInizio(), vincolo.getOraFine());
 	} //fine CreaVincolo
 
-	public void eliminaVincoloDocente (String email, String giorno, String oraInizio ) throws SQLException {
+	public void eliminaVincoliDocente () throws SQLException {
+		String email = docenteAttivo.getEmail();
 		VincoloDocenteDAO v = new VincoloDocentePostgresDAO();
-		v.eliminaVincoloDocente(email, giorno, LocalTime.parse(oraInizio));
-		vincoliLocale.removeIf(vincolo -> vincolo.getDocente().equals(email) && vincolo.getGiorno().equals(GiornoSettimana.valueOf(giorno))&&vincolo.getOraInizio().equals(LocalTime.parse(oraInizio)));
+		v.eliminaVincoliDocente(email);
+		vincoliLocale.removeIf(vincolo -> vincolo.getDocente().equals(email));
 	}
 
 	/**

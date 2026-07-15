@@ -7,5 +7,6 @@ public interface VincoloDocenteDAO {
     void creaVincolo(String email, String giorno, LocalTime oraInizio, LocalTime oraFine) throws SQLException;
     ResultSet getVincoli(String email) throws SQLException;
     ResultSet getVincoliR() throws SQLException;
-    void eliminaVincoloDocente (String email, String giorno,LocalTime oraInizio ) throws SQLException;
+    void eliminaVincoliDocente (String email) throws SQLException;
+
 }

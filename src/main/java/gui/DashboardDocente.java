@@ -314,8 +314,21 @@ public class DashboardDocente extends JPanel {
                 JOptionPane.showMessageDialog(this, errore.getMessage(), "Vincolo non aggiunto", JOptionPane.ERROR_MESSAGE);
             }
         });
+
+        JButton pulsanteElimina = Stile.creaPulsante("ELIMINA VINCOLI", Stile.ROSSO_SCURO);
+        pulsanteElimina.addActionListener(e -> {
+            try {
+                Controller.getInstance().eliminaVincoliDocente();
+                aggiornaListaVincoli(listaVincoli);
+            } catch (Exception errore) {
+                JOptionPane.showMessageDialog(this, errore.getMessage(), "Vincoli non eliminati", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
         gbc.gridy = riga;
         form.add(pulsanteAggiungi, gbc);
+        gbc.gridy++;
+        form.add(pulsanteElimina, gbc);
 
         pannello.add(new JLabel("I tuoi vincoli attuali:"), BorderLayout.NORTH);
         pannello.add(listaVincoli, BorderLayout.CENTER);

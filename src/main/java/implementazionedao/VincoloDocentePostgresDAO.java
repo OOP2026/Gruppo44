@@ -40,14 +40,12 @@ public class VincoloDocentePostgresDAO implements VincoloDocenteDAO {
         }
     }
 
-    public void eliminaVincoloDocente (String email, String giorno,LocalTime oraInizio ) throws SQLException {
-        String sql = "DELETE FROM vincolo_docente WHERE email_docente = ? AND giorno = ? AND  ora_inizio = ?;";
+    public void eliminaVincoliDocente (String email) throws SQLException {
+        String sql = "DELETE FROM vincolo_docente WHERE email_docente = ?";
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql)) {
             query.setString(1, email);
-            query.setString(2, giorno);
-            query.setTime(3, Time.valueOf(oraInizio));
             query.executeUpdate();
-        }  catch (SQLException e) {throw new SQLException("Si è verificato un errore nel database.");}
+        }
     }
 
     /**
