@@ -65,10 +65,11 @@ public class DashboardDocente extends JPanel {
      * <p>
      * La logica di autenticazione prevede:
      * <ul>
-     * <li>Un controllo di credenziali fisse per il profilo "Responsabile".</li>
-     * <li>Una richiesta di validazione al {@link Controller} per i profili docente.</li>
+     * <li>Una richiesta di validazione al {@link Controller} per i profili docente, che restituisce un' eccezione in caso di accesso fallito.</li>
+     * <li>In caso di accesso fallito con un account Docente, un'ulteriore richiesta di validazione al {@link Controller} per il profilo responsabile.</li>
      * </ul>
      * In caso di successo, viene caricata la vista pertinente (Area Personale o Dashboard Responsabile);
+     * In caso di fallimento, viene mostrato un {@link JOptionPane} con il messaggio "accesso fallito";
      * in caso di errore, viene mostrato un {@link JOptionPane} con il messaggio dell'eccezione.
      */
     private void mostraLogin() {
@@ -79,18 +80,15 @@ public class DashboardDocente extends JPanel {
             String email = login.getEmail();
             String password = login.getPassword();
 
-            // il Responsabile ha un accesso con credenziali fisse
-            //DA MODIFICARE
-            if (email.equals("resp@unina.it") && password.equals("resp")) {
-                mainPanel.cambiaSchermata(new DashboardResponsabile(mainPanel, email));
-                return;
-            }
-
             try {
                 dati = Controller.getInstance().loginDocente(email, password);
                 mostraAreaPersonale();
             } catch (Exception errore) {
-                JOptionPane.showMessageDialog(this, errore.getMessage(), "Accesso negato.", JOptionPane.ERROR_MESSAGE);
+                try{
+                    if (Controller.getInstance().loginResponsabile(email, password)) mainPanel.cambiaSchermata(new DashboardResponsabile(mainPanel, email));
+                    else JOptionPane.showMessageDialog(this, errore.getMessage(), "Accesso negato.", JOptionPane.ERROR_MESSAGE);
+                }catch(Exception err){JOptionPane.showMessageDialog(this, errore.getMessage(), "Errore.", JOptionPane.ERROR_MESSAGE);}
+
             }
         });
 

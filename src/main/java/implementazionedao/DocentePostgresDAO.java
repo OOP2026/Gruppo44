@@ -36,6 +36,30 @@ public class DocentePostgresDAO extends UtentePostgresDAO implements DocenteDAO{
     }
 
     /**
+     * Effettua il login del responsabile del server verificandone le credenziali nel database.
+     * <p>
+     * Il metodo utilizza una query SQL parametrizzata per cercare un record nella tabella
+     * {@code responsabile} corrispondente all'email e alla password fornite. In caso di
+     * successo, restituisce un {@link boolean} uguale a vero, altrimenti a falso.
+     *
+     * @param email L'indirizzo email del docente.
+     * @param password La password associata all'account del docente.
+     * @return Un {@link boolean} rappresentante l'esito del tentatico di accesso.
+     * @throws SQLException Se si verifica un errore di connessione.
+     */
+    public boolean loginResponsabile(String email, String password) throws SQLException
+    {
+        String sql = "SELECT email, password FROM docente_responsabile WHERE email LIKE ? AND password LIKE ?;";
+        try(PreparedStatement query = connessioneDatabase.prepareStatement(sql))
+        {
+            query.setString(1, email);
+            query.setString(2, password);
+            ResultSet rs = query.executeQuery();
+            return rs.next();
+        }
+    }
+
+    /**
      * Inserisce un nuovo {@link model.Docente} nel database con i dati forniti.
      * <p>
      * Il metodo esegue l'inserimento di un nuovo record nella tabella {@code docente}

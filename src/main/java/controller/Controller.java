@@ -7,6 +7,7 @@ import model.*;
 import dao.*;
 import implementazionedao.*;
 
+
 import java.sql.*;
 import java.time.LocalTime;
 import java.time.LocalDate;
@@ -64,7 +65,30 @@ public class Controller {
 			return new String[] {docenteAttivo.getNome(), docenteAttivo.getCognome(), docenteAttivo.getEmail()};
 		}
 
-	} // fine Login
+	}
+
+	/**
+	 * Esegue la procedura di identificazione per il docente responsabile nel sistema verificando le credenziali fornite: accetta
+	 * come parametri un'email e una password come {@link String}, e restituisce un {@link boolean} uguale vero se le credenziali esistono, a falso altrimenti.
+	 * <p>
+	 * Il metodo verifica la validità delle credenziali interagendo con il database tramite
+	 * {@link DocentePostgresDAO#loginResponsabile(String, String)}. Se le credenziali sono valide, il database restituisce
+	 * un {@link boolean} rappresentante l'esito del tentativo di accesso.
+	 *
+	 * @param email L'indirizzo email inserito dall'utente come identificativo per eseguire l'accesso.
+	 * @param password La password associata all'account del docente responsabile inserita nel database.
+	 * @return Un {@link boolean} che rappresenta l'esito del tentativo di accesso.
+	 * @throws SQLException Se si verifica un errore durante l'interazione con il database.
+	 * @see DocentePostgresDAO#loginResponsabile(String, String)
+	 */
+	public boolean loginResponsabile(String email, String password) throws SQLException {
+		DocenteDAO d = new DocentePostgresDAO();
+		try {
+			return d.loginResponsabile(email, password);
+		} catch (SQLException e) {
+			throw new SQLException("Errore nel login.");
+		}
+	}
 
 
 	/**
@@ -95,14 +119,13 @@ public class Controller {
 			return new String[] {studenteAttivo.getNome(),studenteAttivo.getCognome(), studenteAttivo.getEmail(), studenteAttivo.getMatricola(), String.valueOf(studenteAttivo.getAnnoAccademico())};
 		}
 	}
-		 // fine Login
 
 	/**
 	 * Recupera l'elenco completo di tutte le lezioni erogate da un docente.
 	 * <p>
 	 * Il metodo interagisce con il database tramite {@link LezionePostgresDAO#getLezioni(String)} utilizzando l'email
 	 * dell'utente corrente ({@code docenteAttivo}) come chiave di ricerca. Viene restituito un {@link ResultSet}
-	 * con i dati delle lezioni e il sistema procede all'istanza degli oggetti della {@link Lezione} in locale ({@code istanziaLezioni}
+	 * con i dati delle lezioni e il sistema procede all'istanza degli oggetti della {@link Lezione} in locale {@code lezioniLocale} tramite ({@link #istanziaLezioni(ResultSet)}
 	 * e alla successiva formattazione dei dati (tramite {@link #formatLezioni(ArrayList)}) per la visualizzazione nell'interfaccia utente.
 	 *
 	 * @return Un {@link ArrayList} di {@link String} contenente le lezioni formattate secondo le
@@ -110,6 +133,7 @@ public class Controller {
 	 * @throws SQLException Se si verifica un errore durante l'interazione con il database.
 	 * @see Lezione
 	 * @see LezionePostgresDAO#getLezioni(String)
+	 * @see #istanziaLezioni(ResultSet)
 	 * @see #formatLezioni(ArrayList)
 	 */
 	public ArrayList<String>[] getLezioniDocente() throws SQLException{
@@ -124,7 +148,7 @@ public class Controller {
 	 * <p>
 	 * Il metodo interroga il database tramite {@link LezionePostgresDAO#getLezioni(int)} utilizzando l'anno
 	 * accademico dell'utente corrente ({@code studenteAttivo}) come filtro di ricerca. Viene restituito un
-	 * {@link ResultSet} con i dati delle lezioni e il sistema procede all'istanza degli oggetti {@link Lezione} in locale ({@code istanziaLezioni}) e
+	 * {@link ResultSet} con i dati delle lezioni e il sistema procede all'istanza degli oggetti {@link Lezione} in locale {@code lezioniLocale} tramite ({@link #istanziaLezioni(ResultSet)}) e
 	 * alla successiva formattazione dei dati (tramite {@link #formatLezioni(ArrayList)}) necessari per la visualizzazione nell'interfaccia utente.
 	 *
 	 * @return Un {@link ArrayList} di {@link String} contenente le lezioni formattate secondo le
@@ -132,6 +156,7 @@ public class Controller {
 	 * @throws SQLException Se si verifica un errore durante l'interazione con il database.
 	 * @see Lezione
 	 * @see LezionePostgresDAO#getLezioni(int)
+	 * @see #istanziaLezioni(ResultSet)
 	 * @see #formatLezioni(ArrayList)
 	 */
 	public ArrayList<String>[] getLezioniStudente() throws SQLException{
@@ -176,7 +201,7 @@ public class Controller {
 
 
 	/**
-	 * Elabora i dati contenuti in un {@link ResultSet} per popolare la lista locale ({@code istanziaLezioni}) delle lezioni.
+	 * Elabora i dati contenuti in un {@link ResultSet} per popolare la lista locale ({@code lezioniLocale}) delle lezioni.
 	 * <p>
 	 * Il metodo scorre i record, presenti nel {@link ResultSet}, ricevuti dalla query al database, estraendo i campi relativi al
 	 * giorno della settimana, agli orari, all'aula e all'insegnamento. Per ogni record, viene
