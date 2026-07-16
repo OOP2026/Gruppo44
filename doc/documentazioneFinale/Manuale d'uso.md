@@ -84,7 +84,9 @@ Permette di visualizzare i vincoli di indisponibilità settimanali indicati, fin
 
 ##### **Account di tipo Responsabile**
 
-L'account di tipo responsabile, sempre unico, permette all'utente di gestire gran parte del database, dopo aver eseguito l'accesso con le credenziali prestabilite per l'account responsabile. Include le seguenti schermate:
+L'account di tipo responsabile, sempre unico, è assegnato ad un docente, che esegue il login tramite la sua normale email e una password apposita per il login da responsabile. 
+
+Permette all'utente di gestire gran parte del database tramite le seguenti schermate:
 
 ###### 
 
