@@ -3,14 +3,28 @@ package gui;
 import javax.swing.*;
 import java.awt.*;
 
-//la classe va a semplificare le dashboard studente, docente e responsabile definendo un
-// layout RIUTILIZZABILE dello scheletro del panel con a sinistra menu a tendina (jComboBox) statico
-// a destra il contenuto dinamico che cambia in base alla scelta del menu
-//nomeScelta[i] è il nome della scelta nella tendina, pannelli[i] è cosa si vede a destra
-// quando quella voce è selezionata
-
 public class PannelloRiutilizzabileMenu extends JPanel {
 
+    /**
+     * Inizializza un pannello di navigazione a menu laterale che permette di
+     * selezionare e visualizzare diversi pannelli di contenuto.
+     * <p>
+     * Il componente utilizza un layout a due aree:
+     * <ul>
+     * <li><b>Area SINISTRA (WEST):</b> Contiene una {@link JComboBox} che elenca le
+     * opzioni disponibili. Al variare della selezione, il layout gestore aggiorna
+     * il contenuto dell'area centrale.</li>
+     * <li><b>Area CENTRALE (CENTER):</b> Utilizza un {@link CardLayout} per
+     * sovrapporre i pannelli passati come parametro, mostrando solo quello
+     * corrispondente alla scelta effettuata nella tendina.</li>
+     * </ul>
+     *
+     * @param nomeScelta Un array di {@link String} che definisce i nomi delle opzioni
+     * nel menu a tendina e le chiavi per il {@code CardLayout}.
+     * @param pannelli Un array di {@link JPanel} contenente i pannelli da associare
+     * a ciascuna voce del menu (deve avere la stessa lunghezza
+     * di {@code nomeScelta}).
+     */
     public PannelloRiutilizzabileMenu(String[] nomeScelta, JPanel[] pannelli) {
         setLayout(new BorderLayout(15, 0));
         setBackground(Stile.AZZURRO);

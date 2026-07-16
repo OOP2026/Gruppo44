@@ -5,12 +5,23 @@ import javax.swing.*;
 
 import java.awt.*;
 
-/*La classe Stile contiene tutto cio' che puo' essere riutilizzato graficamente
-nella GUI (colori, font, dimensioni) percio’ per evitare di istanziare ripetutamente
-colori/font/stili si usa direttamente questa classe */
+/**
+ * Classe di utilità che centralizza tutte le risorse grafiche dell'applicazione.
+ * <p>
+ * Fornisce accesso costante a una palette di colori, tipografie (font),
+ * dimensioni standard e metodi factory per la creazione di componenti
+ * grafici uniformi (pulsanti e bordi).
+ * <p>
+ * L'utilizzo di questa classe evita la duplicazione di istanze di oggetti
+ * grafici pesanti, migliorando le performance e garantendo uno stile
+ * visivo coerente in tutta l'interfaccia utente.
+ */
 
 public final class Stile {
 
+    /**
+     * Costruttore privato per impedire l'istanziazione di questa classe utility.
+     */
     private Stile() {}
 
 
@@ -40,8 +51,9 @@ public final class Stile {
 
     public static final String FONT = "Segoe UI";
 
-    //  FONT
 
+
+    //  FONT
 
     public static final Font FONT_TITOLO_MEDIO = new Font(FONT, Font.BOLD, 18);
 
@@ -67,8 +79,12 @@ public final class Stile {
 
     //  PULSANTI
 
-    /* Creiamo un pulsante standard adatto per sfondo chiaro  */
-
+    /**
+     * Crea un pulsante specifico per sfondi chiari.
+     * @param testo Il testo da visualizzare sul pulsante.
+     * @param sfondo Il colore di sfondo del pulsante.
+     * @return Un'istanza di {@link JButton} configurata.
+     */
     public static JButton creaPulsante(String testo, Color sfondo) {
 
         JButton pulsante = new JButton(testo);
@@ -87,7 +103,13 @@ public final class Stile {
 
 
 
-    /*Variante per pulsanti su sfondo scuro come logout o rifiuta, dove il testo deve essere bianco*/
+    /**
+     * Crea un pulsante specifico per sfondi scuri, con testo in bianco per
+     * garantire leggibilità.
+     * @param testo Il testo da visualizzare sul pulsante.
+     * @param sfondo Il colore di sfondo del pulsante.
+     * @return Un'istanza di {@link JButton} con testo bianco.
+     */
 
     public static JButton creaPulsanteTestoBianco(String testo, Color sfondo) {
 
@@ -103,8 +125,13 @@ public final class Stile {
 
     // BORDI
 
-    /* Creiamo il bordo titolato usato per i riquadri di login/registrazione etc
-    con colore del bordo e del titolo personalizzabili*/
+    /**
+     * Genera un bordo titolato personalizzato.
+     * @param titolo Il testo del titolo.
+     * @param coloreBordo Il colore del perimetro del bordo.
+     * @param coloreTesto Il colore del testo del titolo.
+     * @return Un oggetto {@link javax.swing.border.Border} configurato.
+     */
 
     public static javax.swing.border.Border creaBordoTitolato(String titolo, Color coloreBordo, Color coloreTesto) {
 

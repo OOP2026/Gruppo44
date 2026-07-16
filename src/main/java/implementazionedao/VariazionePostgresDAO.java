@@ -22,14 +22,21 @@ public class VariazionePostgresDAO implements VariazioneDAO {
     }
 
     /**
-     * Aggiunge una variazione di una lezione al database.
+     * Aggiunge una nuova {@link model.Variazione} di una lezione nel database.
+     * <p>
+     * Il metodo registra le specifiche di una lezione modificata, mantenendo traccia
+     * sia dei parametri originali che di quelli nuovi. Viene effettuata la conversione
+     * automatica del {@code giornoSettimana} a partire dalla {@link LocalDate} originale
+     * per garantire la conformità con il tipo enumerato definito nello schema del database.
+     *
      * @param insegnamento Il nome dell'insegnamento relativo.
-     * @param dataOriginale La data(non settimanale) originale della lezione relativa.
+     * @param dataOriginale La data originale della lezione relativa.
      * @param nuovaData La nuova data della lezione modificata.
      * @param oraInizioOriginale L'orario di inizio originale della lezione.
      * @param nuovaOraInizio Il nuovo orario di inizio della lezione modificata.
      * @param nuovaOraFine Il nuovo orario di fine della lezione modificata.
-     * @throws SQLException In caso di errori nel database.
+     * @param aula L'aula in cui si terrà la lezione variata.
+     * @throws SQLException In caso di errori durante l'esecuzione dell'inserimento.
      */
     public void creaVariazione(String insegnamento, LocalDate dataOriginale, LocalDate nuovaData, LocalTime oraInizioOriginale, LocalTime nuovaOraInizio, LocalTime nuovaOraFine, String aula) throws SQLException{
         String sql = "INSERT INTO variazione(insegnamento, data_originale, nuova_data, ora_inizio_originale, ora_inizio, ora_fine, giorno_settimana, aula) VALUES (?,?,?,?,?,?,?::giorno_settimana,?);";
@@ -46,9 +53,22 @@ public class VariazionePostgresDAO implements VariazioneDAO {
             query.setString(7, giornoSettimana);
             query.setString(8, aula);
             query.executeUpdate();
-        } catch (SQLException e) {throw new SQLException("Errore nel database.");}
+        } catch (SQLException e) {throw new SQLException("Errore: impossibile registrare la variazione nel database!");}
     }
 
+
+    /**
+     * Elimina una specifica {@link model.Variazione} di lezione dal database.
+     * <p>
+     * Il metodo rimuove il record corrispondente dalla tabella {@code variazione}
+     * utilizzando come criteri di filtro l'insegnamento di riferimento, la data
+     * originale e l'orario di inizio originale.
+     *
+     * @param insegnamento Il nome dell'insegnamento relativo.
+     * @param dataOriginale La data originale associata alla variazione.
+     * @param oraInizioOriginale L'orario di inizio originale della lezione.
+     * @throws SQLException In caso di errori durante l'esecuzione della query di eliminazione.
+     */
     public void eliminaVariazione(String insegnamento, LocalDate dataOriginale, LocalTime oraInizioOriginale ) throws SQLException {
         String sql = "DELETE FROM variazione WHERE insegnamento = ? AND data_originale = ? AND ora_inizio_originale = ?;";
         try(PreparedStatement query = connessioneDatabase.prepareStatement(sql)){
@@ -56,14 +76,23 @@ public class VariazionePostgresDAO implements VariazioneDAO {
             query.setDate(2, Date.valueOf(dataOriginale));
             query.setTime(3, Time.valueOf(oraInizioOriginale));
             query.executeUpdate();
+        } catch (SQLException e) {
+            throw new SQLException("Errore: impossibile eliminare la variazione dal database!");
         }
     }
 
     /**
-     * Restituisce le variazioni relative alle lezioni di un anno accademico.
-     * @param anno L'anno accademico delle cui lezioni si vogliono recuperare le variazioni.
-     * @return ResultSet contenente i dati delle lezioni selezionate.
-     * @throws SQLException In caso di errori nel database.
+     * Restituisce le variazioni relative alle lezioni programmate per uno specifico anno accademico.
+     * <p>
+     * Il metodo esegue una {@code JOIN} tra la tabella {@code variazione} e {@code insegnamento},
+     * filtrando le variazioni in base all'anno accademico associato all'insegnamento.
+     * I risultati vengono caricati in un {@link CachedRowSet} per consentire la consultazione
+     * dei dati in modalità disconnessa.
+     *
+     * @param anno L'anno accademico di riferimento per il filtro.
+     * @return Un {@link ResultSet} (nello specifico un {@link CachedRowSet}) contenente il set di risultati delle variazioni trovate.
+     * @throws SQLException In caso di errori durante l'esecuzione della query o
+     * durante il popolamento del set di risultati.
      */
     public ResultSet getVariazioni(int anno) throws SQLException{
         String sql = "SELECT insegnamento, data_originale, nuova_data, ora_inizio_originale, ora_inizio, ora_fine, giorno_settimana, aula, nome, numerocfu, anno_accademico, email_docente FROM variazione JOIN insegnamento ON variazione.insegnamento LIKE insegnamento.nome WHERE insegnamento.anno_accademico = ?;";
@@ -73,15 +102,22 @@ public class VariazionePostgresDAO implements VariazioneDAO {
             query.setInt(1, anno);
             ResultSet rs = query.executeQuery();
             crs.populate(rs);
-        } catch(SQLException e){crs.close(); throw e;}
+        } catch(SQLException e){crs.close(); throw new SQLException("Errore: impossibile recuperare le variazioni per l'anno accademico indicato!");}
         return crs;
     }
 
     /**
-     * Restituisce le variazioni relative alle lezioni di un docente.
-     * @param email L'email del docente relativo.
-     * @return ResultSet contenente i dati delle lezioni selezionate.
-     * @throws SQLException In caso di errori nel database.
+     * Restituisce l'elenco delle variazioni relative alle lezioni di uno specifico docente.
+     * <p>
+     * Il metodo esegue una {@code JOIN} tra la tabella {@code variazione} e {@code insegnamento},
+     * filtrando i risultati in base all'email del docente responsabile. I dati vengono
+     * caricati in un {@link CachedRowSet} per consentire la consultazione in modalità
+     * disconnessa dal database.
+     *
+     * @param email L'email del docente di riferimento.
+     * @return Un {@link ResultSet} (nello specifico un {@link CachedRowSet}) contenente il set di risultati delle variazioni trovate.
+     * @throws SQLException In caso di errori durante l'esecuzione della query o
+     * il popolamento del set di risultati.
      */
     public ResultSet getVariazioni(String email) throws SQLException{
         String sql = "SELECT insegnamento, data_originale, nuova_data, ora_inizio_originale, ora_inizio, ora_fine, giorno_settimana, aula, nome, numerocfu, anno_accademico, email_docente FROM variazione JOIN insegnamento ON variazione.insegnamento LIKE insegnamento.nome WHERE insegnamento.email_docente LIKE ?;";
@@ -91,7 +127,8 @@ public class VariazionePostgresDAO implements VariazioneDAO {
             query.setString(1, email);
             ResultSet rs = query.executeQuery();
             crs.populate(rs);
-        } catch(SQLException e){crs.close(); throw e;}
+        } catch(SQLException e){crs.close(); throw new SQLException("Errore: impossibile recuperare le variazioni per il docente indicato!");
+        }
         return crs;
     }
 }

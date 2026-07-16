@@ -7,18 +7,45 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-//estende docente per averne le funzionalità grafiche ma nella sua dashboard
-//ha solo le funzionalità da responsabile e non mostra nessuna delle voci del Docente
 public class DashboardResponsabile extends DashboardDocente {
 
     private static final String[] GIORNI = {"LUNEDI", "MARTEDI", "MERCOLEDI", "GIOVEDI", "VENERDI"};
 
+
+    /**
+     * Inizializza la dashboard specifica per il profilo Responsabile.
+     * <p>
+     * Il costruttore estende la configurazione base di {@link DashboardDocente}, forzando
+     * l'impostazione dei dati utente poiché il Responsabile accede al sistema come utente già autenticato.
+     *
+     * @param mainPanel Il pannello principale dell'applicazione che gestisce la navigazione.
+     * @param email L'indirizzo email del responsabile, utilizzato per identificare la sessione.
+     */
     public DashboardResponsabile(MainPanel mainPanel, String email) {
         super(mainPanel); // il Responsabile entra già autenticato
         this.dati = new String[]{"Responsabile", "", email};
         mostraAreaPersonale();
     }
 
+
+
+    /**
+     * Aggiorna l'interfaccia grafica per visualizzare l'area riservata del Responsabile.
+     * <p>
+     * Il metodo ridefinisce l'area personale costruendo una navigazione a schede (menu)
+     * che permette al Responsabile di accedere alle funzioni amministrative:
+     * <ul>
+     * <li><b>Gestisci aule:</b> Interfaccia per la manutenzione delle aule.</li>
+     * <li><b>Elenco insegnamenti:</b> Vista riepilogativa di tutti gli insegnamenti.</li>
+     * <li><b>Gestisci richieste:</b> Pannello operativo per l'approvazione o il rifiuto delle richieste di spostamento.</li>
+     * </ul>
+     * <p>
+     * La struttura del pannello è composta da:
+     * <ul>
+     * <li>Una barra superiore ({@code NORTH}) tramite {@link DashboardUtils#creaBarraSuperiore(String[], MainPanel)}.</li>
+     * <li>Un menu di navigazione a schede ({@code CENTER}) tramite {@link PannelloRiutilizzabileMenu}.</li>
+     * </ul>
+     */
     @Override
     protected void mostraAreaPersonale() {
         removeAll();
@@ -31,10 +58,28 @@ public class DashboardResponsabile extends DashboardDocente {
         repaint();
     }
 
-    // GESTIONE DELLE AULE
-    // getAule() restituisce solo il nome e non la capienza, anche se creaAula
-    // la richiede in fase di creazione, qui non viene mostrata
 
+
+    /**
+     * Crea e restituisce un pannello per la gestione delle aule.
+     * <p>
+     * Il pannello fornisce al Responsabile gli strumenti per visualizzare le aule
+     * correnti e aggiungerne di nuove tramite un form dedicato.
+     * <p>
+     * La logica di funzionamento include:
+     * <ul>
+     * <li><b>Visualizzazione:</b> Richiama {@link #aggiornaListaAule(JPanel)} per
+     * popolare la lista delle aule esistenti.</li>
+     * <li><b>Creazione:</b> Permette l'inserimento di nome e capienza massima. Il valore
+     * di capienza viene convertito in intero; in caso di formato non valido o errore
+     * lato {@link Controller}, viene mostrato un messaggio di avviso.</li>
+     * <li><b>Feedback:</b> Dopo l'aggiunta, i campi vengono svuotati e la lista
+     * viene aggiornata automaticamente.</li>
+     * </ul>
+     *
+     * @return Un {@link JPanel} strutturato con la lista delle aule in alto e il
+     * form di inserimento in basso.
+     */
     private JPanel pannelloGestisciAule() {
         JPanel pannello = DashboardUtils.creaPannelloGenerico();
 
@@ -74,6 +119,25 @@ public class DashboardResponsabile extends DashboardDocente {
         return pannello;
     }
 
+
+    /**
+     * Aggiorna il pannello lista visualizzando l'elenco delle aule correnti.
+     * <p>
+     * Il metodo esegue la sincronizzazione dell'interfaccia con i dati del database
+     * tramite i seguenti passaggi:
+     * <ul>
+     * <li>Rimuove tutti i componenti esistenti nel pannello {@code lista}.</li>
+     * <li>Recupera la lista aggiornata delle aule dal {@link Controller}
+     * tramite {@link Controller#getAule()}.</li>
+     * <li>Per ogni aula, invoca {@link #rigaAula(String, JPanel)} per generare
+     * una riga interattiva o formattata da aggiungere al pannello.</li>
+     * <li>Gestisce il caso di lista vuota o eccezioni durante il recupero dei dati
+     * visualizzando un messaggio informativo o di errore.</li>
+     * </ul>
+     * Infine, invoca {@code revalidate()} e {@code repaint()} per aggiornare il layout.
+     *
+     * @param lista Il {@link JPanel} destinato a contenere l'elenco delle aule.
+     */
     private void aggiornaListaAule(JPanel lista) {
         lista.removeAll();
         try {
@@ -87,6 +151,31 @@ public class DashboardResponsabile extends DashboardDocente {
         lista.repaint();
     }
 
+
+
+    /**
+     * Crea e restituisce un pannello personalizzato che rappresenta una singola
+     * riga dell'elenco delle aule.
+     * <p>
+     * Ogni riga contiene il nome dell'aula (centrato) e un pulsante di eliminazione
+     * (posizionato a destra) che consente di rimuovere l'aula dal sistema.
+     * <p>
+     * Il metodo gestisce l'interazione utente per l'eliminazione:
+     * <ul>
+     * <li>Richiede una conferma esplicita tramite {@link JOptionPane}.</li>
+     * <li>In caso di conferma, invoca {@link Controller#eliminaAula(String)} per
+     * rimuovere l'elemento dal database.</li>
+     * <li>Aggiorna la lista contenitore {@code listaCompleta} per riflettere
+     * immediatamente la modifica.</li>
+     * <li>Gestisce eventuali errori durante l'eliminazione tramite una finestra
+     * di dialogo di avviso.</li>
+     * </ul>
+     *
+     * @param nome Il nome dell'aula da visualizzare.
+     * @param listaCompleta Il {@link JPanel} contenitore dell'intera lista, necessario
+     * per invocare il metodo di aggiornamento dopo l'eliminazione.
+     * @return Un {@link JPanel} configurato con il nome dell'aula e il pulsante di rimozione.
+     */
     private JPanel rigaAula(String nome, JPanel listaCompleta) {
         JPanel riga = new JPanel(new BorderLayout(10, 0));
         riga.setBackground(Color.WHITE);
@@ -108,10 +197,17 @@ public class DashboardResponsabile extends DashboardDocente {
         return riga;
     }
 
-    // GESTIONE INSEGNAMENTI
 
-    // aggiornaInsegnamento() fa sia l'attivazione (modificando anno e CFU) sia il cambio di docente
-
+    /**
+     * Crea e restituisce un pannello dedicato alla visualizzazione dell'elenco
+     * completo degli insegnamenti presenti nel sistema.
+     * <p>
+     * Il pannello utilizza un layout verticale ({@link BoxLayout}) per presentare
+     * l'elenco degli insegnamenti in modo sequenziale. La logica di recupero e
+     * rendering dei dati è delegata al metodo {@link #aggiornaElencoInsegnamenti(JPanel)}.
+     *
+     * @return Un {@link JPanel} configurato come contenitore per la lista degli insegnamenti.
+     */
     private JPanel pannelloElencoInsegnamenti() {
         JPanel pannello = new JPanel();
         pannello.setLayout(new BoxLayout(pannello, BoxLayout.Y_AXIS));
@@ -121,6 +217,26 @@ public class DashboardResponsabile extends DashboardDocente {
         return pannello;
     }
 
+
+
+    /**
+     * Aggiorna il pannello contenitore con l'elenco corrente di tutti gli insegnamenti.
+     * <p>
+     * Il metodo esegue una sincronizzazione tra il database e l'interfaccia
+     * grafica seguendo questi passaggi:
+     * <ul>
+     * <li>Svuota il pannello {@code pannello} da ogni componente precedente.</li>
+     * <li>Recupera l'elenco degli insegnamenti tramite {@link Controller#getInsegnamenti()}.</li>
+     * <li>Per ogni elemento, invoca {@link #rigaInsegnamento(String, JPanel)} per
+     * generare la riga corrispondente e aggiunge uno spazio verticale ({@link Box#createVerticalStrut(int)})
+     * per migliorare la leggibilità.</li>
+     * <li>Gestisce il caso di lista vuota o eccezioni durante il recupero dei dati.</li>
+     * </ul>
+     * Infine, invoca {@code revalidate()} e {@code repaint()} per forzare il ridisegno
+     * del layout.
+     *
+     * @param pannello Il {@link JPanel} (con {@code BoxLayout}) che ospiterà l'elenco.
+     */
     private void aggiornaElencoInsegnamenti(JPanel pannello) {
         pannello.removeAll();
         try {
@@ -137,9 +253,27 @@ public class DashboardResponsabile extends DashboardDocente {
         pannello.repaint();
     }
 
-    //gestisco gli insegnamenti da getInsegnamenti()
-    //split(",") spezza la stringa in un array ed usa la virgola come separatore
-    //tipo: ["Basi di Dati"," anno 2"," 9 CFU"]
+    /**
+     * Crea e restituisce un pannello complesso che rappresenta una riga di un insegnamento,
+     * fornendo controlli per la gestione, l'aggiornamento e l'eliminazione dei dati.
+     * <p>
+     * Il metodo analizza la stringa di ingresso per estrarre il nome dell'insegnamento e
+     * costruisce un'interfaccia composta da:
+     * <ul>
+     * <li><b>Intestazione:</b> Visualizza le informazioni correnti dell'insegnamento.</li>
+     * <li><b>Form di ingresso:</b> Campi di testo per specificare email del docente, anno e CFU.</li>
+     * <li><b>Azioni:</b> Pulsanti per aggiornare i dettagli, creare una nuova lezione (tramite
+     * {@link #mostraFinestraCreaLezione(String)}) o eliminare l'insegnamento.</li>
+     * </ul>
+     * <p>
+     * La gestione degli eventi garantisce che ogni azione (aggiornamento/eliminazione)
+     * richieda l'interazione con il {@link Controller} e provochi un aggiornamento
+     * immediato della {@code listaCompleta} visualizzata.
+     *
+     * @param testo La stringa contenente i dati dell'insegnamento separati da virgola.
+     * @param listaCompleta Il {@link JPanel} contenitore padre, necessario per aggiornare la vista dopo modifiche.
+     * @return Un {@link JPanel} interattivo che rappresenta l'insegnamento.
+     */
     private JPanel rigaInsegnamento(String testo, JPanel listaCompleta) {
         String nome = testo.split(",")[0].trim();
 
@@ -200,10 +334,30 @@ public class DashboardResponsabile extends DashboardDocente {
         return riga;
     }
 
-    // CREZIONE DELLE LEZIONI
-    // controllo automatico sui vincoli del docente e sull'aula occupata
-    // L'aula si scrive a mano
 
+
+    /**
+     * Apre una finestra di dialogo ({@link JDialog}) per la creazione di una nuova lezione
+     * associata a un insegnamento specifico.
+     * <p>
+     * La finestra richiede all'utente di inserire le specifiche della lezione:
+     * <ul>
+     * <li><b>Email Docente:</b> Identificativo del docente responsabile.</li>
+     * <li><b>Giorno:</b> Selezionabile da una lista predefinita ({@code GIORNI}).</li>
+     * <li><b>Orario (Inizio/Fine):</b> Intervallo temporale della lezione.</li>
+     * <li><b>Aula:</b> Identificativo dell'aula in cui si terrà la lezione.</li>
+     * </ul>
+     * <p>
+     * Il pulsante "CREA LEZIONE" attiva la logica di business tramite
+     * {@link Controller#creaLezione(String, String, String, String, String)}.
+     * Il metodo esegue automaticamente le validazioni necessarie, inclusi il controllo
+     * sui vincoli del docente e la disponibilità dell'aula. In caso di esito positivo,
+     * la finestra si chiude automaticamente; in caso di errore, viene visualizzato un
+     * feedback all'utente tramite {@link JOptionPane}.
+     *
+     * @param nomeInsegnamento Il nome dell'insegnamento a cui associare la lezione,
+     * utilizzato come riferimento nel titolo della finestra.
+     */
     private void mostraFinestraCreaLezione(String nomeInsegnamento) {
         JDialog finestra = new JDialog();
         finestra.setTitle("Crea lezione — " + nomeInsegnamento);
@@ -251,10 +405,21 @@ public class DashboardResponsabile extends DashboardDocente {
     }
 
 
-    // GESTIONE RICHIESTE SPOSTAMENTO
-    // l'indice nella lista viene usato come identificativo della richiesta, perché
-    // getRegistroRichiesteSpostamento() non restituisce l'id insieme al testo
 
+    /**
+     * Crea e restituisce un pannello dedicato alla gestione delle richieste di
+     * spostamento lezioni inviate dai docenti.
+     * <p>
+     * Il pannello utilizza un layout verticale ({@link BoxLayout}) per presentare
+     * l'elenco delle richieste in sospeso. Il contenuto viene popolato e aggiornato
+     * dinamicamente tramite il metodo {@link #aggiornaListaRichieste(JPanel)}.
+     * <p>
+     * <b>Nota tecnica:</b> L'identificazione delle richieste avviene tramite l'indice
+     * della lista, poiché il metodo {@link Controller#getRegistroRichiesteSpostamento()}
+     * restituisce un elenco testuale privo di identificativi univoci (ID) persistenti.
+     *
+     * @return Un {@link JPanel} configurato come contenitore per le richieste di spostamento.
+     */
     private JPanel pannelloGestisciRichieste() {
         JPanel pannello = new JPanel();
         pannello.setLayout(new BoxLayout(pannello, BoxLayout.Y_AXIS));
@@ -264,6 +429,26 @@ public class DashboardResponsabile extends DashboardDocente {
         return pannello;
     }
 
+
+    /**
+     * Aggiorna il pannello contenitore con l'elenco delle richieste di spostamento
+     * inviate dai docenti.
+     * <p>
+     * Il metodo esegue la sincronizzazione dell'interfaccia con i dati correnti:
+     * <ul>
+     * <li>Svuota il pannello corrente.</li>
+     * <li>Recupera la {@link Map} delle richieste tramite
+     * {@link Controller#getRegistroRichiesteSpostamento()}, dove la chiave
+     * rappresenta l'identificativo (indice) e il valore il testo descrittivo.</li>
+     * <li>Per ogni coppia chiave-valore, invoca {@link #rigaRichiesta(String, int, JPanel)}
+     * per costruire l'elemento grafico corrispondente, aggiungendo una spaziatura
+     * verticale di 8 pixel.</li>
+     * <li>Gestisce eccezioni durante il recupero dei dati, visualizzando un messaggio
+     * di errore nel pannello.</li>
+     * </ul>
+     *
+     * @param pannello Il {@link JPanel} di destinazione che ospita la lista.
+     */
     private void aggiornaListaRichieste(JPanel pannello) {
         pannello.removeAll();
         try {
@@ -280,6 +465,31 @@ public class DashboardResponsabile extends DashboardDocente {
         pannello.repaint();
     }
 
+
+
+    /**
+     * Crea e restituisce un pannello personalizzato che rappresenta una singola
+     * richiesta di spostamento lezione all'interno della lista.
+     * <p>
+     * Il pannello organizza le informazioni della richiesta e fornisce i controlli
+     * necessari per la gestione amministrativa:
+     * <ul>
+     * <li><b>Descrizione:</b> Visualizza il contenuto testuale della richiesta ({@code testoRichiesta}).</li>
+     * <li><b>Azioni:</b> Include i pulsanti "APPROVA" e "RIFIUTA".</li>
+     * </ul>
+     * <p>
+     * Ogni pulsante invoca il rispettivo metodo del {@link Controller} utilizzando
+     * l'{@code indice} come identificatore univoco della richiesta. In seguito all'azione,
+     * il pannello {@code listaCompleta} viene aggiornato automaticamente per riflettere
+     * la rimozione o la modifica della richiesta.
+     *
+     * @param testoRichiesta La descrizione testuale della richiesta di spostamento.
+     * @param indice L'identificativo numerico (chiave) associato alla richiesta.
+     * @param listaCompleta  Il {@link JPanel} contenitore padre, passato per permettere
+     * il refresh dell'interfaccia dopo l'approvazione o il rifiuto.
+     * @return Un {@link JPanel} configurato con il testo della richiesta e i relativi
+     * pulsanti di controllo.
+     */
     private JPanel rigaRichiesta(String testoRichiesta, int indice, JPanel listaCompleta) {
         JPanel riga = new JPanel(new BorderLayout(10, 0));
         riga.setBackground(Color.WHITE);
